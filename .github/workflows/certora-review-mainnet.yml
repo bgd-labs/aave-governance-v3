@@ -1,0 +1,55 @@
+# Github action for verifying the contracts under src/contracts/voting
+name: certora-review-mainnet
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install python
+        uses: actions/setup-python@v2
+        with: { python-version: 3.9 }
+
+      - name: Install java
+        uses: actions/setup-java@v1
+        with: { java-version: "11", java-package: jre }
+
+      - name: Install certora cli
+        run: pip3 install certora-cli
+
+      - name: Install solc
+        run: |
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
+          chmod +x solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc8.19
+
+      - name: Verify rule ${{ matrix.rule }}
+        run: |
+          certoraRun certora/confs/voting/${{ matrix.rule }}
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        rule:
+          - verifyVotingStrategy_unittests.conf
+          - verifyGovernancePowerStrategy.conf
+          - verifyGovernance.conf --rule cancellationFeeZeroForFutureProposals null_state_variable_iff_null_access_level zero_voting_portal_iff_uninitialized_proposal no_self_representative no_representative_is_zero envfreeFuncsStaticCheck consecutiveIDs totalCancellationFeeEqualETHBalance zero_address_is_not_a_valid_voting_portal no_representative_is_zero_2 no_representative_of_zero empty_payloads_if_uninitialized_proposal null_state_variable_only_if_uninitialized_proposal post_state state_changing_function_self_check state_variable_changing_function_self_check initialize_sanity sanity userFeeDidntChangeImplyNativeBalanceDidntDecrease check_new_representative_set_size_after_updateRepresentatives check_old_representative_set_size_after_updateRepresentatives set_size_leq_max_uint160 at_least_single_payload_active at_least_single_payload_active_variable creator_is_not_zero creator_is_not_zero_2 empty_payloads_iff_uninitialized_proposal null_state_iff_uninitialized_proposal null_state_variable_iff_uninitialized_proposal null_state_if_uninitialized_proposal null_state_variable_if_uninitialized_proposal null_state_only_if_uninitialized_proposal pre_state terminal_state_cannot_change state_changing_function_cannot_be_called_while_in_terminal_state proposal_executes_after_cooldown_period only_valid_voting_portal_can_queue_proposal immutable_after_activation immutable_payload_after_creation immutable_after_creation only_guardian_can_cancel guardian_can_cancel cannot_queue_when_voting_portal_unapproved only_owner_can_set_voting_config_witness only_owner_can_set_voting_config single_state_transition_per_block_non_creator_witness single_state_transition_per_block_non_creator_non_guardian state_cant_decrease no_state_transitions_beyond_3 immutable_voting_portal insufficient_proposition_power_time_elapsed_tight_witness insufficient_proposition_power_allow_time_elapse insufficient_proposition_power proposal_after_voting_portal_invalidate
+        
