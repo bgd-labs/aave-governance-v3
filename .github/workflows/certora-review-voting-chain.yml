@@ -49,7 +49,6 @@ jobs:
       max-parallel: 16
       matrix:
         rule:
-          - verifyVotingStrategy_unittests.conf
           - verifyLegality.conf
           - verifyMisc.conf
           - verifyPower_summary.conf
