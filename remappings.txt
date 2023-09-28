@@ -1,0 +1,8 @@
+solidity-utils/=lib/solidity-utils/src/
+aave-token-v3/=lib/aave-token-v3/src/
+aave-address-book/=lib/aave-address-book/src/
+aave-delivery-infrastructure/=lib/aave-delivery-infrastructure/src/
+aave-delivery-infrastructure-scripts/=lib/aave-delivery-infrastructure/scripts/
+ds-test/=lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/
+openzeppelin-contracts/=lib/openzeppelin-contracts/

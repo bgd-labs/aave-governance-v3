@@ -1,0 +1,160 @@
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity ^0.8.0;
+
+import './GovBaseScript.sol';
+
+abstract contract BaseInitialDeployment is GovBaseScript {
+  function OWNER() public virtual returns (address) {
+    return address(msg.sender); // as first owner we set deployer, this way its easier to configure
+  }
+
+  function GUARDIAN() public virtual returns (address) {
+    return address(msg.sender);
+  }
+
+  function CREATE3_FACTORY() public view virtual returns (address) {
+    DeployerHelpers.Addresses memory ccAddresses = _getCCAddresses(
+      TRANSACTION_NETWORK()
+    );
+    return ccAddresses.create3Factory;
+  }
+
+  function _execute(
+    GovDeployerHelpers.Addresses memory addresses
+  ) internal override {
+    addresses.create3Factory = CREATE3_FACTORY() == address(0)
+      ? address(new Create3Factory{salt: Constants.CREATE3_FACTORY_SALT}())
+      : CREATE3_FACTORY();
+    addresses.chainId = TRANSACTION_NETWORK();
+    addresses.owner = OWNER();
+    addresses.guardian = GUARDIAN();
+  }
+}
+
+contract Ethereum is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0xCA76Ebd8617a03126B6FB84F9b1c1A0fB71C2633;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Polygon is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0x1450F2898D6bA2710C98BE9CAF3041330eD5ae58;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.POLYGON;
+  }
+}
+
+contract Avalanche is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0xa35b76E4935449E33C56aB24b23fcd3246f13470;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.AVALANCHE;
+  }
+}
+
+contract Optimism is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0xE50c8C619d05ff98b22Adf991F17602C774F785c;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.OPTIMISM;
+  }
+}
+
+contract Arbitrum is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0xbbd9f90699c1FA0D7A65870D241DD1f1217c96Eb;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ARBITRUM;
+  }
+}
+
+contract Metis is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0xF6Db48C5968A9eBCB935786435530f28e32Cc501;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.METIS;
+  }
+}
+
+contract Binance is BaseInitialDeployment {
+  //  function GUARDIAN() public pure override returns (address) {
+  //    return ; // TODO: generate guardian
+  //  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.BNB;
+  }
+}
+
+contract Base is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0x9e10C0A1Eb8FF6a0AaA53a62C7a338f35D7D9a2A;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.BASE;
+  }
+}
+
+contract Ethereum_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ETHEREUM_SEPOLIA;
+  }
+}
+
+contract Polygon_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.POLYGON_MUMBAI;
+  }
+}
+
+contract Avalanche_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.AVALANCHE_FUJI;
+  }
+}
+
+contract Arbitrum_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ARBITRUM_GOERLI;
+  }
+}
+
+contract Optimism_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.OPTIMISM_GOERLI;
+  }
+}
+
+contract Metis_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.METIS_TESTNET;
+  }
+}
+
+contract Binance_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.BNB_TESTNET;
+  }
+}
+
+contract Base_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.BASE_GOERLI;
+  }
+}

@@ -1,0 +1,56 @@
+[profile.default]
+src = 'src'
+test = 'tests'
+out = 'out'
+libs = ['lib']
+script = 'scripts'
+remappings = []
+solc='0.8.19'
+
+fs_permissions = [{ access = "read-write", path = "./"}]
+
+# Whether or not to enable `vm.ffi`
+ffi = true
+
+#https://github.com/foundry-rs/foundry/issues/4060
+
+
+[rpc_endpoints]
+ethereum="${RPC_MAINNET}"
+ethereum-testnet="${RPC_MAINNET_TESTNET}"
+polygon="${RPC_POLYGON}"
+polygon-testnet="${RPC_POLYGON_TESTNET}"
+arbitrum="${RPC_ARBITRUM}"
+arbitrum-testnet="${RPC_ARBITRUM_TESTNET}"
+metis="${RPC_METIS}"
+metis-testnet="${RPC_METIS_TESTNET}"
+avalanche="${RPC_AVALANCHE}"
+avalanche-testnet="${RPC_AVALANCHE_TESTNET}"
+optimism="${RPC_OPTIMISM}"
+optimism-testnet="${RPC_OPTIMISM_TESTNET}"
+binance="${RPC_BINANCE}"
+binance-testnet="${RPC_BINANCE_TESTNET}"
+base="${RPC_BASE}"
+base-testnet="${RPC_BASE_TESTNET}"
+
+[etherscan]
+ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
+ethereum-testnet={key="${ETHERSCAN_API_KEY_MAINNET}",chain=11155111}
+optimism={key="${ETHERSCAN_API_KEY_OPTIMISM}",chain=10}
+optimism-testnet={key="${ETHERSCAN_API_KEY_OPTIMISM}",chain=420}
+avalanche={key="${ETHERSCAN_API_KEY_AVALANCHE}",chain=43114}
+avalanche-testnet={key="${ETHERSCAN_API_KEY_AVALANCHE}",chain=43113}
+polygon={key="${ETHERSCAN_API_KEY_POLYGON}",chain=137}
+polygon-testnet={key="${ETHERSCAN_API_KEY_POLYGON}",chain=80001}
+arbitrum={key="${ETHERSCAN_API_KEY_ARBITRUM}",chain=42161}
+arbitrum-testnet={key="${ETHERSCAN_API_KEY_ARBITRUM}",chain=421613}
+metis={ key="any", chain=1088, url='https://andromeda-explorer.metis.io/' }
+metis-testnet={ key="any", chain=599, url='https://goerli.explorer.metisdevops.link/' }
+binance={key="${ETHERSCAN_API_KEY_BINANCE}",chain=56}
+binance-testnet={key="${ETHERSCAN_API_KEY_BINANCE}",chain=97}
+base={key="${ETHERSCAN_API_KEY_BASE}",chain=8453}
+base-testnet={key="${ETHERSCAN_API_KEY_BASE}",chain=84531}
+
+
+
+# See more config options https://github.com/gakonst/foundry/tree/master/config

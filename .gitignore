@@ -1,0 +1,8 @@
+cache/
+out/
+.idea
+node_modules
+.env
+broadcast/
+.DS_Store
+/input.json
