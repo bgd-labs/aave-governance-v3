@@ -1,0 +1,57 @@
+# Github action for verifying the contracts under src/contracts/voting
+name: certora-review-voting-chain
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install python
+        uses: actions/setup-python@v2
+        with: { python-version: 3.9 }
+
+      - name: Install java
+        uses: actions/setup-java@v1
+        with: { java-version: "11", java-package: jre }
+
+      - name: Install certora cli
+        run: pip3 install certora-cli
+
+      - name: Install solc
+        run: |
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
+          chmod +x solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc8.19
+
+      - name: Verify rule ${{ matrix.rule }}
+        run: |
+          certoraRun certora/confs/voting/${{ matrix.rule }}
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        rule:
+          - verifyLegality.conf
+          - verifyMisc.conf
+          - verifyPower_summary.conf
+          - verifyProposal_config.conf
+          - verifyProposal_states.conf
+          - verifyVoting_and_tally.conf

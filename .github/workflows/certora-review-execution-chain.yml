@@ -1,0 +1,66 @@
+name: certora-review-execution-chain
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install python
+        uses: actions/setup-python@v2
+        with: { python-version: 3.9 }
+
+      - name: Install java
+        uses: actions/setup-java@v1
+        with: { java-version: "11", java-package: jre }
+
+      - name: Install certora cli
+        run: pip3 install certora-cli
+
+      - name: Install solc
+        run: |
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
+          chmod +x solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc8.19
+
+      - name: Verify rule ${{ matrix.rule }}
+        run: |
+          certoraRun certora/confs/payloads/${{ matrix.rule }}
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        rule:
+          - verifyPayloadsController.conf --rule payload_maximal_access_level_gt_action_access_level no_late_cancel state_cant_decrease no_transition_beyond_state_gt_3 no_transition_beyond_state_variable_gt_3 no_queue_after_expiration decode2encode_sanity_check_message_leq_96_pass decode2encode_sanity_check_message_eq_96_satisfy empty_actions_if_out_of_bound_payload expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY empty_actions_iff_uninitialized null_access_level_if_out_of_bound_payload null_creator_and_zero_expiration_time_if_out_of_bound_payload empty_actions_only_if_uninitialized_payload executor_access_level_within_range consecutiveIDs empty_actions_if_uninitialized_payload queued_before_expiration_delay payload_grace_period_eq_global_grace_period null_access_level_only_if_out_of_bound_payload null_state_variable_if_out_of_bound_payload created_in_the_past executedAt_is_zero_before_executed queued_after_created executed_after_queue queuedAt_is_zero_before_queued no_early_cancellation guardian_can_cancel executed_when_in_queued_state execute_before_delay__maximumAccessLevelRequired action_immutable_fixed_size_fields initialized_payload_fields_are_immutable payload_fields_immutable_after_createPayload
+          - verifyPayloadsController.conf --rule executor_exists
+          - verifyPayloadsController.conf --rule executor_exists_if_action_not_null
+          - verifyPayloadsController.conf --rule executor_exists_only_if_action_not_null
+          - verifyPayloadsController.conf --rule payload_delay_within_range
+          - verifyPayloadsController.conf --rule delay_of_executor_of_max_access_level_within_range
+          - verifyPayloadsController.conf --rule nonempty_actions
+          - verifyPayloadsController.conf --rule executor_exists_iff_action_not_null
+          - verifyPayloadsController.conf --rule null_access_level_iff_state_is_none
+          - verifyPayloadsController.conf --rule executor_of_maximumAccessLevelRequired_exists
+          - verifyPayloadsController.conf --rule executor_of_maximumAccessLevelRequired_exists_after_createPayload
+          - verifyPayloadsController.conf --rule action_access_level_isnt_null_after_createPayload
+          - verifyPayloadsController.conf --rule executor_exists_after_createPayload
+          - verifyPayloadsController.conf --rule action_callData_immutable
+          - verifyPayloadsController.conf --rule action_signature_immutable
+          - verifyPayloadsController.conf --rule action_immutable_check_only_fixed_size_fields
+        

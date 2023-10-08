@@ -1,0 +1,83 @@
+GovernancePowerStrategy.spec
+============================
+
+Questions:
+---------
+1. In eachDummyIsUniqueToken(), why do we need all permutations ?
+2. In the getVotingAssetConfig(address asset) if the caller supply a non existing asset,
+   he get some junk in the return value. Should it revert in that case ?
+
+
+Mutations:
+---------
+1.  UNDETECTED
+Changed file: BaseVotingStrategy.sol ==> BaseVotingStrategy-1.sol
+The change: BaseVotingStrategy.sol:76:
+   orig:
+   "votingAssets[0] = AAVE();"
+   mutant:
+   "votingAssets[0] = A_AAVE(); //AAVE();"
+
+Suggestion for rules that can catch it:
+- invariant that all entries of the array returned by getVotingAssetList() are different
+- For every voting token T, and every user U that does not delegate, if the balance of U in T is increased then the power of U increased.
+
+
+2. UNDETECTED
+Changed file: BaseVotingStrategy.sol ==> BaseVotingStrategy-2.sol
+The change: BaseVotingStrategy.sol:109:
+   orig:
+      "for (uint256 i = 0; i < votingAssetConfig.storageSlots.length; i++) {"
+   mutant:
+      "for (uint256 i = 0; i < votingAssetConfig.storageSlots.length-1; i++) {"
+
+Suggestion for rule that can catch it:
+- We have the rule: invalidTokenRefused(...). We can add its analogue validTokenAccepted(...).
+
+
+3. DETECTED
+Changed file: GovernancePowerStrategy.sol ==> GovernancePowerStrategy-3.sol
+The change: GovernancePowerStrategy.sol::25:
+   orig:
+        "IGovernancePowerDelegationToken.GovernancePowerType.VOTING"
+   mutant:
+        "IGovernancePowerDelegationToken.GovernancePowerType.PROPOSITION"
+
+Found by: powerlessCompliance
+
+
+4. UNDETECTED
+Changed file: GovernancePowerStrategy.sol ==> GovernancePowerStrategy-4.sol
+The change: GovernancePowerStrategy.sol::53:
+    orig:
+    "for (uint256 i = 0; i < votingAssetList.length; i++) {"
+    mutant:
+    "for (uint256 i = 0; i < votingAssetList.length-1; i++) {"
+
+Suggestion for rule that can catch it:
+- Like the recommendation in #1:
+  For every voting token T, and every user U that does not delegate, if the balance of U in T is increased then the power of U increased.
+  
+
+5. UNDETECTED
+Changed file: GovernancePowerStrategy.sol ==> GovernancePowerStrategy-5.sol
+The change: GovernancePowerStrategy.sol::53:
+    orig:
+      fullGovernancePower += IGovernancePowerDelegationToken(votingAssetList[i])
+    mutant:
+      fullGovernancePower += IGovernancePowerDelegationToken(votingAssetList[0])
+
+Suggestion for rule that can catch it:
+- Same as in #4.
+
+
+6. DETECTED by invalidTokenRefused
+Changed file: BaseVotingStrategy.sol ==> BaseVotingStrategy-6.sol
+The Change: BaseVotingStrategy.sol::94:
+    orig:
+    votingAssetConfig.storageSlots[0] = A_AAVE_BASE_BALANCE_SLOT;
+    mutant:
+    votingAssetConfig.storageSlots[0] = BASE_BALANCE_SLOT;
+
+
+
