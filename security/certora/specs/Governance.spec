@@ -301,9 +301,8 @@ rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> 
   mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e4,getProposalCreator(proposalId));
   mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
-  require state1 != state2; 
-  require creator_power <= voting_config_min_power;
-  assert state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed || state2 == IGovernanceCore.State.Expired;
+  assert (state1 != state2 && (creator_power <= voting_config_min_power)) => 
+  state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed || state2 == IGovernanceCore.State.Expired;
 
 }
 
@@ -444,10 +443,11 @@ filtered { f -> state_changing_function(f),
   h(e5, args3);
   IGovernanceCore.State state3 = getProposalState(e6, proposalId);
 
-  require  getProposalCreator(proposalId) != e5.msg.sender; // creator can cancel
-  require guardian() != e5.msg.sender;
-  require owner() != e3.msg.sender; //owner can call setVotingConfigs, removeVotingPortals. TODO: add the assumption to the final report 
-  assert COOLDOWN_PERIOD() != 0 && state1 != state2 => state2 == state3;
+  assert getProposalCreator(proposalId) != e5.msg.sender && // creator can cancel
+          guardian() != e5.msg.sender &&
+          owner() != e3.msg.sender && //owner can call setVotingConfigs, removeVotingPortals. TODO: add the assumption to the final report 
+          COOLDOWN_PERIOD() != 0 &&
+          state1 != state2 => state2 == state3;
 }
 
 
@@ -468,7 +468,7 @@ rule single_state_transition_per_block_non_creator_witness
   require e2.block.timestamp == e3.block.timestamp;
   require e3.block.timestamp == e4.block.timestamp;
   require e4.block.timestamp == e5.block.timestamp;
-  require e4.block.timestamp < 2^40;
+  require e5.block.timestamp < 2^40;
   requireInvariant null_state_iff_uninitialized_proposal(e2, proposalId);
   IGovernanceCore.State state1 = getProposalState(e1, proposalId);
   queueProposal(e2, args1);
@@ -503,12 +503,11 @@ rule only_owner_can_set_voting_config(method f) filtered {
   f(e, args);
   IGovernanceCore.VotingConfig voting_config_after = getVotingConfig(accessLevel);
 
-  require e.msg.sender != owner();
-  assert voting_config_before.coolDownBeforeVotingStart ==  voting_config_after.coolDownBeforeVotingStart;
-  assert voting_config_before.votingDuration ==  voting_config_after.votingDuration;
-  assert voting_config_before.yesThreshold ==  voting_config_after.yesThreshold;
-  assert voting_config_before.yesNoDifferential ==  voting_config_after.yesNoDifferential;
-  assert voting_config_before.minPropositionPower ==  voting_config_after.minPropositionPower;
+  assert e.msg.sender != owner() => voting_config_before.coolDownBeforeVotingStart ==  voting_config_after.coolDownBeforeVotingStart;
+  assert e.msg.sender != owner() => voting_config_before.votingDuration ==  voting_config_after.votingDuration;
+  assert e.msg.sender != owner() => voting_config_before.yesThreshold ==  voting_config_after.yesThreshold;
+  assert e.msg.sender != owner() => voting_config_before.yesNoDifferential ==  voting_config_after.yesNoDifferential;
+  assert e.msg.sender != owner() => voting_config_before.minPropositionPower ==  voting_config_after.minPropositionPower;
 
 }
 //todo add witness - owner changes voting config
@@ -1087,5 +1086,4 @@ invariant in_representatives_iff_in_votersRepresented(address voter, address rep
         requireInvariant addressSetInvariant(representative, chainId);
       }
     }
-
 
