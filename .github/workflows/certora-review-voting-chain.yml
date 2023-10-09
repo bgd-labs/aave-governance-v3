@@ -40,7 +40,7 @@ jobs:
 
       - name: Verify rule ${{ matrix.rule }}
         run: |
-          certoraRun certora/confs/voting/${{ matrix.rule }}
+          certoraRun security/certora/confs/voting/${{ matrix.rule }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
 

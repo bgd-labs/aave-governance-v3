@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {VotingMachineHarness} from './VotingMachineHarness.sol';
-import {IDataWarehouse, IVotingStrategy} from '../../../src/contracts/voting/interfaces/IVotingMachineWithProofs.sol';
+import {IDataWarehouse, IVotingStrategy} from '../../../../src/contracts/voting/interfaces/IVotingMachineWithProofs.sol';
 
 
 /**

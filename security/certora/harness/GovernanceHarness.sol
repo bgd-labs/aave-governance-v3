@@ -1,9 +1,9 @@
 
 pragma solidity ^0.8.8;
 
-import {Governance} from '../../src/contracts/Governance.sol';
-import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
-import {IGovernanceCore, EnumerableSet} from '../../src/interfaces/IGovernanceCore.sol';
+import {Governance} from '../../../src/contracts/Governance.sol';
+import {PayloadsControllerUtils} from '../../../src/contracts/payloads/PayloadsControllerUtils.sol';
+import {IGovernanceCore, EnumerableSet} from '../../../src/interfaces/IGovernanceCore.sol';
 
 
 contract GovernanceHarness is Governance {

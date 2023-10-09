@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {VotingMachine} from '../../../src/contracts/voting/VotingMachine.sol';
-import {IDataWarehouse, IVotingStrategy} from '../../../src/contracts/voting/interfaces/IVotingMachineWithProofs.sol';
+import {VotingMachine} from '../../../../src/contracts/voting/VotingMachine.sol';
+import {IDataWarehouse, IVotingStrategy} from '../../../../src/contracts/voting/interfaces/IVotingMachineWithProofs.sol';
 
 
 /**
