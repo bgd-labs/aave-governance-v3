@@ -1,0 +1,71 @@
+voting_and_tally.spec
+=====================
+
+Questions/Comments:
+------------------
+1. In most of the confs we have loop_iter==1. Is it correct ?
+2. When running the tests:
+   - power_summary.conf has several failures (including sanity fails)
+   - misc.conf has several failures and timeouts
+   - proposal_states.conf has one sanity failure.
+3. I checked the mutants against:
+   - legality.conf
+   - proposal_config.conf
+   - proposal_states.conf
+   - voting_and_tally.conf
+
+
+Mutations:
+---------
+1.  UNDETECTED
+Changed file: VotingMachineWithProofs.sol ==> VotingMachineWithProofs-1.sol
+The change: VotingMachineWithProofs.sol:88:
+   orig:
+    return _bridgedVotes[voter][proposalId];
+   mutant:
+    return _bridgedVotes[voter][proposalId+1];
+
+Suggestion for rules that can catch it:
+
+
+2. DETECTED (by sanity rule)
+Changed file: VotingMachineWithProofs.sol ==> VotingMachineWithProofs-2.sol
+The change: VotingMachineWithProofs.sol:197:
+    orig:
+          assetFound = true;
+   mutant:
+          assetFound = false;
+
+Suggestion for rules that can catch it:
+
+3. DETECTED
+Changed file: VotingMachineWithProofs.sol ==> VotingMachineWithProofs-3.sol
+The change: VotingMachineWithProofs.sol::222
+   orig:
+      return _proposals[proposalId].votes[user];
+   mutant:
+      return _proposals[proposalId+1].votes[user];
+
+Suggestion for rules that can catch it:
+
+
+4. DETECTED
+Changed file: VotingMachineWithProofs.sol ==> VotingMachineWithProofs-4.sol
+The change: VotingMachineWithProofs.sol::250
+    orig:
+        Proposal storage proposal = _proposals[proposalId];
+   mutant:
+       Proposal storage proposal = _proposals[0];
+
+Suggestion for rules that can catch it:
+
+5. UNDETECTED
+Changed file: VotingMachineWithProofs.sol ==> VotingMachineWithProofs-5.sol
+The change: VotingMachineWithProofs.sol::288
+    orig:
+      proposalListLength - skip - i - 1
+   mutant:
+      proposalListLength - skip - i 
+
+Suggestion for rules that can catch it:
+
