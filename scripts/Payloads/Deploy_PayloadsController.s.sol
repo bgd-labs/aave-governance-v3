@@ -117,12 +117,12 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
         Constants.PAYLOADS_CONTROLLER_SALT
       );
 
-    if (addresses.chainId != ChainIds.ETHEREUM) {
-      for (uint256 i = 0; i < executors.length; i++) {
-        Ownable(address(executors[i].executorConfig.executor))
-          .transferOwnership(addresses.payloadsController);
-      }
-    }
+//    if (addresses.chainId != ChainIds.ETHEREUM) {
+//      for (uint256 i = 0; i < executors.length; i++) {
+//        Ownable(address(executors[i].executorConfig.executor))
+//          .transferOwnership(addresses.payloadsController);
+//      }
+//    }
   }
 }
 
@@ -212,6 +212,16 @@ contract Binance is BaseDeployPayloadsController {
 contract Base is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.BASE;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Gnosis is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.GNOSIS;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
