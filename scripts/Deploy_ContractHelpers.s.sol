@@ -82,6 +82,12 @@ contract Base is BaseContractHelpers {
   }
 }
 
+contract Gnosis is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.GNOSIS;
+  }
+}
+
 contract Ethereum_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
