@@ -88,6 +88,12 @@ contract Gnosis is BaseContractHelpers {
   }
 }
 
+contract Zkevm is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.POLYGON_ZK_EVM;
+  }
+}
+
 contract Ethereum_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
