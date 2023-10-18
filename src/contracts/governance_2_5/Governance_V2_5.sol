@@ -29,7 +29,7 @@ contract Governance_V2_5 is IGovernance_V2_5, Initializable {
   error CallerNotShortExecutor();
 
   /// @inheritdoc IGovernance_V2_5
-  function initialize() external {}
+  function initialize() external reinitializer(2) {}
 
   /// @inheritdoc IGovernance_V2_5
   function forwardPayloadForExecution(
@@ -39,7 +39,7 @@ contract Governance_V2_5 is IGovernance_V2_5, Initializable {
       revert CallerNotShortExecutor();
 
     require(
-      payload.accessLevel > PayloadsControllerUtils.AccessControl.Level_null,
+      payload.accessLevel == PayloadsControllerUtils.AccessControl.Level_1,
       Errors.G_INVALID_PAYLOAD_ACCESS_LEVEL
     );
     require(

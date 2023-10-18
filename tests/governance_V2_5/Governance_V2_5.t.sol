@@ -70,13 +70,28 @@ contract Governance_V2_5_Test is Test {
       .forwardPayloadForExecution(payload);
   }
 
-  function test_forwardPayloadForExecution_wrongAccessLevel() public {
+  function test_forwardPayloadForExecution_wrongAccessLevelNull() public {
     PayloadsControllerUtils.Payload memory payload = PayloadsControllerUtils
       .Payload({
         payloadId: uint40(1),
         chain: ChainIds.ETHEREUM,
         payloadsController: address(GovernanceV3Ethereum.PAYLOADS_CONTROLLER),
         accessLevel: PayloadsControllerUtils.AccessControl.Level_null
+      });
+
+    hoax(AaveGovernanceV2.SHORT_EXECUTOR);
+    vm.expectRevert(bytes(Errors.G_INVALID_PAYLOAD_ACCESS_LEVEL));
+    IGovernance_V2_5(address(GovernanceV3Ethereum.GOVERNANCE))
+      .forwardPayloadForExecution(payload);
+  }
+
+  function test_forwardPayloadForExecution_wrongAccessLevel2() public {
+    PayloadsControllerUtils.Payload memory payload = PayloadsControllerUtils
+      .Payload({
+        payloadId: uint40(1),
+        chain: ChainIds.ETHEREUM,
+        payloadsController: address(GovernanceV3Ethereum.PAYLOADS_CONTROLLER),
+        accessLevel: PayloadsControllerUtils.AccessControl.Level_2
       });
 
     hoax(AaveGovernanceV2.SHORT_EXECUTOR);
