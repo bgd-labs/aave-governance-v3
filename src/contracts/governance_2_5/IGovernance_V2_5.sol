@@ -23,6 +23,13 @@ interface IGovernance_V2_5 {
   function NAME() external view returns (string memory);
 
   /**
+   * @notice method to get the gas limit used on destination chain to execute bridged message
+   * @return gas limit
+   * @dev this gas limit is assuming that the messages to forward are only payload execution messages
+   */
+  function GAS_LIMIT() external view returns (uint256);
+
+  /**
    * @notice method to send a payload to execution chain
    * @param payload object with the information needed for execution
    */
@@ -32,20 +39,6 @@ interface IGovernance_V2_5 {
 
   /**
    * @notice method to initialize governance v2.5
-   * @param owner address of the new owner of governance
    */
-  function initialize(address owner) external;
-
-  /**
-   * @notice method to update the gasLimit
-   * @param gasLimit the new gas limit
-   * @dev this method should have a owner gated permission. But responsibility is relegated to inheritance
-   */
-  function updateGasLimit(uint256 gasLimit) external;
-
-  /**
-   * @notice method to get the gasLimit
-   * @return gasLimit the new gas limit
-   */
-  function getGasLimit() external view returns (uint256);
+  function initialize() external;
 }
