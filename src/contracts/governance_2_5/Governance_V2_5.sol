@@ -6,6 +6,7 @@ import {IGovernance_V2_5, PayloadsControllerUtils} from './IGovernance_V2_5.sol'
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {AaveGovernanceV2} from 'aave-address-book/AaveGovernanceV2.sol';
 import {GovernanceV3Ethereum} from 'aave-address-book/GovernanceV3Ethereum.sol';
+import {Errors} from '../libraries/Errors.sol';
 
 /**
  * @title Governance V2.5
@@ -36,6 +37,16 @@ contract Governance_V2_5 is IGovernance_V2_5, Initializable {
   ) external {
     if (msg.sender != AaveGovernanceV2.SHORT_EXECUTOR)
       revert CallerNotShortExecutor();
+
+    require(
+      payload.accessLevel > PayloadsControllerUtils.AccessControl.Level_null,
+      Errors.G_INVALID_PAYLOAD_ACCESS_LEVEL
+    );
+    require(
+      payload.payloadsController != address(0),
+      Errors.G_INVALID_PAYLOADS_CONTROLLER
+    );
+    require(payload.chain > 0, Errors.G_INVALID_PAYLOAD_CHAIN);
 
     ICrossChainForwarder(CROSS_CHAIN_CONTROLLER).forwardMessage(
       payload.chain,
