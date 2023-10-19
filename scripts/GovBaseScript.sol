@@ -62,6 +62,8 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/bnb.json';
     } else if (chainId == ChainIds.BASE) {
       return './deployments/gov/mainnet/base.json';
+    } else if (chainId == ChainIds.GNOSIS) {
+      return './deployments/gov/mainnet/gnosis.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
@@ -81,6 +83,8 @@ library GovDeployerHelpers {
       return './deployments/gov/testnet/bnb_test.json';
     } else if (chainId == TestNetChainIds.BASE_GOERLI) {
       return './deployments/gov/testnet/base_go.json';
+    } else if (chainId == TestNetChainIds.GNOSIS_CHIADO) {
+      return './deployments/gov/testnet/gnosis_chiado.json';
     } else {
       revert('chain id is not supported');
     }

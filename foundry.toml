@@ -32,6 +32,8 @@ binance="${RPC_BINANCE}"
 binance-testnet="${RPC_BINANCE_TESTNET}"
 base="${RPC_BASE}"
 base-testnet="${RPC_BASE_TESTNET}"
+gnosis="${RPC_GNOSIS}"
+gnosis-testnet="${RPC_GNOSIS_TESTNET}"
 
 [etherscan]
 ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
@@ -50,6 +52,8 @@ binance={key="${ETHERSCAN_API_KEY_BINANCE}",chain=56}
 binance-testnet={key="${ETHERSCAN_API_KEY_BINANCE}",chain=97}
 base={key="${ETHERSCAN_API_KEY_BASE}",chain=8453}
 base-testnet={key="${ETHERSCAN_API_KEY_BASE}",chain=84531}
+gnosis={key="${ETHERSCAN_API_KEY_GNOSIS}",chain=100}
+gnosis-testnet={key="${ETHERSCAN_API_KEY_GNOSIS}",chain=10200, url='https://gnosis-chiado.blockscout.com/'}
 
 
 
