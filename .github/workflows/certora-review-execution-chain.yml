@@ -38,7 +38,7 @@ jobs:
 
       - name: Verify rule ${{ matrix.rule }}
         run: |
-          certoraRun security/certora/confs/payloads/${{ matrix.rule }}
+          certoraRun --disable_auto_cache_key_gen security/certora/confs/payloads/${{ matrix.rule }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
 
