@@ -306,6 +306,7 @@ rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> 
 
 }
 
+
 rule insufficient_proposition_power_time_elapsed_tight_witness(method f) filtered { f -> state_advancing_function(f)}{
   env e1; env e2; env e3; env e4;
   calldataarg args;
@@ -320,7 +321,7 @@ rule insufficient_proposition_power_time_elapsed_tight_witness(method f) filtere
   mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
   require state1 != state2; 
-  require creator_power <= (voting_config_min_power+1);
+  require creator_power <= (voting_config_min_power);
   satisfy ! (state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed);
 }
 
