@@ -6,48 +6,30 @@ using VotingPortal as _VotingPortal;
 
 methods {
 
+  //
+  // Summarization
+  //
   //call by modifier initializer, allow reachability of _initializeCore
   function _.isContract(address) internal => NONDET;
 
-//  function _.forwardVoteMessage(uint256,address,bool,IVotingMachineWithProofs.VotingAssetWithSlot[]) external => NONDET;
-//todo: investigate why voteViaPortal() is unreachable without summary of forwardVoteMessage or _sendMessage
   function _VotingPortal._sendMessage(address,IVotingPortal.MessageType,uint256,bytes memory) internal => NONDET;
-  // TODO: consider implementing a dummy CrossChainForwarder.sol 
 
-
-  //caller: src/contracts/BaseGovernancePowerStrategy.sol
-  //implemented: lib/aave-token-v3/src/BaseDelegation.sol
-  //GovernancePowerStrategy.getFullPropositionPower() calls IGovernancePowerDelegationToken.getPowerCurrent()
-//  function _.getPowerCurrent(address user, IGovernancePowerDelegationToken.GovernancePowerType ) external => get_fixed_power(user) expect uint256 ALL;
-  //function _.getPowerCurrent(address , IGovernancePowerDelegationToken.GovernancePowerType ) external => NONDET;
-//  function _._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType) internal => get_fixed_power(user) expect uint256 ALL;
-
-
-//function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType) internal returns (uint256)=> get_fixed_power(user) ;
-
-//todo: allow user power to change over time. Should be fixed per, user, type, and block.timestamp
-function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
-                      internal returns (uint256) => get_fixed_user_and_type_power(user, type);
-//function _._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
-//                     internal with (env e) => get_fixed_user_and_type_power(user, type);
-//function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
-//                    internal returns (uint256)=> NONDET ;
+  //todo: allow user power to change over time. Should be fixed per, user, type, and block.timestamp
+  // function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
+  //                     internal returns (uint256) => get_fixed_user_and_type_power(user, type);
+  
+  //allow proposal power to change over time
+  function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
+                      internal returns (uint256) with (env e) => get_fixed_user_and_type_power(e, user, type);
 
   //called by executeProposal()
   function _.forwardMessage(uint256,address,uint256,bytes) external => NONDET;
 
-  //function _GovernancePowerStrategy.getFullPropositionPower(address) external returns (uint256) => CONSTANT;
-//   function _.forwardStartVotingMessage(uint256,bytes32,uint24 ) external => NONDET;
-
-  
-  //todo: replace with a link
-//  function _.getVotingAssetList() external => DISPATCHER(true);  
-
- // function _.isTokenSlotAccepted(address,uint128) external => DISPATCHER(true);  
-
-
   function createProposal(PayloadsControllerUtils.Payload[],address,bytes32) external returns (uint256) ;
 
+  //
+  //envfree
+  //
   //Governance
   function PRECISION_DIVIDER() external returns (uint256) envfree;
   function ACHIEVABLE_VOTING_PARTICIPATION() external returns (uint256) envfree;
@@ -57,22 +39,15 @@ function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePo
   function isVotingPortalApproved(address) external returns (bool) envfree;
   function getVotingConfig(PayloadsControllerUtils.AccessControl) external returns (IGovernanceCore.VotingConfig) envfree;
   function getRepresentativeByChain(address,uint256) external returns (address) envfree;
- function getRepresentedVotersByChain(address,uint256) external returns (address[] memory) envfree;
+  function getRepresentedVotersByChain(address,uint256) external returns (address[] memory) envfree;
   function guardian() external returns (address) envfree;
   function owner() external returns (address) envfree;
-  
-
-  
-  //function removeVotingPortals(address[]) external envfree;
-
   //GovernanceHarness
   function getPayloadLength(uint256 proposalId) external returns (uint256) envfree;
   function getProposalStateVariable(uint256 proposalId) external returns (IGovernanceCore.State) envfree;
-  
   function getProposalCreator(uint256) external returns (address) envfree;
   function getProposalVotingPortal(uint256) external returns (address) envfree;
   function getProposalAccessLevel(uint256) external returns (PayloadsControllerUtils.AccessControl) envfree;
-  
   function getProposalVotingDuration(uint256) external returns (uint24) envfree;
   function getProposalCreationTime(uint256) external returns (uint40) envfree;
   function getProposalIpfsHash(uint256) external returns (bytes32) envfree;
@@ -80,19 +55,11 @@ function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePo
   function getProposalSnapshotBlockHash(uint256) external returns (bytes32) envfree;
   function getProposalCancellationFee(uint256) external returns (uint256) envfree;
   function getProposalCount() external returns (uint256) envfree;
-
-  
   function getPayloadChain(uint256, uint256) external returns (uint256) envfree;
   function getPayloadAccessLevel(uint256,uint256) external returns (PayloadsControllerUtils.AccessControl) envfree;
   function getPayloadPayloadsController(uint256,uint256) external returns (address) envfree;
   function getPayloadPayloadId(uint256,uint256) external returns (uint40) envfree;
   function isRepresentativeOfVoter(address,address,uint256) external returns (bool) envfree;
-
-
-  // GovernancePowerStrategy
-  //todo: investigate why it passes envfreeFuncsStaticCheck
-  //function _GovernancePowerStrategy.getFullPropositionPower(address) external returns (uint256) envfree;
-
 }
 
 ghost mathint totalCancellationFee{
@@ -140,11 +107,15 @@ function getMinPropositionPower(IGovernanceCore.VotingConfig votingConfig) retur
 
 // ghost mapping(address => uint256) user_power;
 // ghost mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256) type_power;
-ghost mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256)) user_type_power;
+//ghost mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256)) user_type_power;
+ghost mapping(uint256 => mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256))) user_type_power;
 
 
-function get_fixed_user_and_type_power(address user, IGovernancePowerDelegationToken.GovernancePowerType type) returns uint256{
-  return user_type_power[user][type];
+// function get_fixed_user_and_type_power(address user, IGovernancePowerDelegationToken.GovernancePowerType type) returns uint256{
+//   return user_type_power[user][type];
+// }
+function get_fixed_user_and_type_power(env e, address user, IGovernancePowerDelegationToken.GovernancePowerType type) returns uint256{
+  return user_type_power[e.block.timestamp][user][type];
 }
 
 
