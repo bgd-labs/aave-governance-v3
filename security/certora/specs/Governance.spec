@@ -12,20 +12,17 @@ methods {
   //call by modifier initializer, allow reachability of _initializeCore
   function _.isContract(address) internal => NONDET;
 
-  function _VotingPortal._sendMessage(address,IVotingPortal.MessageType,uint256,bytes memory) internal => NONDET;
+//  function _VotingPortal._sendMessage(address,IVotingPortal.MessageType,uint256,bytes memory) internal => NONDET;
 
-  //todo: allow user power to change over time. Should be fixed per, user, type, and block.timestamp
-  // function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
-  //                     internal returns (uint256) => get_fixed_user_and_type_power(user, type);
-  
   //allow proposal power to change over time
+  // proposal power is fixed given a user and a timestamp 
   function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
                       internal returns (uint256) with (env e) => get_fixed_user_and_type_power(e, user, type);
 
   //called by executeProposal()
   function _.forwardMessage(uint256,address,uint256,bytes) external => NONDET;
 
-  function createProposal(PayloadsControllerUtils.Payload[],address,bytes32) external returns (uint256) ;
+  //function createProposal(PayloadsControllerUtils.Payload[],address,bytes32) external returns (uint256) ;
 
   //
   //envfree
@@ -105,15 +102,8 @@ function getMinPropositionPower(IGovernanceCore.VotingConfig votingConfig) retur
   return votingConfig.minPropositionPower;
 }
 
-// ghost mapping(address => uint256) user_power;
-// ghost mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256) type_power;
-//ghost mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256)) user_type_power;
 ghost mapping(uint256 => mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256))) user_type_power;
 
-
-// function get_fixed_user_and_type_power(address user, IGovernancePowerDelegationToken.GovernancePowerType type) returns uint256{
-//   return user_type_power[user][type];
-// }
 function get_fixed_user_and_type_power(env e, address user, IGovernancePowerDelegationToken.GovernancePowerType type) returns uint256{
   return user_type_power[e.block.timestamp][user][type];
 }
@@ -240,15 +230,15 @@ rule proposal_after_voting_portal_invalidate{
 
 // In case of insufficient proposition power state can change to  
 rule insufficient_proposition_power(method f) filtered { f -> !f.isView}{
-  env e1; env e2;
+  env e;
   calldataarg args;
   uint256 proposalId;
   
-  IGovernanceCore.State state1 = getProposalState(e1, proposalId);
-  f(e1, args);
-  IGovernanceCore.State state2 = getProposalState(e1, proposalId);
+  IGovernanceCore.State state1 = getProposalState(e, proposalId);
+  f(e, args);
+  IGovernanceCore.State state2 = getProposalState(e, proposalId);
  
-  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
+  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e,getProposalCreator(proposalId));
   mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
   require state1 != state2; 
@@ -260,7 +250,7 @@ rule insufficient_proposition_power(method f) filtered { f -> !f.isView}{
 //pass
 rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> !f.isView}
 {
-  env e1; env e2; env e3; env e4;
+  env e1; env e2; env e3;
   calldataarg args;
   uint256 proposalId;
   
@@ -269,7 +259,7 @@ rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> 
   IGovernanceCore.State state1 = getProposalState(e1, proposalId);
   f(e2, args);
   IGovernanceCore.State state2 = getProposalState(e3, proposalId);
-  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e4,getProposalCreator(proposalId));
+  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
   mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
   assert (state1 != state2 && (creator_power <= voting_config_min_power)) => 
@@ -279,7 +269,7 @@ rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> 
 
 
 rule insufficient_proposition_power_time_elapsed_tight_witness(method f) filtered { f -> state_advancing_function(f)}{
-  env e1; env e2; env e3; env e4;
+  env e1; env e2; env e3;
   calldataarg args;
   uint256 proposalId;
   
@@ -288,7 +278,7 @@ rule insufficient_proposition_power_time_elapsed_tight_witness(method f) filtere
   IGovernanceCore.State state1 = getProposalState(e1, proposalId);
   f(e2, args);
   IGovernanceCore.State state2 = getProposalState(e3, proposalId);
-  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e4,getProposalCreator(proposalId));
+  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
   mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
   require state1 != state2; 
@@ -561,19 +551,19 @@ rule only_guardian_can_cancel(method f)filtered
 
 
   require createProposal(e1, args1) == proposalId;
-  //mathint creator_power_before = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
+  mathint creator_power_before = _GovernancePowerStrategy.getFullPropositionPower(e1,getProposalCreator(proposalId));
 
   f(e2, args2);
 //  IGovernanceCore.State state1 = getProposalState(e1, proposalId);
   
-// mathint creator_power_after = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
+ mathint creator_power_after = _GovernancePowerStrategy.getFullPropositionPower(e3,getProposalCreator(proposalId));
   cancelProposal(e3, proposalId);
 
   assert guardian() == e2.msg.sender ||
          owner() == e2.msg.sender ||   //todo: review
          guardian() == e3.msg.sender || 
-        getProposalCreator(proposalId) == e3.msg.sender 
-        // || creator_power_after < creator_power_before
+        getProposalCreator(proposalId) == e3.msg.sender ||
+        creator_power_after < creator_power_before
         ;
 }
 
