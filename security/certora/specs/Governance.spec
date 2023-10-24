@@ -9,21 +9,21 @@ methods {
   //
   // Summarization
   //
+
   //call by modifier initializer, allow reachability of _initializeCore
   function _.isContract(address) internal => NONDET;
 
-//  function _VotingPortal._sendMessage(address,IVotingPortal.MessageType,uint256,bytes memory) internal => NONDET;
 
-  //allow proposal power to change over time
   // proposal power is fixed given a user and a timestamp 
+  // allow proposal power to change over time
   function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
                       internal returns (uint256) with (env e) => get_fixed_user_and_type_power(e, user, type);
 
-  //called by executeProposal()
+  // called by executeProposal() - sends a payload to execution chain
+  // forwardMessage() is verifed at Delivery Infrastructure::CrossChainForwarder-simpleRules.spec
   function _.forwardMessage(uint256,address,uint256,bytes) external => NONDET;
 
-  //function createProposal(PayloadsControllerUtils.Payload[],address,bytes32) external returns (uint256) ;
-
+  
   //
   //envfree
   //
@@ -59,6 +59,13 @@ methods {
   function isRepresentativeOfVoter(address,address,uint256) external returns (bool) envfree;
 }
 
+ghost mapping(uint256 => mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256))) user_type_power;
+
+function get_fixed_user_and_type_power(env e, address user, IGovernancePowerDelegationToken.GovernancePowerType type) returns uint256{
+  return user_type_power[e.block.timestamp][user][type];
+}
+
+
 ghost mathint totalCancellationFee{
     init_state axiom totalCancellationFee == 0;
 }
@@ -74,7 +81,7 @@ hook Sstore _proposals[KEY uint256 proposalId].cancellationFee uint256 newFee
 }
 
 
-// invariants of AddressSet
+// import invariants of AddressSet
 use invariant set_size_leq_max_uint160;
 
 
@@ -102,11 +109,6 @@ function getMinPropositionPower(IGovernanceCore.VotingConfig votingConfig) retur
   return votingConfig.minPropositionPower;
 }
 
-ghost mapping(uint256 => mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256))) user_type_power;
-
-function get_fixed_user_and_type_power(env e, address user, IGovernancePowerDelegationToken.GovernancePowerType type) returns uint256{
-  return user_type_power[e.block.timestamp][user][type];
-}
 
 
 //
@@ -1048,4 +1050,3 @@ invariant in_representatives_iff_in_votersRepresented(address voter, address rep
         requireInvariant addressSetInvariant(representative, chainId);
       }
     }
-
