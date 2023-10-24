@@ -1,4 +1,4 @@
-import "set.spec";
+import "votersRepresentedAddressSet.spec";
 
 
 using GovernancePowerStrategy as _GovernancePowerStrategy;

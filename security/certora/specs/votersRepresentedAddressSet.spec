@@ -1,13 +1,12 @@
+//
+// Specification for Openzeppelin AddressSet used by GovernanceCore._votersRepresented 
+// 
 
 methods{
     function getRepresentedVotersSize(address,uint256) external returns (uint256) envfree;
  
 }
 
-definition MAX_UINT256() returns uint256 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-definition MAX_UINT256Bytes32() returns bytes32 = to_bytes32(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF); //todo: remove once CERT-1060 is resolved
-
-definition TWO_TO_160() returns uint256 = 0x10000000000000000000000000000000000000000;
 
 
 /**
@@ -88,7 +87,6 @@ definition ARRAY_OUT_OF_BOUND_ZERO() returns bool = forall address rep. forall u
  **/
 ghost mapping(address => mapping(uint256 => mapping(bytes32 => uint256))) mirrorMap{ 
     init_state axiom forall address rep. forall uint256 chain. forall bytes32 a. mirrorMap[rep][chain][a] == 0;
-    axiom forall address rep. forall uint256 chain. forall bytes32 a. mirrorMap[rep][chain][a] >= 0 && mirrorMap[rep][chain][a] <= MAX_UINT256(); //todo: remove once https://certora.atlassian.net/browse/CERT-1060 is resolved
     
 }
 
@@ -97,9 +95,6 @@ ghost mapping(address => mapping(uint256 => mapping(bytes32 => uint256))) mirror
  **/
 ghost mapping(address => mapping(uint256 => mapping(uint256 => bytes32))) mirrorArray{
     init_state axiom forall address rep. forall uint256 chain. forall uint256 i. mirrorArray[rep][chain][i] == to_bytes32(0);
-    axiom forall address rep. forall uint256 chain. forall uint256 a. mirrorArray[rep][chain][a] & MAX_UINT256Bytes32() == mirrorArray[rep][chain][a];
-//    axiom forall uint256 a. to_uint256(mirrorArray[a]) >= 0 && to_uint256(mirrorArray[a]) <= MAX_UINT256(); //todo: remove once CERT-1060 is resolved
-//axiom forall uint256 a. to_mathint(mirrorArray[a]) >= 0 && to_mathint(mirrorArray[a]) <= MAX_UINT256(); //todo: use this axiom when cast bytes32 to mathint is supported
 }
 
 /**
@@ -111,7 +106,7 @@ ghost mapping(address => mapping(uint256 => mapping(uint256 => bytes32))) mirror
  **/
 ghost mapping(address => mapping(uint256 => uint256)) mirrorArrayLen{
     init_state axiom forall address rep. forall uint256 chain. mirrorArrayLen[rep][chain] == 0;
-    axiom forall address rep. forall uint256 chain. to_mathint(mirrorArrayLen[rep][chain]) < TWO_TO_160() - 1; //todo: remove once CERT-1060 is resolved
+    axiom forall address rep. forall uint256 chain. mirrorArrayLen[rep][chain] < max_uint256;
 }
 
 
