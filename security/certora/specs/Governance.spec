@@ -213,15 +213,18 @@ rule proposal_after_voting_portal_invalidate{
 
   require e1.block.timestamp <= e3.block.timestamp;
   
-  IGovernanceCore.State state1 = getProposalState(e1,proposalId);
+  IGovernanceCore.State state_before = getProposalState(e1,proposalId);
+//  bool voting_portal_approved_before = isVotingPortalApproved(getProposalVotingPortal(proposalId));
   f(e2, args);
-  require !isVotingPortalApproved(getProposalVotingPortal(proposalId));
-  IGovernanceCore.State state2 = getProposalState(e3, proposalId);
+  bool voting_portal_approved_after = isVotingPortalApproved(getProposalVotingPortal(proposalId));
+  IGovernanceCore.State state_after = getProposalState(e3, proposalId);
 
-  assert state1 != state2 =>
-    state2 == IGovernanceCore.State.Executed || 
-    state2 == IGovernanceCore.State.Cancelled ||
-    state2 == IGovernanceCore.State.Expired || state2 == IGovernanceCore.State.Failed;
+  // Checking if the a voting portal gets invalidated, do not care about voting portal status before the state transition  
+  assert !voting_portal_approved_after => 
+    (state_before != state_after =>
+    (state_after == IGovernanceCore.State.Executed || 
+    state_after == IGovernanceCore.State.Cancelled ||
+    state_after == IGovernanceCore.State.Expired || state_after == IGovernanceCore.State.Failed));
 
 }
 
@@ -549,10 +552,7 @@ rule only_guardian_can_cancel(method f)filtered
   
 //  require e1.block.timestamp <= e2.block.timestamp;
 
-  uint256 proposalId;
-
-
-  require createProposal(e1, args1) == proposalId;
+  uint256 proposalId = createProposal(e1, args1);
   mathint creator_power_before = _GovernancePowerStrategy.getFullPropositionPower(e1,getProposalCreator(proposalId));
 
   f(e2, args2);
@@ -565,8 +565,7 @@ rule only_guardian_can_cancel(method f)filtered
          owner() == e2.msg.sender ||   //todo: review
          guardian() == e3.msg.sender || 
         getProposalCreator(proposalId) == e3.msg.sender ||
-        creator_power_after < creator_power_before
-        ;
+        creator_power_after < creator_power_before;
 }
 
 
