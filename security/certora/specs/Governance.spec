@@ -7,7 +7,7 @@ using VotingPortal as _VotingPortal;
 methods {
 
   //
-  // Summarization
+  // Summarizations
   //
 
   //call by modifier initializer, allow reachability of _initializeCore
@@ -19,8 +19,8 @@ methods {
   function _GovernancePowerStrategy._getFullPowerByType(address user,IGovernancePowerDelegationToken.GovernancePowerType type) 
                       internal returns (uint256) with (env e) => get_fixed_user_and_type_power(e, user, type);
 
-  // called by executeProposal() - sends a payload to execution chain
-  // forwardMessage() is verifed at Delivery Infrastructure::CrossChainForwarder-simpleRules.spec
+  // forwardMessage() sends a payload to execution chain, called by executeProposal()
+  // forwardMessage() is verified at Delivery Infrastructure::CrossChainForwarder-simpleRules.spec
   function _.forwardMessage(uint256,address,uint256,bytes) external => NONDET;
 
   
@@ -82,6 +82,8 @@ hook Sstore _proposals[KEY uint256 proposalId].cancellationFee uint256 newFee
 
 
 // import invariants of AddressSet
+use invariant setInvariant;
+use invariant addressSetInvariant;
 use invariant set_size_leq_max_uint160;
 
 
@@ -98,11 +100,11 @@ definition state_changing_function(method f) returns bool =
 definition initializeSig(method f) returns bool = 
             f.selector == sig:initialize(address,address,address, IGovernanceCore.SetVotingConfigInput[],address[],uint256,uint256).selector;
 
-definition terminalState(uint256 proposalId) returns bool = 
-            getProposalStateVariable(proposalId) == IGovernanceCore.State.Executed ||
-            getProposalStateVariable(proposalId) == IGovernanceCore.State.Failed ||
-            getProposalStateVariable(proposalId) == IGovernanceCore.State.Cancelled ||
-            getProposalStateVariable(proposalId) == IGovernanceCore.State.Expired;
+definition isTerminalState(IGovernanceCore.State state) returns bool = 
+            state == IGovernanceCore.State.Executed ||      // 4
+            state == IGovernanceCore.State.Failed ||        // 5
+            state == IGovernanceCore.State.Cancelled ||     // 6 
+            state == IGovernanceCore.State.Expired;         // 7
 
 
 function getMinPropositionPower(IGovernanceCore.VotingConfig votingConfig) returns uint56{
@@ -150,6 +152,11 @@ invariant at_least_single_payload_active_variable (uint256 proposalId)
     }
   }
 
+
+//
+// Helper invariants
+//
+
 // Address zero cannot be a creator of a proposal
 invariant creator_is_not_zero(uint256 proposalId)
        getProposalStateVariable(proposalId) != IGovernanceCore.State.Null => getProposalCreator(proposalId) != 0
@@ -196,13 +203,7 @@ invariant null_state_variable_only_if_uninitialized_proposal(uint256 proposalId)
 
 // @title Property #3: If a voting portal gets invalidated during the proposal life cycle, 
 //      the proposal should not transition to any state apart from Cancelled, Expired, and Failed.
-
-// If a proposal lost its voting power its state can transition to Executed, Cancelled, Expired, and Failed only.
 // Note: if voting power decreases after queuing the proposal can still be executed. 
-//
-// Issue reported on June 27, 2023 - violation of property #5: No further state transitions are possible if proposal.state > 3.
-//todo: verify fix
-// second fail, reported on June 29
 
 rule proposal_after_voting_portal_invalidate{
 
@@ -214,17 +215,13 @@ rule proposal_after_voting_portal_invalidate{
   require e1.block.timestamp <= e3.block.timestamp;
   
   IGovernanceCore.State state_before = getProposalState(e1,proposalId);
-//  bool voting_portal_approved_before = isVotingPortalApproved(getProposalVotingPortal(proposalId));
   f(e2, args);
   bool voting_portal_approved_after = isVotingPortalApproved(getProposalVotingPortal(proposalId));
+
+  // Checking if the a voting portal gets invalidated, regardless of the voting portal status before the state transition  
   IGovernanceCore.State state_after = getProposalState(e3, proposalId);
 
-  // Checking if the a voting portal gets invalidated, do not care about voting portal status before the state transition  
-  assert !voting_portal_approved_after => 
-    (state_before != state_after =>
-    (state_after == IGovernanceCore.State.Executed || 
-    state_after == IGovernanceCore.State.Cancelled ||
-    state_after == IGovernanceCore.State.Expired || state_after == IGovernanceCore.State.Failed));
+  assert !voting_portal_approved_after => (state_before != state_after => isTerminalState(state_after));
 
 }
 
@@ -232,8 +229,6 @@ rule proposal_after_voting_portal_invalidate{
 
 // @title Property #4: If the proposer's proposition power goes below the minimum required threshold, the proposal
 //     should not go to any state apart from Failed or Canceled.
-
-// In case of insufficient proposition power state can change to  
 rule insufficient_proposition_power(method f) filtered { f -> !f.isView}{
   env e;
   calldataarg args;
@@ -340,7 +335,8 @@ rule no_state_transitions_beyond_3{
   method f;
   uint256 proposalId;
 
-  require e1.block.timestamp <= e2.block.timestamp && e2.block.timestamp <= e3.block.timestamp;
+  require e1.block.timestamp <= e2.block.timestamp;
+  require e2.block.timestamp <= e3.block.timestamp;
   requireInvariant null_state_iff_uninitialized_proposal(e1, proposalId);
 
   
@@ -348,8 +344,9 @@ rule no_state_transitions_beyond_3{
   f(e2, args);
   IGovernanceCore.State state2 = getProposalState(e3, proposalId);
 
-  assert 
-    assert_uint256(state1) > 3=> state1 == state2; 
+  assert assert_uint256(state1) > 3 => state1 == state2; 
+  assert isTerminalState(state1) => state1 == state2; 
+  
 }
 
 
@@ -377,12 +374,14 @@ rule state_cant_decrease{
 // Cancellation because of the proposition power change.
 // Cancellation after proposal creation by creator.
 // Proposal execution after proposal queuing if COOLDOWN_PERIOD is 0.
+// /owner calling setVotingConfigs(), removeVotingPortals()
+// No two transitions of a proposal's state happen in a single block timestamp, except cancellation by the owner or by a guardian.
 
-// No 2 state transitions happens in a single block timestamp, except cancellation by the owner or by a guardian.
 rule single_state_transition_per_block_non_creator_non_guardian(method f, method g, method h)
 filtered { f -> state_changing_function(f), 
   g -> !g.isView  && !initializeSig(g),
-  h -> state_changing_function(h)}
+  h -> state_changing_function(h) // must allow a second call to a state-changing function 
+  }
 {
   env e1;
   env e2;
@@ -404,15 +403,17 @@ filtered { f -> state_changing_function(f),
 
   requireInvariant null_state_iff_uninitialized_proposal(e2, proposalId);
   IGovernanceCore.State state1 = getProposalState(e1, proposalId);
-  f(e2, args1);
-  g(e3, args2);
+  f(e2, args1);  // any method that can change the proposal state
+  g(e3, args2);  // any non-view method
   IGovernanceCore.State state2 = getProposalState(e4, proposalId);
-  h(e5, args3);
+  mathint creator_power_before = _GovernancePowerStrategy.getFullPropositionPower(e4,getProposalCreator(proposalId));
+  h(e5, args3);  // any method that can change the proposal state
+  mathint creator_power_after = _GovernancePowerStrategy.getFullPropositionPower(e6,getProposalCreator(proposalId));
   IGovernanceCore.State state3 = getProposalState(e6, proposalId);
 
   assert getProposalCreator(proposalId) != e5.msg.sender && // creator can cancel
-          guardian() != e5.msg.sender &&
-          owner() != e3.msg.sender && //owner can call setVotingConfigs, removeVotingPortals. TODO: add the assumption to the final report 
+          creator_power_after < creator_power_before &&
+          owner() != e3.msg.sender && //owner can call setVotingConfigs, removeVotingPortals
           COOLDOWN_PERIOD() != 0 &&
           state1 != state2 => state2 == state3;
 }
@@ -455,8 +456,6 @@ rule single_state_transition_per_block_non_creator_witness
 
 
 /// Property #8: Only the owner can set the voting power strategy and voting config.
-// fails on initialize
-
 // A unauthorized user (not an owner) cannot change voting parameters
 rule only_owner_can_set_voting_config(method f) filtered {
    f -> !f.isView &&
@@ -477,7 +476,6 @@ rule only_owner_can_set_voting_config(method f) filtered {
   assert e.msg.sender != owner() => voting_config_before.minPropositionPower ==  voting_config_after.minPropositionPower;
 
 }
-//todo add witness - owner changes voting config
 
 rule only_owner_can_set_voting_config_witness(method f) filtered { f -> !f.isView}
 {
@@ -498,10 +496,8 @@ rule only_owner_can_set_voting_config_witness(method f) filtered { f -> !f.isVie
 }
 
 //Property #9: When invalidating voting config, proposal can not be queued
-
 // One can not queue a proposal if its voting portal is unapproved
 rule cannot_queue_when_voting_portal_unapproved{
-
   env e1; env e2; env e3;
   calldataarg args; 
   method f;
@@ -518,8 +514,7 @@ rule cannot_queue_when_voting_portal_unapproved{
 
 
 //Property #10: Guardian can cancel proposals with proposal.state < 4
-
-// A guardian can cancel a proposla whose state < 4 but it cannot cancel if state is >= 5
+// A guardian can cancel a proposal whose state < 4 but it cannot cancel if state is >= 5
 rule guardian_can_cancel()
 {
   env e1;
@@ -550,15 +545,10 @@ rule only_guardian_can_cancel(method f)filtered
   calldataarg args1;
   calldataarg args2;
   
-//  require e1.block.timestamp <= e2.block.timestamp;
-
   uint256 proposalId = createProposal(e1, args1);
   mathint creator_power_before = _GovernancePowerStrategy.getFullPropositionPower(e1,getProposalCreator(proposalId));
-
   f(e2, args2);
-//  IGovernanceCore.State state1 = getProposalState(e1, proposalId);
-  
- mathint creator_power_after = _GovernancePowerStrategy.getFullPropositionPower(e3,getProposalCreator(proposalId));
+  mathint creator_power_after = _GovernancePowerStrategy.getFullPropositionPower(e3,getProposalCreator(proposalId));
   cancelProposal(e3, proposalId);
 
   assert guardian() == e2.msg.sender ||
@@ -586,7 +576,6 @@ uint128 forVotes;
 
 //Property #11: The following proposal parameters can only be set once, at proposal creation:
 //               creator, accessLevel, votingPortal, votingDuration, creationTime, ipfsHash, payloads.
-
 // Once a proposal is initialized its creator, accessLevel, votingPortal, votingDuration, creationTime, ipfsHash, payloads length cannot change.
 rule immutable_after_creation(method f){
 
@@ -638,7 +627,6 @@ rule immutable_payload_after_creation(method f){
   uint256 proposalId;
   uint256 payloadId;
 
-
   requireInvariant null_state_iff_uninitialized_proposal(e2, proposalId);
   requireInvariant empty_payloads_iff_uninitialized_proposal(proposalId);
  
@@ -648,7 +636,6 @@ rule immutable_payload_after_creation(method f){
   PayloadsControllerUtils.AccessControl payload_access_level_before = getPayloadAccessLevel(proposalId, payloadId);
   address payloads_controller_before = getPayloadPayloadsController(proposalId, payloadId);
   uint40 payloads_id_before = getPayloadPayloadId(proposalId, payloadId);
-
 
   f(e2, args);
   uint256 payload_chain_after = getPayloadChain(proposalId, payloadId);
@@ -665,9 +652,7 @@ rule immutable_payload_after_creation(method f){
 
 // Property #12: The following proposal parameters can only be set once, during voting activation:
 // votingActivationTime, snapshotBlockHash, snapshotBlockNumber.
-
 // Proposal's votingActivationTime and snapshotBlockHash are immutable
-
 rule immutable_after_activation(method f)
 filtered {f -> !f.isView}
 {
@@ -691,7 +676,6 @@ filtered {f -> !f.isView}
 
 
 //Property #14: Only a valid voting portal can queue a proposal and only if this is in Active state.
-
 // Only by an approved voting protal can call queue(), only if state is Active
 rule only_valid_voting_portal_can_queue_proposal(method f){
 
@@ -709,9 +693,9 @@ rule only_valid_voting_portal_can_queue_proposal(method f){
   assert state_before != state_after && state_after == IGovernanceCore.State.Queued => isVotingPortalApproved(e2.msg.sender);
   assert state_before != state_after && state_after == IGovernanceCore.State.Queued => state_before == IGovernanceCore.State.Active;
 }
-//Property #15: A proposal can be executed only in Queued state, after passing the cooldown period.
-//todo: consider checking that _forwardPayloadForExecution() or  ICrossChainForwarder.forwardMessage() is called rather than executeProposal()
 
+
+//Property #15: A proposal can be executed only in Queued state, after passing the cooldown period.
 // A proposal can be executed only after the cooldown period has elapsed since it was queued
 rule proposal_executes_after_cooldown_period(){
 
@@ -724,13 +708,14 @@ rule proposal_executes_after_cooldown_period(){
   require e2.block.timestamp <= e3.block.timestamp;
   require e1.block.timestamp < 2^40;
   require e3.block.timestamp < 2^40;
-  
+
+  // record the time between queueProposal and executeProposal
   queueProposal(e1, proposalId, forVotes, againstVotes);
   IGovernanceCore.State state_before = getProposalState(e2, proposalId);
   executeProposal(e3, proposalId);
 
   assert state_before == IGovernanceCore.State.Queued;
-  assert e3.block.timestamp - e1.block.timestamp >= to_mathint(COOLDOWN_PERIOD());
+  assert e3.block.timestamp - e1.block.timestamp >= to_mathint(COOLDOWN_PERIOD()); 
 }
 
 
@@ -742,8 +727,7 @@ rule proposal_executes_after_cooldown_period(){
 //               and big enough for at least mig to long term
 
 
-//property #20 (old version): When if in a terminal state, no state changing function can be called.
-
+//property #20: When if in a terminal state, no state changing function can be called.
 // Terminal states >= 4 are terminal, a proposal in a terminal state cannot change its state
 rule state_changing_function_cannot_be_called_while_in_terminal_state()
 {
@@ -757,33 +741,14 @@ rule state_changing_function_cannot_be_called_while_in_terminal_state()
   IGovernanceCore.State state1 = getProposalState(e1, proposalId);
   call_state_changing_function(e2, proposalId);
 
+  assert !isTerminalState(state1);
   assert assert_uint256(state1) < 4;
 }
 
 
 // Terminal states >= 4 are terminal, a proposal in a terminal state cannot change its state
-rule terminal_state_cannot_change(method f)
-{
-  env e1;
-  env e2;
-  env e3;
-  calldataarg args;
-  uint256 proposalId;
-
-  require e1.block.timestamp <= e2.block.timestamp;
-  require e2.block.timestamp <= e3.block.timestamp;
-
-  requireInvariant null_state_iff_uninitialized_proposal(e2, proposalId);
-  IGovernanceCore.State state1 = getProposalState(e1, proposalId);
-  f(e2, args);
-  IGovernanceCore.State state2 = getProposalState(e3, proposalId);
-  
-  assert assert_uint256(state1) >= 4 => state1 == state2;
-}
-
-
 // Only the relevant state-changing function actually change the state
-// Check by the states before a transtion occurs 
+// Check by the states before a transition occurs 
 rule pre_state(method f)
 {
   env e1;
@@ -812,7 +777,7 @@ rule pre_state(method f)
 
 
 // Only the relevant state-changing function actually change the state 
-// Check by the states after a transtion occurs 
+// Check by the states after a transition occurs 
 rule post_state(method f)
 {
   env e1;
@@ -872,37 +837,21 @@ filtered { f -> !state_changing_function(f)}
   assert state1 == state2;
 }
 
-
-
-// self check - reachability
-rule initialize_sanity{
-  env e;
-  calldataarg arg;
-  initialize(e, arg);
-  satisfy true;
-}
-
-rule sanity {
-  env e;
-  calldataarg arg;
-  method f;
-
-  require COOLDOWN_PERIOD() == 0;
-  f(e, arg);
-  satisfy true;
-}
+//
+// Cancellation fee
+//
 
 // Property: For any proposal id that wasn't yet created, the cancellation fee must be 0
 invariant cancellationFeeZeroForFutureProposals(uint256 proposalId) 
     proposalId >= getProposalCount() => getProposalCancellationFee(proposalId) == 0;
 
-// Property: In any case that proposal.CancellationFee does change, eth balance can cover the total cancellation fee of users
+// Property: eth balance can cover the total cancellation fee of users
 invariant totalCancellationFeeEqualETHBalance()
     to_mathint(nativeBalances[currentContract]) >= totalCancellationFee
     {
         preserved with (env e2)
         {
-            requireInvariant cancellationFeeZeroForFutureProposals(require_uint256(getProposalCount()));
+            requireInvariant cancellationFeeZeroForFutureProposals(getProposalCount());
             require e2.msg.sender != currentContract;
         }
     }
@@ -917,8 +866,9 @@ rule userFeeDidntChangeImplyNativeBalanceDidntDecrease(){
     assert(!isCancellationChanged => _ethBal <= ethBal_);
 }
 
-// Representative
-// Additional properties for voting by representative
+//
+// Voting by representative
+//
 
 // A voter cannot represent himself
 invariant no_self_representative(address voter, uint256 chainId)
@@ -929,7 +879,7 @@ invariant no_self_representative(address voter, uint256 chainId)
       }
     }
 
-// Address zero can be a representative
+// Address zero can be a representative (this property is implied by no_self_representative)
 // No voter is contained in the voters' set of address zero
 invariant no_representative_is_zero(address voter, uint256 chainId)
     !isRepresentativeOfVoter(voter, 0, chainId);
@@ -1010,25 +960,7 @@ rule check_old_representative_set_size_after_updateRepresentatives{
     assert (new_representative == e.msg.sender || new_representative == 0)  && old_voters_size_before > 0 =>
       old_voters_size_after + 1 == old_voters_size_before;
 
-    
-
 }
-
-
-//
-//  Failing rules - begin
-//
-
-//TODO: rerun once CERT-3618 is resolved
-//Ignore fail in CI
-use invariant addressSetInvariant;
-//Ignore fail in CI
-use invariant setInvariant;
-
-//    
-//  Failing rules - end
-//
-
 
 invariant no_representative_of_zero_in_set(address representative, uint256 chainId)
     !isRepresentativeOfVoter(0, representative, chainId)
@@ -1039,7 +971,7 @@ invariant no_representative_of_zero_in_set(address representative, uint256 chain
       }
     }
 
-
+// helper
 invariant in_representatives_iff_in_votersRepresented(address voter, address representative, uint256 chainId)
     (representative != 0) =>  
         (isRepresentativeOfVoter(voter, representative, chainId) <=> 
@@ -1049,3 +981,14 @@ invariant in_representatives_iff_in_votersRepresented(address voter, address rep
         requireInvariant addressSetInvariant(representative, chainId);
       }
     }
+
+
+// self check - reachability
+rule method_reachability {
+  env e;
+  calldataarg arg;
+  method f;
+
+  f(e, arg);
+  satisfy true;
+}

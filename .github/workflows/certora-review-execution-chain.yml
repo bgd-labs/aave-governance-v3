@@ -63,4 +63,5 @@ jobs:
           - verifyPayloadsController.conf --rule action_callData_immutable
           - verifyPayloadsController.conf --rule action_signature_immutable
           - verifyPayloadsController.conf --rule action_immutable_check_only_fixed_size_fields
+          - verifyPayloadsController.conf --rule zero_executedAt_if_not_executed
         
