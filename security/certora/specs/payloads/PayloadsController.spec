@@ -724,7 +724,7 @@ invariant queued_after_created(uint40 id)
 
 /// @title Execution happens after queue 
 //execution time cannot be after queuing time
-invariant executed_after_queue_2(uint40 id)
+invariant executed_after_queue(uint40 id)
 	getPayloadStateVariable(id) == IPayloadsControllerCore.PayloadState.Executed =>
 					getPayloadExecutedAt(id) >= getPayloadQueuedAt(id) 
 	{
