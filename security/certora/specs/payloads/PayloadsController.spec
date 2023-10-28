@@ -784,7 +784,7 @@ rule no_queue_after_expiration{
 }
 
 
-rule sanity{
+rule method_reachability{
   env e;
   calldataarg arg;
   method f;

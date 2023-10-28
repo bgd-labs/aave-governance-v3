@@ -49,11 +49,21 @@ jobs:
       max-parallel: 16
       matrix:
         rule:
-          - verifyLegality.conf
+          - verifyLegality.conf --rule createdVoteHasNonZeroHash
+          - verifyLegality.conf --rule onlyValidProposalCanChangeTally
+          - verifyLegality.conf --rule legalVote
+          - verifyLegality.conf --rule votedPowerIsImmutable method_reachability
           - verifyMisc.conf
           - verifyPower_summary.conf
-          - verifyProposal_config.conf
-          - verifyProposal_states.conf
+          - verifyProposal_config.conf --rule createdProposalHasRoots
+          - verifyProposal_config.conf --rule startedProposalHasConfig
+          - verifyProposal_config.conf --rule proposalHasNonzeroDuration configIsImmutable newProposalUnusedId method_reachability
+          - verifyProposal_states.conf --rule proposalImmutability
+          - verifyProposal_states.conf --rule startsStrictlyBeforeEnds
+          - verifyProposal_states.conf --rule startsBeforeEnds
+          - verifyProposal_states.conf --rule startedProposalHasConfig
+          - verifyProposal_states.conf --rule proposalMethodStateTransitionCompliance
+          - verifyProposal_states.conf --rule proposalIdIsImmutable proposalHasNonzeroDuration proposalTimeStateTransitionCompliance proposalLegalStates method_reachability
           - verifyVoting_and_tally.conf --rule voteUpdatesTally
           - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
-          - verifyVoting_and_tally.conf --rule voteTallyChangedOnlyByVoting onlyVoteCanChangeResult votingTallyCanOnlyIncrease strangerVoteUnchanged otherProposalUnchanged otherVoterUntouched cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote
+          - verifyVoting_and_tally.conf --rule voteTallyChangedOnlyByVoting onlyVoteCanChangeResult votingTallyCanOnlyIncrease strangerVoteUnchanged otherProposalUnchanged otherVoterUntouched cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote method_reachability

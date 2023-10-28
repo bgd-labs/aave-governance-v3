@@ -642,3 +642,14 @@ rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
 //     satisfy e1.msg.sender != voter;
 
 // }
+
+
+
+// setup self check - reachability of currentContract external functions
+rule method_reachability {
+  env e;
+  calldataarg arg;
+  method f;
+  f(e, arg);
+  satisfy true;
+}

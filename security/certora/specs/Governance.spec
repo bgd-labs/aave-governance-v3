@@ -983,7 +983,7 @@ invariant in_representatives_iff_in_votersRepresented(address voter, address rep
     }
 
 
-// self check - reachability
+// setup self check - reachability of currentContract external functions
 rule method_reachability {
   env e;
   calldataarg arg;
