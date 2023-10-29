@@ -54,11 +54,11 @@ methods
 /// @title Each dummy token is a unique and accepted token
 function eachDummyIsUniqueToken() {
     // Tokens are unique
-    require (
-        _DummyTokenA != _DummyTokenB &&
-        _DummyTokenA != _DummyTokenC &&
-        _DummyTokenB != _DummyTokenC
-    );
+    // require (                                // UNSAT core analysis: require can be removed.
+    //     _DummyTokenA != _DummyTokenB &&
+    //     _DummyTokenA != _DummyTokenC &&
+    //     _DummyTokenB != _DummyTokenC
+    // );
 
     // Tokens are accepted
     uint128 slotA;
@@ -126,9 +126,10 @@ rule transferPowerCompliance(
     uint256 amount,
     IGovernancePowerDelegationToken.GovernancePowerType govType
 ) {
-    require (
-        voter != _DummyTokenA && voter != another && another != _DummyTokenA
-    );
+    // UNSAT core analysis: require can be removed.
+    // require (
+    //     voter != _DummyTokenA && voter != another && another != _DummyTokenA
+    // );
     eachDummyIsUniqueToken();
 
     // `voter`'s power can increase if `another` delegated its power to `voter`
@@ -152,7 +153,9 @@ rule transferPowerCompliance(
             delegatee == voter &&
             postPowerAnother <= prePowerAnother
         ) &&
-        (delegatee == 0) => (postPowerAnother > prePowerAnother)
+    //    (delegatee == 0) => (postPowerAnother > prePowerAnother)
+    //    (delegatee == 0) => false
+        (delegatee != 0)
     );
 }
 
@@ -175,7 +178,7 @@ rule delegatePowerCompliance(
 ) {
     require (
         voter != 0 &&
-        voter != _DummyTokenA &&
+        //voter != _DummyTokenA && // UNSAT core analysis: can be removed.
         voter != newDelegatee &&
         newDelegatee != 0 &&
         newDelegatee != _DummyTokenA
@@ -204,4 +207,13 @@ rule delegatePowerCompliance(
         postPowerNewDelegatee >= prePowerNewDelegatee &&
         postPowerCurDelegatee <= prePowerCurDelegatee
     );
+}
+
+// setup self check - reachability of currentContract external functions
+rule method_reachability {
+  env e;
+  calldataarg arg;
+  method f;
+  f(e, arg);
+  satisfy true;
 }
