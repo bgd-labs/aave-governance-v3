@@ -84,8 +84,8 @@ hook Sstore _proposals[KEY uint256 proposalId].cancellationFee uint256 newFee
 // import invariants of AddressSet
 use invariant setInvariant;
 use invariant addressSetInvariant;
-use invariant set_size_leq_max_uint160;
-
+use invariant array_out_of_bound_entries_are_zero;
+use rule set_size_eq_max_uint160_witness;
 
 //  State changing methods
 definition state_advancing_function(method f) returns bool = 

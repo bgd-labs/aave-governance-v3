@@ -175,11 +175,29 @@ invariant setInvariant(env e1, address representative, uint256 chainId)
 invariant addressSetInvariant(address representative, uint256 chainId)
     ADDRESS_SET_INVARIANT(representative, chainId);
 
-/**
-* @title Length of AddressSet is less than 2^160
-* @dev the assumption is safe because there are at most 2^160 unique addresses
-* @dev the proof of the assumption is vacuous because length > loop_iter
-*/
-invariant set_size_leq_max_uint160(address representative, uint256 chainId)
-	      getRepresentedVotersSize(representative, chainId)  < max_uint160;
+
+//Out of bound array entries are zero
+invariant array_out_of_bound_entries_are_zero(address representative, uint256 chainId)
+    ARRAY_OUT_OF_BOUND_ZERO()
+    {
+        preserved{
+            requireInvariant addressSetInvariant(representative, chainId);
+        }
+    }
+
+
+// Set size can be 2 ^ 160 - 1 
+rule set_size_eq_max_uint160_witness(method` f)
+filtered {f -> f.selector == sig:GovernanceHarness.updateRepresentativesForChain(IGovernanceCore.RepresentativeInput[]).selector}
+{
+   address representative;
+    uint256 chainId;
+    requireInvariant addressSetInvariant(representative, chainId);
+    require ARRAY_OUT_OF_BOUND_ZERO();
+    
+    require getRepresentedVotersSize(representative, chainId) < max_uint160;
+    env e; calldataarg args;
+    f(e, args);
+    satisfy getRepresentedVotersSize(representative, chainId) == max_uint160 ;
+}
 
