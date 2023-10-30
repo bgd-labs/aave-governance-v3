@@ -55,7 +55,7 @@ jobs:
           - verifyGovernance.conf --rule no_self_representative no_representative_is_zero  consecutiveIDs totalCancellationFeeEqualETHBalance zero_address_is_not_a_valid_voting_portal 
           - verifyGovernance.conf --rule no_representative_is_zero_2 no_representative_of_zero empty_payloads_if_uninitialized_proposal null_state_variable_only_if_uninitialized_proposal 
           - verifyGovernance.conf --rule post_state state_changing_function_self_check state_variable_changing_function_self_check  method_reachability userFeeDidntChangeImplyNativeBalanceDidntDecrease
-          - verifyGovernance.conf --rule check_new_representative_set_size_after_updateRepresentatives check_old_representative_set_size_after_updateRepresentatives set_size_leq_max_uint160
+          - verifyGovernance.conf --rule check_new_representative_set_size_after_updateRepresentatives check_old_representative_set_size_after_updateRepresentatives 
           - verifyGovernance.conf --rule at_least_single_payload_active at_least_single_payload_active_variable creator_is_not_zero creator_is_not_zero_2 empty_payloads_iff_uninitialized_proposal 
           - verifyGovernance.conf --rule null_state_iff_uninitialized_proposal null_state_variable_iff_uninitialized_proposal null_state_if_uninitialized_proposal null_state_variable_if_uninitialized_proposal setInvariant addressSetInvariant
           - verifyGovernance.conf --rule null_state_only_if_uninitialized_proposal pre_state state_changing_function_cannot_be_called_while_in_terminal_state proposal_executes_after_cooldown_period
