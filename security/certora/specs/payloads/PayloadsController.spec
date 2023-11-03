@@ -3,8 +3,8 @@
 methods {
 
 	//Summarization 
+	// executes a transaction
 	function Executor.executeTransaction(address,uint256,string,bytes,bool) external returns (bytes)  => NONDET;
-	// todo: summarize low-level ETH transfer in emergencyEtherTransfer()
 	function _.transfer(address,uint256) external => DISPATCHER(true);
 
 	//Envfree methods
@@ -42,6 +42,8 @@ methods {
 	function MIN_EXECUTION_DELAY() external returns (uint40) envfree;
 	function MAX_EXECUTION_DELAY() external returns (uint40) envfree;
 	function EXPIRATION_DELAY() external returns (uint40) envfree;
+	function guardian() external returns (address) envfree;
+  	function owner() external returns (address) envfree;
 }
 
 //
@@ -119,7 +121,6 @@ invariant nonempty_actions(uint40 payloadID, uint256 actionID)
 
 /// @title executor of a valid action is not address(0)
 /// @dev a helper invariant
-//Todo: improve runtime, replace logical condition
 invariant executor_exists(uint40 payloadID, uint256 actionID)
 	getActionsLength(payloadID) != 0 && actionID < getActionsLength(payloadID) 
 		=> get_action_executor(payloadID, actionID) != 0;
@@ -142,14 +143,12 @@ invariant payload_maximal_access_level_gt_action_access_level(uint40 payloadID, 
 
 
 /// @title Action's accessLevel is not null if it's executor is not address(0)
-//runtime error: CERT-2868
 invariant executor_exists_if_action_not_null(uint40 payloadID, uint256 actionID)
 	getActionAccessLevel(payloadID, actionID) != PayloadsControllerUtils.AccessControl.Level_null 
 		=> get_action_executor(payloadID, actionID) != 0;
 
 
 /// @title Action's accessLevel is not null only if it's executor is not address(0)
-//not required
 invariant executor_exists_only_if_action_not_null(uint40 payloadID, uint256 actionID)
 	getActionAccessLevel(payloadID, actionID) == PayloadsControllerUtils.AccessControl.Level_null 
 		=> get_action_executor(payloadID, actionID) == 0;
@@ -159,8 +158,6 @@ invariant executor_exists_only_if_action_not_null(uint40 payloadID, uint256 acti
 // Additional properties
 //
 
-
-//todo: check   2.1.2. If timelock > gracePeriod then no proposal could be executed 
 
 // Reported a violation; Solidity had been fixed. 
 /// @title A valid payload must have valid maximal access level 
@@ -260,7 +257,6 @@ rule payload_fields_immutable_after_createPayload(method f, uint40 id)filtered {
 	delay_after, gracePeriod_after =
 		getPayloadFieldsById(id);
 
-//todo: replace if with invariant
 	assert id < payload_count => creator_before == creator_after;
 	assert id < payload_count => maximumAccessLevelRequired_before == maximumAccessLevelRequired_after;
 	assert id < payload_count => createdAt_before == createdAt_after;
@@ -331,8 +327,9 @@ rule initialized_payload_fields_are_immutable(method f, uint40 id)filtered { f->
 
 /// @title Property #3.2 : The following Payload params can only be set once during payload creation:
 ///         actions fields:  target, withDelegateCall, accessLevel, value, signature, callDAta
+
 //todo: this rule should replace the following 3 rules once CERT-2451 (timeout) is resolved
-// rule action_immutable(method f)filtered { f-> !f.isView }{
+// rule action_immutable_2451(method f)filtered { f-> !f.isView }{
 
 // 	env e;
 // 	calldataarg args;
@@ -468,7 +465,6 @@ rule executor_exists_after_createPayload()
 
 // @title action access level is not null after creation
 // @dev split rules to reduce run time
-
 // Payload action access level is not null
 rule action_access_level_isnt_null_after_createPayload() 
 {
@@ -512,7 +508,6 @@ rule executor_of_maximumAccessLevelRequired_exists(method f) filtered { f-> !f.i
 /// @title Property #5: A Payload can only be executed when in queued state and time lock has finished and before the grace period has passed.
 /// @notice executePayload()  should not check check gracePeriod of every actions.
 /// @notice it checks only the executor of the maximal access level.
-// 
 rule execute_before_delay__maximumAccessLevelRequired{
 	env e;
 	uint40 id;
@@ -524,12 +519,6 @@ rule execute_before_delay__maximumAccessLevelRequired{
 	assert timestamp > getPayloadQueuedAtById(id) + getPayloadDelay(id);
 	assert timestamp < getPayloadQueuedAtById(id) +  getPayloadDelay(id) + GRACE_PERIOD();
 }
-
-
-/// @title Payload's maximal level delay is equal to the executor delay the payload's maximumAccessLevelRequired
-//fail. reported on June 13, 2023
-//invariant payload_delay_eq_delay_of_executor_of_max_access_level(uint40 id)
-//	getPayloadDelay(id) == get_delay_of_maximumAccessLevelRequired(id);
 
 
 // @title A Payload can only be executed when in queued state 
@@ -548,14 +537,15 @@ rule executed_when_in_queued_state{
 // A payload cannot execute after a guardian cancelled it
 rule guardian_can_cancel{
 
-	env e1; env e2; env e3;
+	env e;
 	calldataarg args;
-	method f;
 	uint40 payloadId;
-	cancelPayload(e1, payloadId);
-	f(e2, args);
-	executePayload(e3,payloadId);
-	assert false ;
+	IPayloadsControllerCore.PayloadState state_before = getPayloadStateVariable(payloadId);
+	cancelPayload@withrevert(e, payloadId);
+	assert 
+		e.msg.sender == guardian() && 
+		(state_before ==  IPayloadsControllerCore.PayloadState.Created ||
+		state_before ==  IPayloadsControllerCore.PayloadState.Queued) => !lastReverted ;
 
 
 }
@@ -570,6 +560,7 @@ rule no_early_cancellation{
 	requireInvariant null_state_variable_if_out_of_bound_payload(payloadId1);
 	cancelPayload(e1, payloadId1);
 	uint40 payloadId2 = createPayload(e2,args);
+	assert payloadId1 < getPayloadsCount();
 	assert payloadId1 != payloadId2;
 }
 
@@ -584,18 +575,17 @@ rule no_late_cancel{
 	requireInvariant null_state_variable_if_out_of_bound_payload(payloadId);
 	executePayload(e1,payloadId);
 	f(e2, args);
-	cancelPayload(e3, payloadId);
-	assert false ;
+	cancelPayload@withrevert(e3, payloadId);
+	assert lastReverted ;
 }
 
 
 /// @title Property #8: Payload State can’t decrease
 // Forward progress of payload state machine
-rule state_cant_decrease
+rule state_cant_decrease(method f) filtered { f -> !f.isView}
 {
-env e;
+	env e;
 	calldataarg args;
-	method f;
 	uint40 payloadId;
 
 	requireInvariant null_state_variable_if_out_of_bound_payload(payloadId);
@@ -603,36 +593,29 @@ env e;
 	IPayloadsControllerCore.PayloadState state_before = getPayloadStateVariable(payloadId);
 	f(e,args);
 	IPayloadsControllerCore.PayloadState state_after = getPayloadStateVariable(payloadId);
-	assert state_before == IPayloadsControllerCore.PayloadState.Queued => state_after != IPayloadsControllerCore.PayloadState.Created; 
-	assert state_before == IPayloadsControllerCore.PayloadState.Queued => state_after != IPayloadsControllerCore.PayloadState.None; 
-	assert state_before == IPayloadsControllerCore.PayloadState.Created => state_after != IPayloadsControllerCore.PayloadState.None; 
-
-
+	
+ 	assert assert_uint256(state_before) <= assert_uint256(state_after);
 }
 
 /// @title Property #9: No further state transitions are possible if proposal.state > 3
-// State > 3 are terminal
-rule no_transition_beyond_state_gt_3{
+/// @notice The rule uses a getter function
+rule no_transition_beyond_state_gt_3(method f) filtered { f -> !f.isView}{
 	
 	env e;
 	calldataarg args;
-	method f;
 	uint40 payloadId;
 
 	requireInvariant null_state_variable_if_out_of_bound_payload(payloadId);
 
 	IPayloadsControllerCore.PayloadState state_before = getPayloadState(e,payloadId);
-	require state_before == IPayloadsControllerCore.PayloadState.Executed 
-	|| state_before == IPayloadsControllerCore.PayloadState.Cancelled
-	|| state_before == IPayloadsControllerCore.PayloadState.Expired ;
 	f(e,args);
 	IPayloadsControllerCore.PayloadState state_after = getPayloadState(e,payloadId);
-	assert state_before == state_after;
+	
+	assert assert_uint256(state_before) > 3 => state_before == state_after; 
 }
 
-
 /// @title Property #9.1: No further state transitions are possible if proposal.state > 3
-/// @notice checking state storage variable
+/// @notice The rule checks storage directly
 rule no_transition_beyond_state_variable_gt_3{
 	
 	env e;
@@ -642,11 +625,9 @@ rule no_transition_beyond_state_variable_gt_3{
 
 	requireInvariant null_state_variable_if_out_of_bound_payload(payloadId);
 	IPayloadsControllerCore.PayloadState state_before = getPayloadStateVariable(payloadId);
-	require state_before == IPayloadsControllerCore.PayloadState.Executed 
-	|| state_before == IPayloadsControllerCore.PayloadState.Cancelled ;
 	f(e,args);
 	IPayloadsControllerCore.PayloadState state_after = getPayloadStateVariable(payloadId);
-	assert state_before == state_after;
+	assert assert_uint256(state_before) > 3 => state_before == state_after; 
 }
 
 
@@ -657,8 +638,13 @@ rule no_transition_beyond_state_variable_gt_3{
 
 // @title Payload's grace period is equal to the contract grace period
 invariant payload_grace_period_eq_global_grace_period(uint40 id)
-	getMaximumAccessLevelRequired(id) != PayloadsControllerUtils.AccessControl.Level_null => getPayloadGracePeriod(id) == GRACE_PERIOD();
+	getMaximumAccessLevelRequired(id) != PayloadsControllerUtils.AccessControl.Level_null 
+	=> getPayloadGracePeriod(id) == GRACE_PERIOD();
 
+
+invariant zero_payload_grace_period_before_payload_creation(uint40 id)
+	getMaximumAccessLevelRequired(id) == PayloadsControllerUtils.AccessControl.Level_null 
+	=> getPayloadGracePeriod(id) == 0;
 
 
 
@@ -668,7 +654,6 @@ invariant payload_delay_within_range(uint40 id)
 			getPayloadDelay(id) >= MIN_EXECUTION_DELAY() && getPayloadDelay(id) <= MAX_EXECUTION_DELAY()
 	{
 	preserved {
-
 		requireInvariant executor_access_level_within_range(PayloadsControllerUtils.AccessControl.Level_1);
 		requireInvariant executor_access_level_within_range(PayloadsControllerUtils.AccessControl.Level_2);
 		}
@@ -692,23 +677,10 @@ invariant executor_access_level_within_range(PayloadsControllerUtils.AccessContr
 		get_delay(access_level) >= MIN_EXECUTION_DELAY() && get_delay(access_level) <= MAX_EXECUTION_DELAY();
 
 
-
-
-
-
-
-/// old version: A proposal can never be executed if lasting more than the expiration time defined per level of permissions.
 /// @title Property #6: A Payload can never be executed if it has not been queued before the EXPIRATION_DELAY defined.
-//TODO: add relay for field "delay"
 
-
-invariant expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY(uint40 id)
-	getPayloadStateVariable(id) != IPayloadsControllerCore.PayloadState.None =>
-		getPayloadExpirationTimeById(id) <= require_uint40(EXPIRATION_DELAY() + getPayloadCreatedAt(id));
-
-
-//todo: check directly contract-level EXPIRATION_DELAY
 /// @title Queue happens before creation time + EXPIRATION_DELAY
+/// @notice assuming that the EXPIRATION_DELAY + CreatedAt <= max_uint40 
 invariant queued_before_expiration_delay(uint40 id)
 	getPayloadQueuedAt(id) <= require_uint40(EXPIRATION_DELAY() + getPayloadCreatedAt(id))
 	{
@@ -720,6 +692,13 @@ invariant queued_before_expiration_delay(uint40 id)
 			requireInvariant null_state_variable_if_out_of_bound_payload(id);
 		}
 	}
+
+// helper invariant
+/// @notice assuming that the EXPIRATION_DELAY + CreatedAt <= max_uint40 
+invariant expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY(uint40 id)
+	getPayloadStateVariable(id) != IPayloadsControllerCore.PayloadState.None =>
+		getPayloadExpirationTimeById(id) <= require_uint40(EXPIRATION_DELAY() + getPayloadCreatedAt(id));
+
 
 //helper: creation time cannot be in the future
 invariant created_in_the_past(env e1, uint40 id)
@@ -746,12 +725,19 @@ invariant queued_after_created(uint40 id)
 /// @title Execution happens after queue 
 //execution time cannot be after queuing time
 invariant executed_after_queue(uint40 id)
-	getPayloadExecutedAt(id) != 0 => getPayloadExecutedAt(id) >= getPayloadQueuedAt(id) 
+	getPayloadStateVariable(id) == IPayloadsControllerCore.PayloadState.Executed =>
+					getPayloadExecutedAt(id) >= getPayloadQueuedAt(id) 
 	{
 		preserved{
-	//		requireInvariant queuedAt_is_zero_before_queued(id);
-	//		requireInvariant null_state_variable_if_out_of_bound_payload(id);
 			requireInvariant executedAt_is_zero_before_executed(id);
+		}
+	}
+invariant zero_executedAt_if_not_executed(uint40 id)
+	getPayloadStateVariable(id) != IPayloadsControllerCore.PayloadState.Executed =>
+					getPayloadExecutedAt(id) == 0 
+	{
+		preserved{
+			requireInvariant null_state_variable_if_out_of_bound_payload(id);
 		}
 	}
 //helper: queuing time is nonzero for initialized payloads
@@ -790,6 +776,7 @@ rule no_queue_after_expiration{
 	PayloadsControllerUtils.AccessControl accessLevel;
 	uint40 proposalVoteActivationTimestamp;
 
+	//a message that encodes the above payloadId
 	bytes message = encodeMessage(payloadId, accessLevel, proposalVoteActivationTimestamp);
 	receiveCrossChainMessage(e, originSender, originChainId, message);
 
@@ -797,55 +784,13 @@ rule no_queue_after_expiration{
 }
 
 
-
-
-
-
-rule sanity{
+rule method_reachability{
   env e;
   calldataarg arg;
   method f;
   f(e, arg);
-//	 assert false;
   satisfy true;
 }
 
-//
-// For Prover dev team
-//
-
-
-
-//todo: remove this rule once CERT-2508 is closed
-//pass
-rule decode2encode_sanity_check_message_leq_96_pass{
-
-	uint40 payloadId;
-	PayloadsControllerUtils.AccessControl accessLevel;
-	uint40 proposalVoteActivationTimestamp;
-	bytes message_before; 
-	require message_before.length <= 96;
-	payloadId, accessLevel, proposalVoteActivationTimestamp = decodeMessage(message_before);
-
-	bytes message_after = encodeMessage(payloadId, accessLevel, proposalVoteActivationTimestamp);
-	
-	assert compare(message_before, message_after) == true;
-}
-
-//todo: remove this rule once CERT-2508 is closed
-//pass
-rule decode2encode_sanity_check_message_eq_96_satisfy{
-
-	uint40 payloadId;
-	PayloadsControllerUtils.AccessControl accessLevel;
-	uint40 proposalVoteActivationTimestamp;
-	bytes message_before; 
-	require message_before.length == 96;
-	payloadId, accessLevel, proposalVoteActivationTimestamp = decodeMessage(message_before);
-
-	bytes message_after = encodeMessage(payloadId, accessLevel, proposalVoteActivationTimestamp);
-	
-	satisfy compare(message_before, message_after) == true;
-}
 
 

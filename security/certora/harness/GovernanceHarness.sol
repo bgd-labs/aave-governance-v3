@@ -124,7 +124,7 @@ contract GovernanceHarness is Governance {
     address representative,
     uint256 chainId
   ) external view returns (uint256) {
-    return _votersRepresented[representative][chainId].values().length;
+    return _votersRepresented[representative][chainId].length();
   }
 
 

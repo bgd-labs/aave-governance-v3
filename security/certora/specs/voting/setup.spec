@@ -57,3 +57,13 @@ methods
         address, uint256
     ) internal returns (bytes32) => NONDET;
 }
+
+// setup self check - reachability of currentContract external functions
+rule method_reachability {
+  env e;
+  calldataarg arg;
+  method f;
+  f(e, arg);
+  satisfy true;
+}
+

@@ -169,3 +169,12 @@ rule rejectEquivalentProofs(
     submitVoteTripleProof@withrevert(e, proposalId, support, proof1, proof2, proof3);
     assert lastReverted;
 }
+
+// setup self check - reachability of currentContract external functions
+rule method_reachability {
+  env e;
+  calldataarg arg;
+  method f;
+  f(e, arg);
+  satisfy true;
+}

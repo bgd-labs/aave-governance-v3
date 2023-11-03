@@ -112,3 +112,5 @@ rule legalVote(method f, uint256 proposalId, address voter) filtered {
         (preVote.votingPower == 0 && postVote.votingPower > 0)
     );
 }
+
+use rule method_reachability;
