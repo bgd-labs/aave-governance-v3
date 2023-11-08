@@ -37,6 +37,9 @@ contract Governance is GovernanceCore, IGovernance {
   }
 
   /// @inheritdoc IGovernance
+  function initializeWithRevision() external reinitializer(3) {}
+
+  /// @inheritdoc IGovernance
   function initialize(
     address owner,
     address guardian,
