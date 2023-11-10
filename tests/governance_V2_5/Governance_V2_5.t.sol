@@ -5,7 +5,7 @@ import 'forge-std/Test.sol';
 import {IGovernance_V2_5, Governance_V2_5, PayloadsControllerUtils} from '../../src/contracts/governance_2_5/Governance_V2_5.sol';
 import {AaveGovernanceV2} from 'aave-address-book/AaveGovernanceV2.sol';
 import {GovernanceV3Ethereum} from 'aave-address-book/GovernanceV3Ethereum.sol';
-import {AaveMisc} from 'aave-address-book/AaveMisc.sol';
+import {MiscEthereum} from 'aave-address-book/MiscEthereum.sol';
 import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 import {TransparentUpgradeableProxy} from 'solidity-utils/contracts/transparent-proxy/TransparentUpgradeableProxy.sol';
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
@@ -21,7 +21,7 @@ contract Governance_V2_5_Test is Test {
     govV2_5Impl = new Governance_V2_5();
 
     hoax(AaveGovernanceV2.SHORT_EXECUTOR);
-    ProxyAdmin(AaveMisc.PROXY_ADMIN_ETHEREUM).upgradeAndCall(
+    ProxyAdmin(MiscEthereum.PROXY_ADMIN).upgradeAndCall(
       TransparentUpgradeableProxy(
         payable(address(GovernanceV3Ethereum.GOVERNANCE))
       ),

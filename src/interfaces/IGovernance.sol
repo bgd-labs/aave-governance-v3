@@ -23,7 +23,7 @@ interface IGovernance {
   function CROSS_CHAIN_CONTROLLER() external view returns (address);
 
   /**
-   * @notice method to initialize governance v3
+   * @notice method to initialize governance v3 on first deploy
    * @param owner address of the new owner of governance
    * @param guardian address of the new guardian of governance
    * @param powerStrategy address of the governance chain voting strategy
@@ -41,6 +41,12 @@ interface IGovernance {
     uint256 gasLimit,
     uint256 cancellationFee
   ) external;
+
+  /**
+   * @notice method to initialize revision 3 of governance v3
+   * @param gasLimit updated gas limit needed for payload execution on PayloadsController
+   */
+  function initializeWithRevision(uint256 gasLimit) external;
 
   /**
    * @notice method to update the gasLimit

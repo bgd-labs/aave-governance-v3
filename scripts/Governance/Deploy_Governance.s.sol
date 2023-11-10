@@ -26,7 +26,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
   }
 
   function getExecutionGasLimit() public view virtual returns (uint256) {
-    return 150_000;
+    return 180_000;
   }
 
   function getCancellationFee() public view virtual returns (uint256) {
