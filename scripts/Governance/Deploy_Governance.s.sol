@@ -26,7 +26,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
   }
 
   function getExecutionGasLimit() public view virtual returns (uint256) {
-    return 150_000;
+    return 180_000;
   }
 
   function getCancellationFee() public view virtual returns (uint256) {
@@ -61,22 +61,22 @@ abstract contract BaseDeployGovernance is GovBaseScript {
       );
     }
 
-    addresses.governance = TransparentProxyFactory(ccAddresses.proxyFactory)
-      .createDeterministic(
-        address(governanceImpl),
-        ccAddresses.proxyAdmin,
-        abi.encodeWithSelector(
-          IGovernance.initialize.selector,
-          addresses.owner,
-          addresses.guardian,
-          addresses.governancePowerStrategy,
-          votingConfigs,
-          new address[](0), // voting portals
-          getExecutionGasLimit(),
-          getCancellationFee()
-        ),
-        Constants.GOVERNANCE_SALT
-      );
+    //    addresses.governance = TransparentProxyFactory(ccAddresses.proxyFactory)
+    //      .createDeterministic(
+    //        address(governanceImpl),
+    //        ccAddresses.proxyAdmin,
+    //        abi.encodeWithSelector(
+    //          IGovernance.initialize.selector,
+    //          addresses.owner,
+    //          addresses.guardian,
+    //          addresses.governancePowerStrategy,
+    //          votingConfigs,
+    //          new address[](0), // voting portals
+    //          getExecutionGasLimit(),
+    //          getCancellationFee()
+    //        ),
+    //        Constants.GOVERNANCE_SALT
+    //      );
 
     addresses.governanceImpl = address(governanceImpl);
   }

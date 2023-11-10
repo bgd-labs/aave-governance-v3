@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
+import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
 import {AaveV3Ethereum} from 'aave-address-book/AaveV3Ethereum.sol';
 import {GovernanceV3Ethereum} from 'aave-address-book/GovernanceV3Ethereum.sol';
 import {MiscEthereum} from 'aave-address-book/MiscEthereum.sol';
@@ -12,8 +13,11 @@ import {ChainIds} from 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
 import {Governance, IGovernance} from '../../src/contracts/Governance.sol';
 import {IGovernanceCore, PayloadsControllerUtils} from 'aave-address-book/GovernanceV3.sol';
+import {IWithGuardian} from 'solidity-utils/contracts/access-control/interfaces/IWithGuardian.sol';
 
 contract Governance_V3_Test is Test {
+  uint256 constant GAS_LIMIT = 180_000;
+
   IGovernance govV3_Impl;
 
   uint256 currentProposalCount;
@@ -33,7 +37,10 @@ contract Governance_V3_Test is Test {
         payable(address(GovernanceV3Ethereum.GOVERNANCE))
       ),
       address(govV3_Impl),
-      abi.encodeWithSelector(IGovernance.initializeWithRevision.selector)
+      abi.encodeWithSelector(
+        IGovernance.initializeWithRevision.selector,
+        GAS_LIMIT
+      )
     );
   }
 
@@ -45,7 +52,7 @@ contract Governance_V3_Test is Test {
     );
     assertEq(
       IGovernance(address(GovernanceV3Ethereum.GOVERNANCE)).getGasLimit(),
-      150_000
+      180_000
     );
     require(
       GovernanceV3Ethereum.GOVERNANCE.CANCELLATION_FEE_COLLECTOR() !=
@@ -53,6 +60,14 @@ contract Governance_V3_Test is Test {
       'WRONG FEE COLLECTOR'
     );
     assertEq(GovernanceV3Ethereum.GOVERNANCE.COOLDOWN_PERIOD(), 0);
+    assertEq(
+      Ownable(address(GovernanceV3Ethereum.GOVERNANCE)).owner(),
+      GovernanceV3Ethereum.EXECUTOR_LVL_1
+    );
+    assertEq(
+      IWithGuardian(address(GovernanceV3Ethereum.GOVERNANCE)).guardian(),
+      MiscEthereum.PROTOCOL_GUARDIAN
+    );
   }
 
   function test_old_storage() public {

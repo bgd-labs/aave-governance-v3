@@ -37,7 +37,9 @@ contract Governance is GovernanceCore, IGovernance {
   }
 
   /// @inheritdoc IGovernance
-  function initializeWithRevision() external reinitializer(3) {}
+  function initializeWithRevision(uint256 gasLimit) external reinitializer(3) {
+    _updateGasLimit(gasLimit);
+  }
 
   /// @inheritdoc IGovernance
   function initialize(
