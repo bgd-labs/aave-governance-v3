@@ -161,11 +161,7 @@ hook Sload uint256 len _votersRepresented  [KEY address rep] [KEY uint256 chain]
  * main Set general invariant
  **/
 invariant setInvariant(env e1, address representative, uint256 chainId)
-    SET_INVARIANT(representative, chainId)
-    {
-        preserved with (env e2)
-        {require e1.msg.sender == e2.msg.sender;}
-    }
+    SET_INVARIANT(representative, chainId);
 
 
 /**

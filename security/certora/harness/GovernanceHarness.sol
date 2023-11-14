@@ -89,14 +89,10 @@ contract GovernanceHarness is Governance {
     
     RepresentativeInput[] memory representatives = new RepresentativeInput[](1);
     representatives[0] = representativeInput;
-    
-
-    //todo: call as external
-    //updateRepresentativesForChain(representatives);
-
-      uint256 i = 0;
-      uint256 chainId = representatives[i].chainId;
-      address newRepresentative = representatives[i].representative !=
+   
+    uint256 i = 0;
+    uint256 chainId = representatives[i].chainId;
+    address newRepresentative = representatives[i].representative !=
         msg.sender
         ? representatives[i].representative
         : address(0);

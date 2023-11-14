@@ -120,7 +120,8 @@ function getMinPropositionPower(IGovernanceCore.VotingConfig votingConfig) retur
 // @title Property #1: Proposal IDs are consecutive and incremental.
 // Proposal ID increments by 1 iff createProposal was called
 rule consecutiveIDs(method f) filtered
-{ f -> f.selector != sig:createProposal(PayloadsControllerUtils.Payload[],address,bytes32).selector }
+{ f -> f.selector != sig:createProposal(PayloadsControllerUtils.Payload[],address,bytes32).selector 
+        && !f.isView}
 {
 
 	env e1; env e2; env e3;
@@ -205,11 +206,10 @@ invariant null_state_variable_only_if_uninitialized_proposal(uint256 proposalId)
 //      the proposal should not transition to any state apart from Cancelled, Expired, and Failed.
 // Note: if voting power decreases after queuing the proposal can still be executed. 
 
-rule proposal_after_voting_portal_invalidate{
+rule proposal_after_voting_portal_invalidate(method f) filtered { f-> !f.isView }{
 
   env e1; env e2; env e3;
   calldataarg args; 
-  method f;
   uint256 proposalId;
 
   require e1.block.timestamp <= e3.block.timestamp;
@@ -295,11 +295,10 @@ invariant null_state_variable_iff_null_access_level(uint256 proposalId)
 
 
 // Once assign the voting portal is immutable
-rule immutable_voting_portal(){
+rule immutable_voting_portal(method f) filtered { f-> !f.isView }{
 
   env e;
   calldataarg args;
-  method f;
   uint256 proposalId;
 
   requireInvariant zero_voting_portal_iff_uninitialized_proposal(proposalId);
@@ -329,16 +328,14 @@ invariant zero_address_is_not_a_valid_voting_portal()
 
 // @title Property #5: No further state transitions are possible if proposal.state > 3.
 // All state that are greater than 3 are terminal
-rule no_state_transitions_beyond_3{
+rule no_state_transitions_beyond_3(method f) filtered { f-> !f.isView }{
   env e1; env e2; env e3;
   calldataarg args;
-  method f;
   uint256 proposalId;
 
   require e1.block.timestamp <= e2.block.timestamp;
   require e2.block.timestamp <= e3.block.timestamp;
   requireInvariant null_state_iff_uninitialized_proposal(e1, proposalId);
-
   
   IGovernanceCore.State state1 = getProposalState(e1, proposalId);
   f(e2, args);
@@ -352,10 +349,9 @@ rule no_state_transitions_beyond_3{
 
 // @title Property #6 proposal.state can't decrease.
 // Forward progress of the proposal state-machine: the state cannot decrease. 
-rule state_cant_decrease{
+rule state_cant_decrease(method f) filtered { f-> !f.isView }{
   env e1; env e2; env e3;
   calldataarg args;
-  method f;
   uint256 proposalId;
 
   require e1.block.timestamp <= e2.block.timestamp && e2.block.timestamp <= e3.block.timestamp;
@@ -851,7 +847,6 @@ invariant totalCancellationFeeEqualETHBalance()
     {
         preserved with (env e2)
         {
-            requireInvariant cancellationFeeZeroForFutureProposals(getProposalCount());
             require e2.msg.sender != currentContract;
         }
     }
