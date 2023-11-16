@@ -4,7 +4,7 @@ methods {
 
 	//Summarization 
 	// executes a transaction
-	function Executor.executeTransaction(address,uint256,string,bytes,bool) external returns (bytes)  => NONDET;
+	function _.executeTransaction(address,uint256,string,bytes,bool) external  => NONDET;
 	function _.transfer(address,uint256) external => DISPATCHER(true);
 
 	//Envfree methods

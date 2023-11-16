@@ -2,7 +2,7 @@ import "votersRepresentedAddressSet.spec";
 
 
 using GovernancePowerStrategy as _GovernancePowerStrategy;
-using VotingPortal as _VotingPortal;
+//using VotingPortal as _VotingPortal;
 
 methods {
 
@@ -703,7 +703,6 @@ rule proposal_executes_after_cooldown_period(){
   uint128 againstVotes;
   require e2.block.timestamp <= e3.block.timestamp;
   require e1.block.timestamp < 2^40;
-  require e3.block.timestamp < 2^40;
 
   // record the time between queueProposal and executeProposal
   queueProposal(e1, proposalId, forVotes, againstVotes);
