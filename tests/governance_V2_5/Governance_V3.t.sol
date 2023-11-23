@@ -97,5 +97,24 @@ contract Governance_V3_Test is Test {
     assertEq(votingConfigLvl2.yesThreshold, 1_400_000);
     assertEq(votingConfigLvl2.yesNoDifferential, 1_400_000);
     assertEq(votingConfigLvl2.minPropositionPower, 80_000);
+
+    assertEq(
+      GovernanceV3Ethereum.GOVERNANCE.isVotingPortalApproved(
+        GovernanceV3Ethereum.VOTING_PORTAL_ETH_ETH
+      ),
+      true
+    );
+    assertEq(
+      GovernanceV3Ethereum.GOVERNANCE.isVotingPortalApproved(
+        GovernanceV3Ethereum.VOTING_PORTAL_ETH_AVAX
+      ),
+      true
+    );
+    assertEq(
+      GovernanceV3Ethereum.GOVERNANCE.isVotingPortalApproved(
+        GovernanceV3Ethereum.VOTING_PORTAL_ETH_POL
+      ),
+      true
+    );
   }
 }
