@@ -1,5 +1,10 @@
 //
 // Specification for Openzeppelin AddressSet used by GovernanceCore._votersRepresented 
+
+/* ND - we have a much better spec for this: 
+ https://github.com/Certora/Examples/blob/master/CVLByExample/QuantifierExamples/EnumerableSet/certora/spec/set.spec
+lets switch to that on new projects and then the requireinvaraint is much easier 
+*/
 // 
 
 methods{

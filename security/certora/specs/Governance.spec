@@ -51,6 +51,7 @@ methods {
   function getProposalVotingActivationTime(uint256) external returns (uint40) envfree;
   function getProposalSnapshotBlockHash(uint256) external returns (bytes32) envfree;
   function getProposalCancellationFee(uint256) external returns (uint256) envfree;
+  // ND - what the difference between getProposalCount and  getProposalsCount ? 
   function getProposalCount() external returns (uint256) envfree;
   function getPayloadChain(uint256, uint256) external returns (uint256) envfree;
   function getPayloadAccessLevel(uint256,uint256) external returns (PayloadsControllerUtils.AccessControl) envfree;
@@ -136,8 +137,19 @@ rule consecutiveIDs(method f) filtered
 
 // @title Property #2: Every proposal should contain at least one payload.
 // For initialized property, the proposal list is not empty
+/* ND:  since this is env dependent we are not checking:
+  require getProposalState(e, proposalId) != IGovernanceCore.State.Null  
+   => getPayloadLength(proposalId) > 0
+  f(e2,args)
+  assert require getProposalState(e3, proposalId) != IGovernanceCore.State.Null  
+   => getPayloadLength(proposalId) > 0
+
+  Can this be an issue? 
+  usually time dependnet properties should be proven as a rule 
+*/
+
 invariant at_least_single_payload_active (env e, uint256 proposalId)
-  getProposalState(e, proposalId) != IGovernanceCore.State.Null 
+  getProposalState(e, proposalId) != IGovernanceCore.State.Null  
    => getPayloadLength(proposalId) > 0
   {
       preserved{
@@ -145,6 +157,13 @@ invariant at_least_single_payload_active (env e, uint256 proposalId)
     }
   }
 // Same property just referring directly to the storage
+/*
+ND: since getProposalStateVariable is a certora harneess function we need a rule checking 
+
+getProposalStateVariable(proposalId) != getProposalState(e,proposalId)
+
+I see many of our rules are on getProposalState() and some are also on getProposalStateVariable() but when and why? 
+*/
 invariant at_least_single_payload_active_variable (uint256 proposalId)
   getProposalStateVariable(proposalId) != IGovernanceCore.State.Null => getPayloadLength(proposalId) > 0
   {
@@ -155,7 +174,8 @@ invariant at_least_single_payload_active_variable (uint256 proposalId)
 
 
 //
-// Helper invariants
+// Helper invariants 
+/* ND - what's the different between invaraints and "Helper" ones? I think valid state is a better term */
 //
 
 // Address zero cannot be a creator of a proposal
@@ -177,6 +197,7 @@ invariant creator_is_not_zero_2(uint256 proposalId)
 invariant empty_payloads_iff_uninitialized_proposal(uint256 proposalId)
       proposalId >= getProposalsCount() <=> getPayloadLength(proposalId) == 0;
 
+/* ND - this is just a subset of the above ? */
 invariant empty_payloads_if_uninitialized_proposal(uint256 proposalId)
       proposalId >= getProposalsCount() => getPayloadLength(proposalId) == 0;
 
@@ -184,13 +205,12 @@ invariant empty_payloads_if_uninitialized_proposal(uint256 proposalId)
 invariant null_state_iff_uninitialized_proposal(env e, uint256 proposalId)
       proposalId >= getProposalsCount() <=> getProposalState(e, proposalId) == IGovernanceCore.State.Null;
 
-
 invariant null_state_variable_iff_uninitialized_proposal(uint256 proposalId)
       proposalId >= getProposalsCount() <=> getProposalStateVariable(proposalId) == IGovernanceCore.State.Null;
-
+/* ND - subset of null_state_iff_uninitialized_proposal ? */
 invariant null_state_if_uninitialized_proposal(env e, uint256 proposalId)
       proposalId >= getProposalsCount() => getProposalState(e, proposalId) == IGovernanceCore.State.Null;
-
+/* ND - subset of null_state_variable_iff_uninitialized_proposal */
 invariant null_state_variable_if_uninitialized_proposal(uint256 proposalId)
       proposalId >= getProposalsCount() => getProposalStateVariable(proposalId) == IGovernanceCore.State.Null;
 
@@ -199,9 +219,13 @@ invariant null_state_only_if_uninitialized_proposal(env e, uint256 proposalId)
 
 invariant null_state_variable_only_if_uninitialized_proposal(uint256 proposalId)
       getProposalStateVariable(proposalId) == IGovernanceCore.State.Null => proposalId >= getProposalsCount();
+/* ND - it looks like if we prove that  
 
+getProposalState(e, proposalId) == IGovernanceCore.State.Null <=> getProposalStateVariable(proposalId) == IGovernanceCore.State.Null
 
+we can reduce many rules, even just one direction */
 
+/* ND - numbering does not match report . maybe open a section valid state for all the above "helper" */ 
 // @title Property #3: If a voting portal gets invalidated during the proposal life cycle, 
 //      the proposal should not transition to any state apart from Cancelled, Expired, and Failed.
 // Note: if voting power decreases after queuing the proposal can still be executed. 
@@ -222,7 +246,10 @@ rule proposal_after_voting_portal_invalidate(method f) filtered { f-> !f.isView 
   IGovernanceCore.State state_after = getProposalState(e3, proposalId);
 
   assert !voting_portal_approved_after => (state_before != state_after => isTerminalState(state_after));
-
+  /* ND- what about the other direction
+     state_before != state_after && !isTerminalState(state_after) => voting_portal_approved_after 
+     ?
+  */
 }
 
 
@@ -241,6 +268,15 @@ rule insufficient_proposition_power(method f) filtered { f -> !f.isView}{
   mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e,getProposalCreator(proposalId));
   mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
+  /* ND - it's a but style but require at end of a rule is a bit strange, I try to keep the precondition, state, postcondition style
+  and long expressions are also hard to follow,
+  so how about? 
+
+  bool belowThreshold = (state1 != state2 && creator_power <= voting_config_min_power );
+  assert belowThreshold => (state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed)
+  
+  it's probably also a caus of vacuity? https://prover.certora.com/output/40726/097d0dcda60c49cbb44559f5db45ace6/?anonymousKey=5a7dc4e40da5dc06d075483b246f7c478f80fe71
+  */
   require state1 != state2; 
   require creator_power <= voting_config_min_power;
   assert state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed;
@@ -248,6 +284,8 @@ rule insufficient_proposition_power(method f) filtered { f -> !f.isView}{
 }
 
 //pass
+/* ND - is insufficient_proposition_power jsut a subcase of insufficient_proposition_power_allow_time_elapse? 
+ok to have both but maybe share the code in cvl function ? */
 rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> !f.isView}
 {
   env e1; env e2; env e3;
@@ -266,7 +304,10 @@ rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> 
   state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed || state2 == IGovernanceCore.State.Expired;
 
 }
+/*
+ND: missign rule that only state_advancing_function are indeed such 
 
+*/
 
 rule insufficient_proposition_power_time_elapsed_tight_witness(method f) filtered { f -> state_advancing_function(f)}{
   env e1; env e2; env e3;
@@ -283,17 +324,19 @@ rule insufficient_proposition_power_time_elapsed_tight_witness(method f) filtere
 
   require state1 != state2; 
   require creator_power <= (voting_config_min_power);
+  /* so you are looking for state2 == IGovernanceCore.State.Expired ? why not just satisfy that ? */
   satisfy ! (state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed);
 }
 
 
 //helper a proposal state is Null iff its required access level is null
+/* ND - move this to the other null valid state invariants */  
 invariant null_state_variable_iff_null_access_level(uint256 proposalId)
       getProposalStateVariable(proposalId) == IGovernanceCore.State.Null <=> 
       getProposalAccessLevel(proposalId) == PayloadsControllerUtils.AccessControl.Level_null;
 
 
-
+// ND - property #6 in report 
 // Once assign the voting portal is immutable
 rule immutable_voting_portal(method f) filtered { f-> !f.isView }{
 
@@ -311,6 +354,7 @@ rule immutable_voting_portal(method f) filtered { f-> !f.isView }{
 }
 
 // helper: A proposal is uninitialized iff its voting portal is address zero.
+// ND - move up to "helpers"
 invariant zero_voting_portal_iff_uninitialized_proposal(uint256 proposalId)
       proposalId >= getProposalsCount() <=> getProposalVotingPortal(proposalId) == 0
       {
@@ -321,12 +365,13 @@ invariant zero_voting_portal_iff_uninitialized_proposal(uint256 proposalId)
       }
 
 //helper: Zero address is never an approved voting portal
+// ND - move up
 invariant zero_address_is_not_a_valid_voting_portal()
       !isVotingPortalApproved(0); 
 
 
 
-// @title Property #5: No further state transitions are possible if proposal.state > 3.
+// @title Property #7: No further state transitions are possible if proposal.state > 3.
 // All state that are greater than 3 are terminal
 rule no_state_transitions_beyond_3(method f) filtered { f-> !f.isView }{
   env e1; env e2; env e3;
@@ -347,7 +392,7 @@ rule no_state_transitions_beyond_3(method f) filtered { f-> !f.isView }{
 }
 
 
-// @title Property #6 proposal.state can't decrease.
+// @title Property #8 proposal.state can't decrease.
 // Forward progress of the proposal state-machine: the state cannot decrease. 
 rule state_cant_decrease(method f) filtered { f-> !f.isView }{
   env e1; env e2; env e3;
@@ -364,13 +409,13 @@ rule state_cant_decrease(method f) filtered { f-> !f.isView }{
   assert assert_uint256(state1) <= assert_uint256(state2);
 }
 
-
+// ND - in the pdf we say three expections but there are four listed 
 // @title Property #7 
 // It should be impossible to do more than 1 state transition per proposal per block, except:
 // Cancellation because of the proposition power change.
 // Cancellation after proposal creation by creator.
 // Proposal execution after proposal queuing if COOLDOWN_PERIOD is 0.
-// /owner calling setVotingConfigs(), removeVotingPortals()
+// Owner calling setVotingConfigs(), removeVotingPortals()
 // No two transitions of a proposal's state happen in a single block timestamp, except cancellation by the owner or by a guardian.
 
 rule single_state_transition_per_block_non_creator_non_guardian(method f, method g, method h)
@@ -391,7 +436,7 @@ filtered { f -> state_changing_function(f),
   uint256 proposalId;
 
   require e1.block.timestamp <= e2.block.timestamp;
-  require e2.block.timestamp == e3.block.timestamp;
+  require e2.block.timestamp == e3.block.timestamp; 
   require e3.block.timestamp == e4.block.timestamp;
   require e4.block.timestamp == e5.block.timestamp;
   require e5.block.timestamp == e6.block.timestamp;
@@ -417,6 +462,7 @@ filtered { f -> state_changing_function(f),
 
 //todo: add witnesses of double transition 
 //todo: investigate: should there be more witnesses in addition to queueProposal-executeProposal
+// ND - either do the todo or remove
 rule single_state_transition_per_block_non_creator_witness
 {
   env e1;
@@ -528,7 +574,7 @@ rule guardian_can_cancel()
   assert assert_uint256(state1) < 4;
 }
 
-// Only a guardian, an owner can cancel any proposal, a creator can cancel his own proposal 
+// property #13? : Only a guardian, an owner can cancel any proposal, a creator can cancel his own proposal 
 rule only_guardian_can_cancel(method f)filtered 
 { f -> !f.isView  && 
   !initializeSig(f)
@@ -554,7 +600,7 @@ rule only_guardian_can_cancel(method f)filtered
         creator_power_after < creator_power_before;
 }
 
-
+// ND - try to organize - either top or bottom 
 //helper parametric function
 function call_state_changing_function(env e, uint256 proposalId) {
 uint128 forVotes;
@@ -566,7 +612,7 @@ uint128 forVotes;
     else if (sel ==3) {queueProposal(e, proposalId, forVotes, againstVotes);}
     else if (sel ==4) {executeProposal(e, proposalId);}
     else if (sel ==5) {cancelProposal(e, proposalId);}
-    else {require false;}
+    else {require false;} // ND - better assert and then filter to only statechaning functions 
   }
 
 
@@ -615,6 +661,7 @@ rule immutable_after_creation(method f){
 
 
 // Proposal payloads cannot change.
+/* ND - what about f == createProposal why is this passing */ 
 rule immutable_payload_after_creation(method f){
 
   env e1;
@@ -664,7 +711,8 @@ filtered {f -> !f.isView}
   f(e2, args);
   uint40 voting_activation_time_after = getProposalVotingActivationTime(proposalId);
   bytes32 snapshot_blockhash_after = getProposalSnapshotBlockHash(proposalId);
-
+  /* ND - we are not proving the "can only be set once... " we are proving "can not be changed after activateVoting"
+  either rephrase of add a satisfy rule that shows it can be set */
   assert voting_activation_time_before == voting_activation_time_after;
   assert snapshot_blockhash_before == snapshot_blockhash_after;
 }
@@ -720,7 +768,7 @@ rule proposal_executes_after_cooldown_period(){
 //              From its perspective, execution is sent to a Portal.
 //Property #18: VOTING_TOKENS_CAP in GovernanceCore should be big enough to account for tokens that need to pass multiple slots,
 //               and big enough for at least mig to long term
-
+// ND - what are the above 16 - 18 properties? 
 
 //property #20: When if in a terminal state, no state changing function can be called.
 // Terminal states >= 4 are terminal, a proposal in a terminal state cannot change its state
@@ -741,7 +789,7 @@ rule state_changing_function_cannot_be_called_while_in_terminal_state()
 }
 
 
-// Terminal states >= 4 are terminal, a proposal in a terminal state cannot change its state
+// Terminal states >= 4 are terminal, a proposal in a terminal state cannot change its state // ND - this is not realted to this rule, right? 
 // Only the relevant state-changing function actually change the state
 // Check by the states before a transition occurs 
 rule pre_state(method f)
@@ -767,7 +815,7 @@ rule pre_state(method f)
   assert state1 != state2 && state1 == IGovernanceCore.State.Queued  && state2 != IGovernanceCore.State.Expired 
         => (f.selector == sig:executeProposal(uint256).selector || f.selector == sig:cancelProposal(uint256).selector);
   //todo: relevant assertion for Failed, Expired?
-
+ // ND - either do or remove , maybe have a section additional properties that can be added */
 }
 
 
@@ -828,6 +876,7 @@ filtered { f -> !state_changing_function(f)}
   IGovernanceCore.State state1 = getProposalStateVariable(e1, proposalId);
   f(e2, args1);
   IGovernanceCore.State state2 = getProposalStateVariable(e3, proposalId);
+  // ND - why not do a full state compariation with a storage variable ? 
   
   assert state1 == state2;
 }
@@ -836,12 +885,13 @@ filtered { f -> !state_changing_function(f)}
 // Cancellation fee
 //
 
-// Property: For any proposal id that wasn't yet created, the cancellation fee must be 0
+// Property 22: For any proposal id that wasn't yet created, the cancellation fee must be 0
 invariant cancellationFeeZeroForFutureProposals(uint256 proposalId) 
     proposalId >= getProposalCount() => getProposalCancellationFee(proposalId) == 0;
 
 // Property: eth balance can cover the total cancellation fee of users
 invariant totalCancellationFeeEqualETHBalance()
+// ND - the report regard fee of live proposals, this is all proposals, no? 
     to_mathint(nativeBalances[currentContract]) >= totalCancellationFee
     {
         preserved with (env e2)
@@ -865,6 +915,7 @@ rule userFeeDidntChangeImplyNativeBalanceDidntDecrease(){
 //
 
 // A voter cannot represent himself
+// ND - this is not in the report, why? 
 invariant no_self_representative(address voter, uint256 chainId)
     voter == 0 <=> getRepresentativeByChain(voter, chainId) == voter
     {
