@@ -68,10 +68,6 @@ contract GovernanceHarness is Governance {
     return _proposals[proposalId].payloads[payloadID].payloadId;
   }
 
-  function getProposalCount() external view returns (uint256) {
-    return _proposalsCount;
-  }
-
   function isRepresentativeOfVoter(
     address voter,
     address representative,

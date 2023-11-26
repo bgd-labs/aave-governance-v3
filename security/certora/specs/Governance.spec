@@ -51,8 +51,6 @@ methods {
   function getProposalVotingActivationTime(uint256) external returns (uint40) envfree;
   function getProposalSnapshotBlockHash(uint256) external returns (bytes32) envfree;
   function getProposalCancellationFee(uint256) external returns (uint256) envfree;
-  // ND - what the difference between getProposalCount and  getProposalsCount ? 
-  function getProposalCount() external returns (uint256) envfree;
   function getPayloadChain(uint256, uint256) external returns (uint256) envfree;
   function getPayloadAccessLevel(uint256,uint256) external returns (PayloadsControllerUtils.AccessControl) envfree;
   function getPayloadPayloadsController(uint256,uint256) external returns (address) envfree;
@@ -89,14 +87,12 @@ use invariant array_out_of_bound_entries_are_zero;
 use rule set_size_eq_max_uint160_witness;
 
 //  State changing methods
-definition state_advancing_function(method f) returns bool = 
+definition state_changing_function(method f) returns bool = 
             f.selector == sig:createProposal(PayloadsControllerUtils.Payload[],address,bytes32).selector ||
             f.selector == sig:activateVoting(uint256).selector ||
             f.selector == sig:queueProposal(uint256,uint128,uint128).selector ||
-            f.selector == sig:executeProposal(uint256).selector;
-
-definition state_changing_function(method f) returns bool = 
-            state_advancing_function(f) || f.selector == sig:cancelProposal(uint256).selector; 
+            f.selector == sig:executeProposal(uint256).selector ||
+            f.selector == sig:cancelProposal(uint256).selector; 
 
 definition initializeSig(method f) returns bool = 
             f.selector == sig:initialize(address,address,address, IGovernanceCore.SetVotingConfigInput[],address[],uint256,uint256).selector;
@@ -137,45 +133,33 @@ rule consecutiveIDs(method f) filtered
 
 // @title Property #2: Every proposal should contain at least one payload.
 // For initialized property, the proposal list is not empty
-/* ND:  since this is env dependent we are not checking:
-  require getProposalState(e, proposalId) != IGovernanceCore.State.Null  
-   => getPayloadLength(proposalId) > 0
-  f(e2,args)
-  assert require getProposalState(e3, proposalId) != IGovernanceCore.State.Null  
-   => getPayloadLength(proposalId) > 0
+rule at_least_single_payload_active(method f)filtered { f-> !f.isView }
+{
+  env e1; env e2; env e3;
+  calldataarg args;
+  uint256 proposalId;
+  
+  requireInvariant empty_payloads_if_uninitialized_proposal(proposalId);
+  require getProposalState(e1, proposalId) != IGovernanceCore.State.Null => getPayloadLength(proposalId) > 0;
+  f(e2, args);
+  assert getProposalState(e3, proposalId) != IGovernanceCore.State.Null => getPayloadLength(proposalId) > 0;
+}
 
-  Can this be an issue? 
-  usually time dependnet properties should be proven as a rule 
-*/
-
-invariant at_least_single_payload_active (env e, uint256 proposalId)
-  getProposalState(e, proposalId) != IGovernanceCore.State.Null  
-   => getPayloadLength(proposalId) > 0
-  {
-      preserved{
-      requireInvariant empty_payloads_if_uninitialized_proposal(proposalId);
-    }
-  }
 // Same property just referring directly to the storage
-/*
-ND: since getProposalStateVariable is a certora harneess function we need a rule checking 
-
-getProposalStateVariable(proposalId) != getProposalState(e,proposalId)
-
-I see many of our rules are on getProposalState() and some are also on getProposalStateVariable() but when and why? 
-*/
-invariant at_least_single_payload_active_variable (uint256 proposalId)
-  getProposalStateVariable(proposalId) != IGovernanceCore.State.Null => getPayloadLength(proposalId) > 0
-  {
-    preserved{
-      requireInvariant empty_payloads_if_uninitialized_proposal(proposalId);
-    }
-  }
-
+rule at_least_single_payload_active_variable(method f)filtered { f-> !f.isView }
+{
+  env e1; env e2; env e3;
+  calldataarg args;
+  uint256 proposalId;
+  
+  requireInvariant empty_payloads_if_uninitialized_proposal(proposalId);
+  require getProposalStateVariable(e1, proposalId) != IGovernanceCore.State.Null => getPayloadLength(proposalId) > 0;
+  f(e2, args);
+  assert getProposalStateVariable(e3, proposalId) != IGovernanceCore.State.Null => getPayloadLength(proposalId) > 0;
+}
 
 //
-// Helper invariants 
-/* ND - what's the different between invaraints and "Helper" ones? I think valid state is a better term */
+// Valid state invariants 
 //
 
 // Address zero cannot be a creator of a proposal
@@ -246,47 +230,15 @@ rule proposal_after_voting_portal_invalidate(method f) filtered { f-> !f.isView 
   IGovernanceCore.State state_after = getProposalState(e3, proposalId);
 
   assert !voting_portal_approved_after => (state_before != state_after => isTerminalState(state_after));
-  /* ND- what about the other direction
-     state_before != state_after && !isTerminalState(state_after) => voting_portal_approved_after 
-     ?
-  */
+  
+
+
 }
-
-
 
 // @title Property #4: If the proposer's proposition power goes below the minimum required threshold, the proposal
 //     should not go to any state apart from Failed or Canceled.
-rule insufficient_proposition_power(method f) filtered { f -> !f.isView}{
-  env e;
-  calldataarg args;
-  uint256 proposalId;
-  
-  IGovernanceCore.State state1 = getProposalState(e, proposalId);
-  f(e, args);
-  IGovernanceCore.State state2 = getProposalState(e, proposalId);
- 
-  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e,getProposalCreator(proposalId));
-  mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
-
-  /* ND - it's a but style but require at end of a rule is a bit strange, I try to keep the precondition, state, postcondition style
-  and long expressions are also hard to follow,
-  so how about? 
-
-  bool belowThreshold = (state1 != state2 && creator_power <= voting_config_min_power );
-  assert belowThreshold => (state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed)
-  
-  it's probably also a caus of vacuity? https://prover.certora.com/output/40726/097d0dcda60c49cbb44559f5db45ace6/?anonymousKey=5a7dc4e40da5dc06d075483b246f7c478f80fe71
-  */
-  require state1 != state2; 
-  require creator_power <= voting_config_min_power;
-  assert state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed;
-
-}
-
-//pass
-/* ND - is insufficient_proposition_power jsut a subcase of insufficient_proposition_power_allow_time_elapse? 
-ok to have both but maybe share the code in cvl function ? */
-rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> !f.isView}
+//     If time have elpased state could become Expired.
+rule insufficient_proposition_power(method f) filtered {f -> !f.isView}
 {
   env e1; env e2; env e3;
   calldataarg args;
@@ -300,16 +252,62 @@ rule insufficient_proposition_power_allow_time_elapse(method f) filtered { f -> 
   mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
   mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
-  assert (state1 != state2 && (creator_power <= voting_config_min_power)) => 
+  bool belowThreshold = (state1 != state2 && creator_power <= voting_config_min_power );
+
+  assert belowThreshold && e1.block.timestamp == e3.block.timestamp  => 
+  state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed;
+
+  assert belowThreshold => 
   state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed || state2 == IGovernanceCore.State.Expired;
 
 }
-/*
-ND: missign rule that only state_advancing_function are indeed such 
 
-*/
+//witness 1
+rule insufficient_proposition_power_witness_failed{
+  env e1; env e2; env e3;
+  calldataarg args;
+  uint256 proposalId;
+  
+  require e1.block.timestamp <= e2.block.timestamp && e2.block.timestamp <= e3.block.timestamp;
+  
+  IGovernanceCore.State state1 = getProposalState(e1, proposalId);
+  queueProposal(e2, args);
+  IGovernanceCore.State state2 = getProposalState(e3, proposalId);
+  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
+  mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
-rule insufficient_proposition_power_time_elapsed_tight_witness(method f) filtered { f -> state_advancing_function(f)}{
+  bool belowThreshold = (state1 != state2 && creator_power <= voting_config_min_power );
+
+  require belowThreshold && e1.block.timestamp == e3.block.timestamp;
+
+  satisfy belowThreshold && e1.block.timestamp == e3.block.timestamp => 
+  state2 == IGovernanceCore.State.Failed;
+
+}
+
+//witness 2
+rule insufficient_proposition_power_witness_cancelled{
+  env e1; env e2; env e3;
+  calldataarg args;
+  uint256 proposalId;
+  
+  require e1.block.timestamp <= e2.block.timestamp && e2.block.timestamp <= e3.block.timestamp;
+  
+  IGovernanceCore.State state1 = getProposalState(e1, proposalId);
+  cancelProposal(e2, args);
+  IGovernanceCore.State state2 = getProposalState(e3, proposalId);
+  mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
+  mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
+
+  bool belowThreshold = (state1 != state2 && creator_power <= voting_config_min_power );
+
+  require belowThreshold && e1.block.timestamp == e3.block.timestamp;
+
+  satisfy belowThreshold && e1.block.timestamp == e3.block.timestamp => state2 == IGovernanceCore.State.Cancelled;
+
+}
+//witness 3
+rule insufficient_proposition_power_witness_time_elapsed(method f) filtered { f -> state_changing_function(f)}{
   env e1; env e2; env e3;
   calldataarg args;
   uint256 proposalId;
@@ -322,10 +320,11 @@ rule insufficient_proposition_power_time_elapsed_tight_witness(method f) filtere
   mathint creator_power = _GovernancePowerStrategy.getFullPropositionPower(e2,getProposalCreator(proposalId));
   mathint voting_config_min_power = getMinPropositionPower(getVotingConfig(getProposalAccessLevel(proposalId))) * PRECISION_DIVIDER(); //uint56
 
-  require state1 != state2; 
-  require creator_power <= (voting_config_min_power);
-  /* so you are looking for state2 == IGovernanceCore.State.Expired ? why not just satisfy that ? */
-  satisfy ! (state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed);
+  bool belowThreshold = (state1 != state2 && creator_power <= voting_config_min_power );
+
+  require belowThreshold;
+
+  satisfy state2 == IGovernanceCore.State.Expired;
 }
 
 
@@ -409,13 +408,12 @@ rule state_cant_decrease(method f) filtered { f-> !f.isView }{
   assert assert_uint256(state1) <= assert_uint256(state2);
 }
 
-// ND - in the pdf we say three expections but there are four listed 
 // @title Property #7 
 // It should be impossible to do more than 1 state transition per proposal per block, except:
-// Cancellation because of the proposition power change.
-// Cancellation after proposal creation by creator.
-// Proposal execution after proposal queuing if COOLDOWN_PERIOD is 0.
-// Owner calling setVotingConfigs(), removeVotingPortals()
+// (a) Cancellation because of the proposition power change.
+// (b) Cancellation after proposal creation by creator.
+// (c) Proposal execution after proposal queuing if COOLDOWN_PERIOD is 0.
+// (d) The owner is calling setVotingConfigs(), removeVotingPortals()
 // No two transitions of a proposal's state happen in a single block timestamp, except cancellation by the owner or by a guardian.
 
 rule single_state_transition_per_block_non_creator_non_guardian(method f, method g, method h)
@@ -460,9 +458,6 @@ filtered { f -> state_changing_function(f),
 }
 
 
-//todo: add witnesses of double transition 
-//todo: investigate: should there be more witnesses in addition to queueProposal-executeProposal
-// ND - either do the todo or remove
 rule single_state_transition_per_block_non_creator_witness
 {
   env e1;
@@ -574,7 +569,7 @@ rule guardian_can_cancel()
   assert assert_uint256(state1) < 4;
 }
 
-// property #13? : Only a guardian, an owner can cancel any proposal, a creator can cancel his own proposal 
+// property  : Only a guardian, an owner can cancel any proposal, a creator can cancel his own proposal 
 rule only_guardian_can_cancel(method f)filtered 
 { f -> !f.isView  && 
   !initializeSig(f)
@@ -599,21 +594,6 @@ rule only_guardian_can_cancel(method f)filtered
         getProposalCreator(proposalId) == e3.msg.sender ||
         creator_power_after < creator_power_before;
 }
-
-// ND - try to organize - either top or bottom 
-//helper parametric function
-function call_state_changing_function(env e, uint256 proposalId) {
-uint128 forVotes;
-  calldataarg args;
-  uint128 againstVotes;
-  uint256 sel;
-    if (sel == 1) {require createProposal(e, args) == proposalId;}
-    else if (sel ==2) {activateVoting(e, proposalId);}
-    else if (sel ==3) {queueProposal(e, proposalId, forVotes, againstVotes);}
-    else if (sel ==4) {executeProposal(e, proposalId);}
-    else if (sel ==5) {cancelProposal(e, proposalId);}
-    else {require false;} // ND - better assert and then filter to only statechaning functions 
-  }
 
 
 //Property #11: The following proposal parameters can only be set once, at proposal creation:
@@ -772,7 +752,7 @@ rule proposal_executes_after_cooldown_period(){
 
 //property #20: When if in a terminal state, no state changing function can be called.
 // Terminal states >= 4 are terminal, a proposal in a terminal state cannot change its state
-rule state_changing_function_cannot_be_called_while_in_terminal_state()
+rule state_changing_function_cannot_be_called_while_in_terminal_state(method f) filtered {f -> state_changing_function(f)}
 {
   env e1;
   env e2;
@@ -782,11 +762,24 @@ rule state_changing_function_cannot_be_called_while_in_terminal_state()
 
   requireInvariant null_state_iff_uninitialized_proposal(e2, proposalId);
   IGovernanceCore.State state1 = getProposalState(e1, proposalId);
-  call_state_changing_function(e2, proposalId);
+  uint128 forVotes;
+  calldataarg args;
+  uint128 againstVotes;
+  
+  if (f.selector == sig:createProposal(PayloadsControllerUtils.Payload[],address,bytes32).selector ) {require createProposal(e2, args) == proposalId;}
+    else if (f.selector == sig:activateVoting(uint256).selector) {activateVoting(e2, proposalId);}
+    else if (f.selector == sig:queueProposal(uint256,uint128,uint128).selector) {queueProposal(e2, proposalId, forVotes, againstVotes);}
+    else if (f.selector == sig:executeProposal(uint256).selector) {executeProposal(e2, proposalId);}
+    else if (f.selector == sig:cancelProposal(uint256).selector) {cancelProposal(e2, proposalId);}
+    else {assert false;} 
+
 
   assert !isTerminalState(state1);
   assert assert_uint256(state1) < 4;
 }
+
+// ND - try to organize - either top or bottom 
+
 
 
 // Terminal states >= 4 are terminal, a proposal in a terminal state cannot change its state // ND - this is not realted to this rule, right? 
@@ -870,13 +863,12 @@ filtered { f -> !state_changing_function(f)}
   env e1;
   env e2;
   env e3;
-  calldataarg args1;
+  calldataarg args;
   uint256 proposalId;
 
   IGovernanceCore.State state1 = getProposalStateVariable(e1, proposalId);
-  f(e2, args1);
+  f(e2, args);
   IGovernanceCore.State state2 = getProposalStateVariable(e3, proposalId);
-  // ND - why not do a full state compariation with a storage variable ? 
   
   assert state1 == state2;
 }
@@ -887,7 +879,7 @@ filtered { f -> !state_changing_function(f)}
 
 // Property 22: For any proposal id that wasn't yet created, the cancellation fee must be 0
 invariant cancellationFeeZeroForFutureProposals(uint256 proposalId) 
-    proposalId >= getProposalCount() => getProposalCancellationFee(proposalId) == 0;
+    proposalId >= getProposalsCount() => getProposalCancellationFee(proposalId) == 0;
 
 // Property: eth balance can cover the total cancellation fee of users
 invariant totalCancellationFeeEqualETHBalance()
