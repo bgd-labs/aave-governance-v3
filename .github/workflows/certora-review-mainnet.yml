@@ -64,4 +64,4 @@ jobs:
           - verifyGovernance.conf --rule only_valid_voting_portal_can_queue_proposal immutable_after_activation immutable_payload_after_creation immutable_after_creation only_guardian_can_cancel guardian_can_cancel 
           - verifyGovernance.conf --rule cannot_queue_when_voting_portal_unapproved only_owner_can_set_voting_config_witness only_owner_can_set_voting_config single_state_transition_per_block_non_creator_witness 
           - verifyGovernance.conf --rule single_state_transition_per_block_non_creator_non_guardian state_cant_decrease no_state_transitions_beyond_3 immutable_voting_portal  
-          - verifyGovernance.conf --rule proposal_after_voting_portal_invalida  insufficient_proposition_power insufficient_proposition_power_witness_failed insufficient_proposition_power_witness_cancelled insufficient_proposition_power_witness_time_elapsed
+          - verifyGovernance.conf --rule proposal_after_voting_portal_invalidate  insufficient_proposition_power insufficient_proposition_power_witness_failed insufficient_proposition_power_witness_cancelled insufficient_proposition_power_witness_time_elapsed
