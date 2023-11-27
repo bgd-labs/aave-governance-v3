@@ -22,6 +22,10 @@ methods
     function getFullVotingPower(address) external returns (uint256) envfree;
     function getFullPropositionPower(address) external returns (uint256) envfree;
 
+    // GovernancePowerStrategyHarness ==========================================
+    function getVotingAsset(uint256) external returns (address) envfree;
+    function getVotingAssetsNumber() external returns (uint256) envfree;
+    
     // AaveTokenV3 =============================================================
     function AaveTokenV3_DummyA.getPowerCurrent(
         address,
@@ -194,6 +198,17 @@ rule delegatePowerCompliance(
         postPowerCurDelegatee <= prePowerCurDelegatee
     );
 }
+
+
+/// @title Voting assets integrity
+invariant votingAssetsIntegrity(uint256 i, uint256 j)
+    (i != j) => (getVotingAsset(i) != getVotingAsset(j));
+
+
+/// @title The number of tokens must be 3 (affects the `loop_iter`)
+invariant numberOfVotingAssets()
+    getVotingAssetsNumber() == 3;
+
 
 // setup self check - reachability of currentContract external functions
 rule method_reachability {
