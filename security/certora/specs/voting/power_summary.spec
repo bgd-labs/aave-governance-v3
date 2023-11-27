@@ -55,9 +55,10 @@ methods
 
     // `CrossChainController` ==================================================
     // NOTE: Not clear why this call is not resolved, we summarize it as `NONDET`
-    function CrossChainController.forwardMessage(
-        uint256, address, uint256, bytes
-    ) external returns (bytes32,bytes32) => NONDET;
+    // NOTE: Not a view method - not a safe summary! 20231120 Trying without
+    //function CrossChainController.forwardMessage(
+    //    uint256, address, uint256, bytes
+    //) external returns (bytes32,bytes32) => NONDET;
 
     // `SlotUtils` =============================================================
     // Summarized for speed-up
