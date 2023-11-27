@@ -66,4 +66,12 @@ jobs:
           - verifyProposal_states.conf --rule proposalIdIsImmutable proposalHasNonzeroDuration proposalTimeStateTransitionCompliance proposalLegalStates method_reachability
           - verifyVoting_and_tally.conf --rule voteUpdatesTally
           - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
-          - verifyVoting_and_tally.conf --rule voteTallyChangedOnlyByVoting onlyVoteCanChangeResult votingTallyCanOnlyIncrease strangerVoteUnchanged otherProposalUnchanged otherVoterUntouched cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote method_reachability
+          - verifyVoting_and_tally.conf --rule voteTallyChangedOnlyByVoting onlyVoteCanChangeResult
+          - verifyVoting_and_tally.conf --rule  votingTallyCanOnlyIncrease 
+          - verifyVoting_and_tally.conf --rule strangerVoteUnchanged
+          - verifyVoting_and_tally.conf --rule strangerVoteUnchanged 
+          - verifyVoting_and_tally.conf --rule otherProposalUnchanged 
+          - verifyVoting_and_tally.conf --rule otherVoterUntouched 
+          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative
+          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote
+          - verifyVoting_and_tally.conf --rule method_reachability

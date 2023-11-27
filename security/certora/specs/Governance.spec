@@ -177,7 +177,7 @@ invariant creator_is_not_zero_2(uint256 proposalId)
         {require e.msg.sender != 0;}
       }
 
-// Uninitialized proposals has no payloads
+// Uninitialized proposals have no payloads
 invariant empty_payloads_iff_uninitialized_proposal(uint256 proposalId)
       proposalId >= getProposalsCount() <=> getPayloadLength(proposalId) == 0;
 
