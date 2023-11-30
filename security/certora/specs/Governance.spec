@@ -825,13 +825,16 @@ rule check_new_representative_set_size_after_updateRepresentatives{
 
     requireInvariant no_self_representative(e.msg.sender, chainId);
     requireInvariant in_representatives_iff_in_votersRepresented(e.msg.sender, new_representative, chainId);
- 
 
     address[] new_voters_before = getRepresentedVotersByChain(new_representative, chainId);
     mathint new_voters_size_before = new_voters_before.length;
     address representative_before = getRepresentativeByChain(e.msg.sender, chainId);
   
-    updateSingleRepresentativeForChain(e, new_representative, chainId);
+    IGovernanceCore.RepresentativeInput[] representatives;
+    require representatives[0].representative == new_representative;
+    require representatives[0].chainId == chainId;
+    require representatives.length == 1;
+    updateRepresentativesForChain(e, representatives);  
     address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
     mathint new_voters_size_after = new_voters_after.length;
     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
@@ -848,6 +851,118 @@ rule check_new_representative_set_size_after_updateRepresentatives{
 
 }
 
+rule check_new_representative_set_size_after_updateRepresentatives_witness_antecedent_first{
+
+    env e;
+    address new_representative;
+    uint256 chainId;
+
+    requireInvariant no_self_representative(e.msg.sender, chainId);
+    requireInvariant in_representatives_iff_in_votersRepresented(e.msg.sender, new_representative, chainId);
+ 
+
+    address[] new_voters_before = getRepresentedVotersByChain(new_representative, chainId);
+    mathint new_voters_size_before = new_voters_before.length;
+    address representative_before = getRepresentativeByChain(e.msg.sender, chainId);
+  
+    IGovernanceCore.RepresentativeInput[] representatives;
+    require representatives[0].representative == new_representative;
+    require representatives[0].chainId == chainId;
+    require representatives.length == 1;
+    updateRepresentativesForChain(e, representatives);  
+    address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
+    mathint new_voters_size_after = new_voters_after.length;
+    address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
+
+    
+    satisfy new_representative != 0  && new_representative !=e.msg.sender && new_representative != representative_before;
+}
+
+rule check_new_representative_set_size_after_updateRepresentatives_witness_antecedent_second{
+
+    env e;
+    address new_representative;
+    uint256 chainId;
+
+    requireInvariant no_self_representative(e.msg.sender, chainId);
+    requireInvariant in_representatives_iff_in_votersRepresented(e.msg.sender, new_representative, chainId);
+ 
+
+    address[] new_voters_before = getRepresentedVotersByChain(new_representative, chainId);
+    mathint new_voters_size_before = new_voters_before.length;
+    address representative_before = getRepresentativeByChain(e.msg.sender, chainId);
+  
+    IGovernanceCore.RepresentativeInput[] representatives;
+    require representatives[0].representative == new_representative;
+    require representatives[0].chainId == chainId;
+    require representatives.length == 1;
+    updateRepresentativesForChain(e, representatives);  
+    address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
+    mathint new_voters_size_after = new_voters_after.length;
+    address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
+
+    satisfy new_representative != 0  && new_representative !=e.msg.sender && new_representative == representative_before;
+}
+
+rule check_new_representative_set_size_after_updateRepresentatives_witness_consequent_first{
+
+    env e;
+    address new_representative;
+    uint256 chainId;
+
+    requireInvariant no_self_representative(e.msg.sender, chainId);
+    requireInvariant in_representatives_iff_in_votersRepresented(e.msg.sender, new_representative, chainId);
+ 
+
+    address[] new_voters_before = getRepresentedVotersByChain(new_representative, chainId);
+    mathint new_voters_size_before = new_voters_before.length;
+    address representative_before = getRepresentativeByChain(e.msg.sender, chainId);
+  
+    IGovernanceCore.RepresentativeInput[] representatives;
+    require representatives[0].representative == new_representative;
+    require representatives[0].chainId == chainId;
+    require representatives.length == 1;
+    updateRepresentativesForChain(e, representatives);  
+    address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
+    mathint new_voters_size_after = new_voters_after.length;
+    address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
+
+    
+    satisfy new_voters_size_after == new_voters_size_before + 1;
+}
+
+
+rule check_new_representative_set_size_after_updateRepresentatives_witness_consequent_second{
+
+    env e;
+    address new_representative;
+    uint256 chainId;
+
+    requireInvariant no_self_representative(e.msg.sender, chainId);
+    requireInvariant in_representatives_iff_in_votersRepresented(e.msg.sender, new_representative, chainId);
+ 
+
+    address[] new_voters_before = getRepresentedVotersByChain(new_representative, chainId);
+    mathint new_voters_size_before = new_voters_before.length;
+    address representative_before = getRepresentativeByChain(e.msg.sender, chainId);
+  
+    IGovernanceCore.RepresentativeInput[] representatives;
+    require representatives[0].representative == new_representative;
+    require representatives[0].chainId == chainId;
+    require representatives.length == 1;
+    updateRepresentativesForChain(e, representatives);  
+    address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
+    mathint new_voters_size_after = new_voters_after.length;
+    address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
+
+    
+    satisfy new_voters_size_after == new_voters_size_before;
+}
+
+
+
+
+
 // The size of the old representative set is correct after updateRepresentatives()
 rule check_old_representative_set_size_after_updateRepresentatives{
 
@@ -863,7 +978,11 @@ rule check_old_representative_set_size_after_updateRepresentatives{
     address[] old_voters_before = getRepresentedVotersByChain(representative_before, chainId);
     mathint old_voters_size_before = old_voters_before.length;
     
-    updateSingleRepresentativeForChain(e, new_representative, chainId);
+    IGovernanceCore.RepresentativeInput[] representatives;
+    require representatives[0].representative == new_representative;
+    require representatives[0].chainId == chainId;
+    require representatives.length == 1;
+    updateRepresentativesForChain(e, representatives);  
     address[] old_voters_after = getRepresentedVotersByChain(representative_before, chainId);
     mathint old_voters_size_after = old_voters_after.length;
     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
@@ -880,6 +999,76 @@ rule check_old_representative_set_size_after_updateRepresentatives{
       old_voters_size_after + 1 == old_voters_size_before;
 
 }
+
+
+//todo: uncomment when a require is added to updateRepresentativesForChain
+// rule check_new_representative_set_size_after_updateRepresentatives_multiple_representatives{
+
+//     env e;
+//     address new_representative;
+//     uint256 chainId;
+
+//     requireInvariant no_self_representative(e.msg.sender, chainId);
+//     requireInvariant in_representatives_iff_in_votersRepresented(e.msg.sender, new_representative, chainId);
+
+//     address[] new_voters_before = getRepresentedVotersByChain(new_representative, chainId);
+//     mathint new_voters_size_before = new_voters_before.length;
+//     address representative_before = getRepresentativeByChain(e.msg.sender, chainId);
+  
+//     IGovernanceCore.RepresentativeInput[] representatives;
+//     require representatives[0].representative == new_representative;
+//     require representatives[0].chainId == chainId;
+//     updateRepresentativesForChain(e, representatives);  
+//     address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
+//     mathint new_voters_size_after = new_voters_after.length;
+//     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
+
+    
+//     assert new_representative != 0  && new_representative !=e.msg.sender && new_representative != representative_before =>
+//         new_voters_size_after >= new_voters_size_before + 1;
+
+//     assert new_representative != 0  && new_representative !=e.msg.sender && new_representative == representative_before =>
+//         new_voters_size_after >= new_voters_size_before;
+
+//     assert (new_representative == e.msg.sender ) =>
+//       new_voters_size_after >= new_voters_size_before;
+
+// }
+
+// rule check_old_representative_set_size_after_updateRepresentatives_multiple_representatives{
+
+//     env e;
+//     address new_representative;
+//     uint256 chainId;
+
+//     address representative_before = getRepresentativeByChain(e.msg.sender, chainId);
+
+//     requireInvariant in_representatives_iff_in_votersRepresented(e.msg.sender, representative_before, chainId);
+//     requireInvariant no_representative_is_zero_2(chainId);
+
+//     address[] old_voters_before = getRepresentedVotersByChain(representative_before, chainId);
+//     mathint old_voters_size_before = old_voters_before.length;
+    
+//     IGovernanceCore.RepresentativeInput[] representatives;
+//     require representatives[0].representative == new_representative;
+//     require representatives[0].chainId == chainId;
+//     updateRepresentativesForChain(e, representatives);  
+//     address[] old_voters_after = getRepresentedVotersByChain(representative_before, chainId);
+//     mathint old_voters_size_after = old_voters_after.length;
+//     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
+
+    
+//     assert new_representative != 0  && new_representative !=e.msg.sender 
+//           && new_representative != representative_before  && old_voters_size_before > 0 =>
+//         old_voters_size_after + 1 == old_voters_size_before;
+
+//     assert new_representative != 0  && new_representative !=e.msg.sender && new_representative == representative_before =>
+//         old_voters_size_after == old_voters_size_before;
+
+//     assert (new_representative == e.msg.sender || new_representative == 0)  && old_voters_size_before > 0 =>
+//       old_voters_size_after + 1 == old_voters_size_before;
+
+// }
 
 invariant no_representative_of_zero_in_set(address representative, uint256 chainId)
     !isRepresentativeOfVoter(0, representative, chainId)

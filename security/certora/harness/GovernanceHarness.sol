@@ -76,38 +76,6 @@ contract GovernanceHarness is Governance {
     return _votersRepresented[representative][chainId].contains(voter);
   }
 
-  function updateSingleRepresentativeForChain(
-    address representative, uint256 chainId0) external {
-
-    RepresentativeInput memory representativeInput;
-    representativeInput.representative = representative;
-    representativeInput.chainId = chainId0;
-    
-    RepresentativeInput[] memory representatives = new RepresentativeInput[](1);
-    representatives[0] = representativeInput;
-   
-    uint256 i = 0;
-    uint256 chainId = representatives[i].chainId;
-    address newRepresentative = representatives[i].representative !=
-        msg.sender
-        ? representatives[i].representative
-        : address(0);
-      address oldRepresentative = _representatives[msg.sender][chainId];
-
-      if (oldRepresentative != address(0)) {
-        _votersRepresented[oldRepresentative][chainId].remove(msg.sender);
-      }
-
-      if (newRepresentative != address(0)) {
-        _votersRepresented[newRepresentative][chainId].add(msg.sender);
-      }
-
-      _representatives[msg.sender][chainId] = newRepresentative;
-
-      emit RepresentativeUpdated(msg.sender, newRepresentative, chainId);
-
-  }
-
   
   /**
    * @notice Returns the size of the voters set of a given representative
@@ -118,7 +86,4 @@ contract GovernanceHarness is Governance {
   ) external view returns (uint256) {
     return _votersRepresented[representative][chainId].length();
   }
-
-
-
 }
