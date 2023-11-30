@@ -72,3 +72,4 @@ jobs:
           - verifyGovernance.conf --rule immutable_after_creation_witness_payload_length immutable_after_activation_witness only_state_changing_function_initiate_transitions__pre_state 
           - verifyGovernance.conf --rule only_state_changing_function_initiate_transitions__post_state
           - verifyGovernance.conf --rule check_new_representative_set_size_after_updateRepresentatives_witness_antecedent_first check_new_representative_set_size_after_updateRepresentatives_witness_antecedent_second check_new_representative_set_size_after_updateRepresentatives_witness_consequent_first check_new_representative_set_size_after_updateRepresentatives_witness_consequent_second
+          - verifyGovernance.conf --rule proposal_voting_duration_lt_expiration_time config_voting_duration_lt_expiration_time proposal_state_transition_post_state proposal_state_transition_pre_state

@@ -34,6 +34,7 @@ methods {
   function PRECISION_DIVIDER() external returns (uint256) envfree;
   function ACHIEVABLE_VOTING_PARTICIPATION() external returns (uint256) envfree;
   function COOLDOWN_PERIOD() external returns (uint256) envfree;
+  function PROPOSAL_EXPIRATION_TIME() external returns (uint256) envfree;
   function getProposalsCount() external returns (uint256) envfree;
   function getVotingPortalsCount() external returns (uint256) envfree;
   function isVotingPortalApproved(address) external returns (bool) envfree;
@@ -111,7 +112,15 @@ function getMinPropositionPower(IGovernanceCore.VotingConfig votingConfig) retur
   return votingConfig.minPropositionPower;
 }
 
+function getConfigDuration(PayloadsControllerUtils.AccessControl accessLevel) returns uint24{
+    IGovernanceCore.VotingConfig config = getVotingConfig(accessLevel);
+    return config.votingDuration;
+}
 
+function getPropsalConfigDuration(uint256 proposalId) returns uint24{
+    IGovernanceCore.VotingConfig config = getVotingConfig(getProposalAccessLevel(proposalId));
+    return config.votingDuration;
+}
 
 //
 // from properties.md
@@ -176,7 +185,7 @@ rule proposal_after_voting_portal_invalidate(method f) filtered { f-> !f.isView 
 }
 
 // @title Property #4: If the proposer's proposition power goes below the minimum required threshold, the proposal
-//     should not go to any state apart from Failed or Canceled at the same block.
+//     should not go to any state apart from Failed or Cancelled at the same block.
 //     If time has elapsed state could become Expired.
 rule insufficient_proposition_power(method f) filtered {f -> !f.isView}
 {
@@ -833,18 +842,17 @@ rule check_new_representative_set_size_after_updateRepresentatives{
     IGovernanceCore.RepresentativeInput[] representatives;
     require representatives[0].representative == new_representative;
     require representatives[0].chainId == chainId;
-    require representatives.length == 1;
     updateRepresentativesForChain(e, representatives);  
     address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
     mathint new_voters_size_after = new_voters_after.length;
     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
 
     
-    assert new_representative != 0  && new_representative !=e.msg.sender && new_representative != representative_before =>
-        new_voters_size_after == new_voters_size_before + 1;
+    assert representatives.length == 1 => (new_representative != 0  && new_representative !=e.msg.sender && new_representative != representative_before =>
+        new_voters_size_after == new_voters_size_before + 1);
 
-    assert new_representative != 0  && new_representative !=e.msg.sender && new_representative == representative_before =>
-        new_voters_size_after == new_voters_size_before;
+    assert representatives.length == 1 => (new_representative != 0  && new_representative !=e.msg.sender && new_representative == representative_before =>
+        new_voters_size_after == new_voters_size_before);
 
     assert (new_representative == e.msg.sender ) =>
       new_voters_size_after == new_voters_size_before;
@@ -868,13 +876,13 @@ rule check_new_representative_set_size_after_updateRepresentatives_witness_antec
     IGovernanceCore.RepresentativeInput[] representatives;
     require representatives[0].representative == new_representative;
     require representatives[0].chainId == chainId;
-    require representatives.length == 1;
     updateRepresentativesForChain(e, representatives);  
     address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
     mathint new_voters_size_after = new_voters_after.length;
     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
 
     
+    require representatives.length == 1;
     satisfy new_representative != 0  && new_representative !=e.msg.sender && new_representative != representative_before;
 }
 
@@ -895,12 +903,12 @@ rule check_new_representative_set_size_after_updateRepresentatives_witness_antec
     IGovernanceCore.RepresentativeInput[] representatives;
     require representatives[0].representative == new_representative;
     require representatives[0].chainId == chainId;
-    require representatives.length == 1;
     updateRepresentativesForChain(e, representatives);  
     address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
     mathint new_voters_size_after = new_voters_after.length;
     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
 
+    require representatives.length == 1;
     satisfy new_representative != 0  && new_representative !=e.msg.sender && new_representative == representative_before;
 }
 
@@ -921,13 +929,13 @@ rule check_new_representative_set_size_after_updateRepresentatives_witness_conse
     IGovernanceCore.RepresentativeInput[] representatives;
     require representatives[0].representative == new_representative;
     require representatives[0].chainId == chainId;
-    require representatives.length == 1;
     updateRepresentativesForChain(e, representatives);  
     address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
     mathint new_voters_size_after = new_voters_after.length;
     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
 
     
+    require representatives.length == 1;
     satisfy new_voters_size_after == new_voters_size_before + 1;
 }
 
@@ -949,13 +957,13 @@ rule check_new_representative_set_size_after_updateRepresentatives_witness_conse
     IGovernanceCore.RepresentativeInput[] representatives;
     require representatives[0].representative == new_representative;
     require representatives[0].chainId == chainId;
-    require representatives.length == 1;
     updateRepresentativesForChain(e, representatives);  
     address[] new_voters_after = getRepresentedVotersByChain(new_representative, chainId);
     mathint new_voters_size_after = new_voters_after.length;
     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
 
     
+    require representatives.length == 1;
     satisfy new_voters_size_after == new_voters_size_before;
 }
 
@@ -981,22 +989,21 @@ rule check_old_representative_set_size_after_updateRepresentatives{
     IGovernanceCore.RepresentativeInput[] representatives;
     require representatives[0].representative == new_representative;
     require representatives[0].chainId == chainId;
-    require representatives.length == 1;
     updateRepresentativesForChain(e, representatives);  
     address[] old_voters_after = getRepresentedVotersByChain(representative_before, chainId);
     mathint old_voters_size_after = old_voters_after.length;
     address representative_after = getRepresentativeByChain(e.msg.sender, chainId);
 
     
-    assert new_representative != 0  && new_representative !=e.msg.sender 
+    assert representatives.length == 1 => (new_representative != 0  && new_representative !=e.msg.sender 
           && new_representative != representative_before  && old_voters_size_before > 0 =>
-        old_voters_size_after + 1 == old_voters_size_before;
+        old_voters_size_after + 1 == old_voters_size_before);
 
-    assert new_representative != 0  && new_representative !=e.msg.sender && new_representative == representative_before =>
-        old_voters_size_after == old_voters_size_before;
+    assert representatives.length == 1 => (new_representative != 0  && new_representative !=e.msg.sender && new_representative == representative_before =>
+        old_voters_size_after == old_voters_size_before);
 
-    assert (new_representative == e.msg.sender || new_representative == 0)  && old_voters_size_before > 0 =>
-      old_voters_size_after + 1 == old_voters_size_before;
+    assert representatives.length == 1 => ((new_representative == e.msg.sender || new_representative == 0)  && old_voters_size_before > 0 =>
+      old_voters_size_after + 1 == old_voters_size_before);
 
 }
 
@@ -1142,6 +1149,20 @@ invariant zero_voting_portal_iff_uninitialized_proposal(uint256 proposalId)
 invariant zero_address_is_not_a_valid_voting_portal()
       !isVotingPortalApproved(0); 
 
+// Given a proposal, it's voting duration is less than or equal to the contract's expiration time
+invariant proposal_voting_duration_lt_expiration_time(uint256 proposalId)
+      to_mathint(getProposalVotingDuration(proposalId)) <= to_mathint(PROPOSAL_EXPIRATION_TIME())
+      {
+        preserved
+        {requireInvariant config_voting_duration_lt_expiration_time(getProposalAccessLevel(proposalId));}
+      }
+
+// The voting duration of any voting configuration is less than the contract's expiration time
+invariant config_voting_duration_lt_expiration_time(PayloadsControllerUtils.AccessControl accessLevel) 
+      to_mathint(getConfigDuration(accessLevel)) < to_mathint(PROPOSAL_EXPIRATION_TIME());
+
+
+
 
 //
 // Sanity properties 
@@ -1199,6 +1220,70 @@ rule only_state_changing_function_initiate_transitions__post_state(method f)
   assert state1 != state2 && state2 == IGovernanceCore.State.Queued => f.selector == sig:queueProposal(uint256,uint128,uint128).selector;
   assert state1 != state2 && state2 == IGovernanceCore.State.Executed => f.selector == sig:executeProposal(uint256).selector;
   assert state1 != state2 && state2 == IGovernanceCore.State.Cancelled => f.selector == sig:cancelProposal(uint256).selector;
+}
+
+// State-machine verification - check post state of transitions
+rule proposal_state_transition_post_state(method f) filtered { f -> state_changing_function(f)}
+{
+  env e1; env e2; env e3; calldataarg args1;
+  uint256 proposalId;
+
+  require e1.block.timestamp <= e2.block.timestamp;
+  require e2.block.timestamp <= e3.block.timestamp;
+  require e3.block.timestamp < 2^40;
+  
+  requireInvariant null_state_iff_uninitialized_proposal(e1, proposalId);
+  requireInvariant proposal_voting_duration_lt_expiration_time(proposalId);
+
+  IGovernanceCore.State state1 = getProposalState(e1, proposalId);
+  f(e2, args1);
+  
+  IGovernanceCore.State state2 = getProposalState(e3, proposalId);
+
+  assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => (state1 == IGovernanceCore.State.Null => state2 == IGovernanceCore.State.Created);
+  
+  assert (e1.block.timestamp == e3.block.timestamp  && state1 != state2) => 
+      (state1 == IGovernanceCore.State.Created => (state2 == IGovernanceCore.State.Active || state2 == IGovernanceCore.State.Cancelled));
+  
+  assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => 
+      (state1 == IGovernanceCore.State.Active => 
+    (state2 == IGovernanceCore.State.Queued || state2 == IGovernanceCore.State.Cancelled || state2 == IGovernanceCore.State.Failed));
+  
+  assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => 
+      (state1 == IGovernanceCore.State.Queued => state2 == IGovernanceCore.State.Executed || state2 == IGovernanceCore.State.Cancelled);
+}
+
+
+// State-machine verification - check post state of transitions
+rule proposal_state_transition_pre_state(method f) filtered { f -> state_changing_function(f)}
+{
+  env e1; env e2; env e3; calldataarg args1;
+  uint256 proposalId;
+
+  require e1.block.timestamp <= e2.block.timestamp;
+  require e2.block.timestamp <= e3.block.timestamp;
+  require e3.block.timestamp < 2^40;
+  
+  requireInvariant null_state_iff_uninitialized_proposal(e1, proposalId);
+  requireInvariant proposal_voting_duration_lt_expiration_time(proposalId);
+
+  IGovernanceCore.State state1 = getProposalState(e1, proposalId);
+  f(e2, args1);
+  
+  IGovernanceCore.State state2 = getProposalState(e3, proposalId);
+
+  assert (state1 != state2) => (state2 == IGovernanceCore.State.Created => state1 == IGovernanceCore.State.Null);
+  assert (state1 != state2) => (state2 == IGovernanceCore.State.Active => state1 == IGovernanceCore.State.Created);
+  assert (state1 != state2) => (state2 == IGovernanceCore.State.Queued => state1 == IGovernanceCore.State.Active);
+  assert (state1 != state2) => (state2 == IGovernanceCore.State.Executed => state1 == IGovernanceCore.State.Queued);
+  assert (state1 != state2) => (state2 == IGovernanceCore.State.Cancelled => 
+        (state1 == IGovernanceCore.State.Created || state1 == IGovernanceCore.State.Active || state1 == IGovernanceCore.State.Queued));
+  
+  assert (state1 != state2) => (state2 == IGovernanceCore.State.Failed => state1 == IGovernanceCore.State.Active);
+  
+  assert (state1 != state2 && e2.block.timestamp == e3.block.timestamp) => (state2 == IGovernanceCore.State.Expired => 
+        (state1 == IGovernanceCore.State.Created || state1 == IGovernanceCore.State.Active || state1 == IGovernanceCore.State.Queued));
+
 }
 
 //only methods belonging to state_changing_function() can change a proposal state  
