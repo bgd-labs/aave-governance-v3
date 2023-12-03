@@ -498,7 +498,7 @@ rule only_guardian_can_cancel(method f)filtered
   cancelProposal(e3, proposalId);
 
   assert guardian() == e2.msg.sender ||
-         owner() == e2.msg.sender ||   //todo: review
+         owner() == e2.msg.sender ||
          guardian() == e3.msg.sender || 
         getProposalCreator(proposalId) == e3.msg.sender ||
         creator_power_after < creator_power_before;
