@@ -69,7 +69,6 @@ jobs:
           - verifyVoting_and_tally.conf --rule onlyVoteCanChangeResult
           - verifyVoting_and_tally.conf --rule voteTallyChangedOnlyByVoting
           - verifyVoting_and_tally.conf --rule  votingTallyCanOnlyIncrease 
-          - verifyVoting_and_tally.conf --rule strangerVoteUnchanged
           - verifyVoting_and_tally.conf --rule strangerVoteUnchanged 
           - verifyVoting_and_tally.conf --rule otherProposalUnchanged 
           - verifyVoting_and_tally.conf --rule otherVoterUntouched 
