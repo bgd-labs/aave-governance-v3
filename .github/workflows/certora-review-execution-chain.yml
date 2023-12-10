@@ -66,7 +66,8 @@ jobs:
           - verifyPayloadsController.conf --rule zero_executedAt_if_not_executed
           - verifyPayloadsController.conf --rule executor_isnt_used_twice executor_of_level_null_is_zero
           - verifyPayloadsController.conf --rule executed_after_queue_state_variable zero_executedAt_if_not_executed_state_variable
-          - verifyPayloadsController.conf --rule queuedAt_is_zero_before_queued_state_variable executedAt_is_zero_before_executed executedAt_is_zero_before_executed_state_variable null_state_equivalence
+          - verifyPayloadsController.conf --rule queuedAt_is_zero_before_queued_state_variable executedAt_is_zero_before_executed_state_variable null_state_equivalence
+          - verifyPayloadsController.conf --rule executedAt_is_zero_before_executed
           - verifyPayloadsController.conf --rule executed_when_in_queued_state executed_when_in_queued_state_variable guardian_can_cancel guardian_can_cancel_state_variable no_late_cancel state_variable_cant_decrease
           - verifyPayloadsController.conf --rule checkUpdateExecutors checkUpdateExecutors_witness_1 checkUpdateExecutors_witness_2 checkUpdateExecutors_witness_3 checkUpdateExecutors_witness_4 
           - verifyPayloadsController.conf --rule payload_state_transition_post_state payload_state_transition_pre_state

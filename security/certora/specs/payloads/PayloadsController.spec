@@ -926,9 +926,6 @@ invariant executedAt_is_zero_before_executed(env e, uint40 id)
 {
 		preserved with (env e2){
 			requireInvariant null_state_variable_if_out_of_bound_payload(id);
-			requireInvariant queued_before_expiration_delay(id);
-			requireInvariant expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY(id);
-			requireInvariant created_in_the_past(e2, id);
 			require e.block.timestamp == e2.block.timestamp;
 		}
 	}
