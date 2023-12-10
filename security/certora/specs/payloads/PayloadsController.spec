@@ -22,8 +22,6 @@ methods {
 	function getPayloadById(uint40) external returns (IPayloadsControllerCore.Payload);
 	function getPayloadFieldsById(uint40 payloadId) external 
   		returns (address,PayloadsControllerUtils.AccessControl,IPayloadsControllerCore.PayloadState,uint40,uint40,uint40,uint40,uint40,uint40,uint40) envfree;
-	function getPayloadQueuedAtById(uint40 payloadId) external returns (uint40) envfree;
-	function getPayloadExpirationTimeById(uint40 payloadId) external returns (uint40) envfree;
 	function getPayloadGracePeriod(uint40 payloadId) external returns (uint40) envfree;
 	function getPayloadDelay(uint40 payloadId) external returns (uint40) envfree;
 	function getPayloadCreatedAt(uint40 payloadId) external returns (uint40) envfree;
@@ -190,7 +188,7 @@ rule consecutiveIDs(method f) filtered { f-> !f.isView }{
 invariant empty_actions_only_if_uninitialized_payload (uint40 id)
 	(getMaximumAccessLevelRequired(id) != PayloadsControllerUtils.AccessControl.Level_null
 	|| getPayloadStateVariable(id) != IPayloadsControllerCore.PayloadState.None
-	|| getPayloadExpirationTimeById(id) != 0 )
+	|| getExpirationTime(id) != 0 )
 	 => getActionsLength(id) > 0
 	{
 	preserved{
@@ -515,8 +513,8 @@ rule execute_before_delay__maximumAccessLevelRequired{
 
 	executePayload(e, id);
 	mathint timestamp = e.block.timestamp;
-	assert timestamp > getPayloadQueuedAtById(id) + getPayloadDelay(id);
-	assert timestamp < getPayloadQueuedAtById(id) +  getPayloadDelay(id) + GRACE_PERIOD();
+	assert timestamp > getPayloadQueuedAt(id) + getPayloadDelay(id);
+	assert timestamp < getPayloadQueuedAt(id) +  getPayloadDelay(id) + GRACE_PERIOD();
 }
 
 
@@ -828,7 +826,7 @@ invariant queued_before_expiration_delay(uint40 id)
 /// @notice assuming that the EXPIRATION_DELAY + CreatedAt <= max_uint40 
 invariant expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY(uint40 id)
 	getPayloadStateVariable(id) != IPayloadsControllerCore.PayloadState.None =>
-		getPayloadExpirationTimeById(id) <= require_uint40(EXPIRATION_DELAY() + getPayloadCreatedAt(id));
+		getExpirationTime(id) <= require_uint40(EXPIRATION_DELAY() + getPayloadCreatedAt(id));
 
 
 //helper: creation time cannot be in the future
@@ -926,8 +924,12 @@ invariant executedAt_is_zero_before_executed(env e, uint40 id)
 	getPayloadState(e, id) == IPayloadsControllerCore.PayloadState.Queued => getPayloadExecutedAt(id) == 0
 
 {
-		preserved{
+		preserved with (env e2){
 			requireInvariant null_state_variable_if_out_of_bound_payload(id);
+			requireInvariant queued_before_expiration_delay(id);
+			requireInvariant expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY(id);
+			requireInvariant created_in_the_past(e2, id);
+			require e.block.timestamp == e2.block.timestamp;
 		}
 	}
 
@@ -941,7 +943,7 @@ rule no_queue_after_expiration{
 	env e;
 	uint40 payloadId;
 
-	mathint expiration_time = getPayloadExpirationTimeById(payloadId);
+	mathint expiration_time = getExpirationTime(payloadId);
 	mathint timestamp = e.block.timestamp;
 	address originSender;
     uint256 originChainId;
