@@ -34,7 +34,6 @@ methods {
 	function getPayloadStateVariable(uint40) external returns (IPayloadsControllerCore.PayloadState) envfree;
 	function getCreator(uint40) external returns (address) envfree;
 	function getExpirationTime(uint40) external returns (uint40) envfree;
-	function MIN_EXECUTION_DELAY() external returns (uint40) envfree;
 	function decodeMessage(bytes) external returns (uint40, PayloadsControllerUtils.AccessControl, uint40) envfree;
 	function encodeMessage(uint40,PayloadsControllerUtils.AccessControl,uint40) external returns (bytes) envfree;
 
@@ -522,7 +521,7 @@ rule execute_before_delay__maximumAccessLevelRequired{
 
 
 // @title A Payload can only be executed when in queued state 
-rule executed_when_in_queued_state{
+rule executed_when_in_queued_state_variable{
 	env e;
 	uint40 payloadId;
 
@@ -531,16 +530,40 @@ rule executed_when_in_queued_state{
 	assert state_before == IPayloadsControllerCore.PayloadState.Queued;
 }
 
+rule executed_when_in_queued_state{
+	env e;
+	uint40 payloadId;
+
+	IPayloadsControllerCore.PayloadState state_before = getPayloadState(e, payloadId);
+	executePayload(e,payloadId);
+	assert state_before == IPayloadsControllerCore.PayloadState.Queued;
+}
+
 
 
 // @title property #7: The Guardian can cancel a Payload if it has not been executed
 // A payload cannot execute after a guardian cancelled it
-rule guardian_can_cancel{
+rule guardian_can_cancel_state_variable{
 
 	env e;
 	calldataarg args;
 	uint40 payloadId;
 	IPayloadsControllerCore.PayloadState state_before = getPayloadStateVariable(payloadId);
+	cancelPayload@withrevert(e, payloadId);
+	assert 
+		e.msg.sender == guardian() && 
+		(state_before ==  IPayloadsControllerCore.PayloadState.Created ||
+		state_before ==  IPayloadsControllerCore.PayloadState.Queued) => !lastReverted ;
+
+
+}
+
+rule guardian_can_cancel{
+
+	env e;
+	calldataarg args;
+	uint40 payloadId;
+	IPayloadsControllerCore.PayloadState state_before = getPayloadState(e, payloadId);
 	cancelPayload@withrevert(e, payloadId);
 	assert 
 		e.msg.sender == guardian() && 
@@ -582,7 +605,7 @@ rule no_late_cancel{
 
 /// @title Property #8: Payload State can’t decrease
 // Forward progress of payload state machine
-rule state_cant_decrease(method f) filtered { f -> !f.isView}
+rule state_variable_cant_decrease(method f) filtered { f -> !f.isView}
 {
 	env e;
 	calldataarg args;
@@ -597,8 +620,24 @@ rule state_cant_decrease(method f) filtered { f -> !f.isView}
  	assert assert_uint256(state_before) <= assert_uint256(state_after);
 }
 
+rule state_cant_decrease(method f) filtered { f -> !f.isView}
+{
+	env e;
+	calldataarg args;
+	uint40 payloadId;
+
+	requireInvariant null_state_variable_if_out_of_bound_payload(payloadId);
+
+	IPayloadsControllerCore.PayloadState state_before = getPayloadState(e, payloadId);
+	f(e,args);
+	IPayloadsControllerCore.PayloadState state_after = getPayloadState(e, payloadId);
+	
+ 	assert assert_uint256(state_before) <= assert_uint256(state_after);
+}
+
 /// @title Property #9: No further state transitions are possible if proposal.state > 3
 /// @notice The rule uses a getter function
+
 rule no_transition_beyond_state_gt_3(method f) filtered { f -> !f.isView}{
 	
 	env e;
@@ -676,6 +715,98 @@ invariant executor_access_level_within_range(PayloadsControllerUtils.AccessContr
 	get_executor(access_level) != 0 => 	
 		get_delay(access_level) >= MIN_EXECUTION_DELAY() && get_delay(access_level) <= MAX_EXECUTION_DELAY();
 
+// check that the same executor is not being used in 2 different levels
+invariant executor_isnt_used_twice(PayloadsControllerUtils.AccessControl levelA, PayloadsControllerUtils.AccessControl levelB )
+	get_executor(levelA) != 0 => (levelA != levelB <=> get_executor(levelA) != get_executor(levelB))
+	{
+		preserved
+		{
+			requireInvariant executor_of_level_null_is_zero;
+		}
+
+	}
+
+invariant executor_of_level_null_is_zero()
+	get_executor(PayloadsControllerUtils.AccessControl.Level_null) == 0;
+
+rule checkUpdateExecutors
+{
+    env e;
+	IPayloadsControllerCore.UpdateExecutorInput[] executors;
+	updateExecutors(e, executors);
+
+	PayloadsControllerUtils.AccessControl levelA;
+	PayloadsControllerUtils.AccessControl levelB;
+	address executorA;
+	address executorB;
+	
+	bool no_duplicate_access_level = executors[0].accessLevel != executors[1].accessLevel && executors.length <= 2;
+
+	assert (executors[0].accessLevel == levelA && executors[0].executorConfig.executor == executorA && no_duplicate_access_level)
+				=> get_executor(levelA) == executorA;
+	assert (executors[1].accessLevel == levelA && executors[1].executorConfig.executor == executorA && no_duplicate_access_level)
+				=> get_executor(levelA) == executorA;
+	assert (executors[0].accessLevel == levelB && executors[0].executorConfig.executor == executorB && no_duplicate_access_level) 
+				=> get_executor(levelB) == executorB;
+	assert (executors[1].accessLevel == levelB && executors[1].executorConfig.executor == executorB && no_duplicate_access_level)
+				=> get_executor(levelB) == executorB;
+
+}
+
+rule checkUpdateExecutors_witness_1
+{
+    env e;
+	IPayloadsControllerCore.UpdateExecutorInput[] executors;
+	updateExecutors(e, executors);
+
+	PayloadsControllerUtils.AccessControl levelA; PayloadsControllerUtils.AccessControl levelB;
+	address executorA; address executorB;	
+	bool no_duplicate_access_level = executors[0].accessLevel != executors[1].accessLevel && executors.length <= 2;
+
+	satisfy executors[0].accessLevel == levelA && executors[0].executorConfig.executor == executorA && no_duplicate_access_level;
+}
+
+rule checkUpdateExecutors_witness_2
+{
+    env e;
+	IPayloadsControllerCore.UpdateExecutorInput[] executors;
+	updateExecutors(e, executors);
+
+	PayloadsControllerUtils.AccessControl levelA; PayloadsControllerUtils.AccessControl levelB;
+	address executorA; address executorB;	
+	bool no_duplicate_access_level = executors[0].accessLevel != executors[1].accessLevel && executors.length <= 2;
+
+	require executors[0].accessLevel == levelA && executors[0].executorConfig.executor == executorA && no_duplicate_access_level;
+	satisfy get_executor(levelA) == executorA;
+}
+
+rule checkUpdateExecutors_witness_3
+{
+    env e;
+	IPayloadsControllerCore.UpdateExecutorInput[] executors;
+	updateExecutors(e, executors);
+
+	PayloadsControllerUtils.AccessControl levelA; PayloadsControllerUtils.AccessControl levelB;
+	address executorA; address executorB;	
+	bool no_duplicate_access_level = executors[0].accessLevel != executors[1].accessLevel && executors.length <= 2;
+
+	satisfy executors[1].accessLevel == levelA && executors[1].executorConfig.executor == executorA && no_duplicate_access_level;
+}
+
+rule checkUpdateExecutors_witness_4
+{
+    env e;
+	IPayloadsControllerCore.UpdateExecutorInput[] executors;
+	updateExecutors(e, executors);
+
+	PayloadsControllerUtils.AccessControl levelA; PayloadsControllerUtils.AccessControl levelB;
+	address executorA; address executorB;	
+	bool no_duplicate_access_level = executors[0].accessLevel != executors[1].accessLevel && executors.length <= 2;
+
+	require executors[1].accessLevel == levelA && executors[1].executorConfig.executor == executorA && no_duplicate_access_level;
+	satisfy get_executor(levelA) == executorA;
+}
+
 
 /// @title Property #6: A Payload can never be executed if it has not been queued before the EXPIRATION_DELAY defined.
 
@@ -687,7 +818,7 @@ invariant queued_before_expiration_delay(uint40 id)
 		preserved with (env e){
 			requireInvariant expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY(id);
 			//	requireInvariant created_in_the_past(e, id);
-			requireInvariant queuedAt_is_zero_before_queued(id);
+			requireInvariant queuedAt_is_zero_before_queued(e, id);
 			//	requireInvariant executedAt_is_zero_before_executed(id);
 			requireInvariant null_state_variable_if_out_of_bound_payload(id);
 		}
@@ -717,22 +848,28 @@ invariant queued_after_created(uint40 id)
 	{
 		preserved with (env e){
 			requireInvariant created_in_the_past(e, id);
-			requireInvariant queuedAt_is_zero_before_queued(id);
+			requireInvariant queuedAt_is_zero_before_queued(e, id);
 			requireInvariant null_state_variable_if_out_of_bound_payload(id);
 		}
 	}
 
 /// @title Execution happens after queue 
 //execution time cannot be after queuing time
-invariant executed_after_queue(uint40 id)
+invariant executed_after_queue_state_variable(uint40 id)
 	getPayloadStateVariable(id) == IPayloadsControllerCore.PayloadState.Executed =>
 					getPayloadExecutedAt(id) >= getPayloadQueuedAt(id) 
 	{
 		preserved{
-			requireInvariant executedAt_is_zero_before_executed(id);
+			requireInvariant executedAt_is_zero_before_executed_state_variable(id);
 		}
 	}
-invariant zero_executedAt_if_not_executed(uint40 id)
+
+invariant executed_after_queue(env e1, uint40 id)
+	getPayloadState(e1, id) == IPayloadsControllerCore.PayloadState.Executed =>
+					getPayloadExecutedAt(id) >= getPayloadQueuedAt(id) ;
+
+
+invariant zero_executedAt_if_not_executed_state_variable(uint40 id)
 	getPayloadStateVariable(id) != IPayloadsControllerCore.PayloadState.Executed =>
 					getPayloadExecutedAt(id) == 0 
 	{
@@ -740,8 +877,18 @@ invariant zero_executedAt_if_not_executed(uint40 id)
 			requireInvariant null_state_variable_if_out_of_bound_payload(id);
 		}
 	}
+
+invariant zero_executedAt_if_not_executed(env e, uint40 id)
+	getPayloadState(e, id) != IPayloadsControllerCore.PayloadState.Executed =>
+					getPayloadExecutedAt(id) == 0 
+	{
+		preserved{
+			requireInvariant null_state_variable_if_out_of_bound_payload(id);
+		}
+	}
+
 //helper: queuing time is nonzero for initialized payloads
-invariant queuedAt_is_zero_before_queued(uint40 id)
+invariant queuedAt_is_zero_before_queued_state_variable(uint40 id)
 	getPayloadStateVariable(id) == IPayloadsControllerCore.PayloadState.None ||
 	getPayloadStateVariable(id) == IPayloadsControllerCore.PayloadState.Created => getPayloadQueuedAt(id) == 0
 
@@ -751,8 +898,18 @@ invariant queuedAt_is_zero_before_queued(uint40 id)
 		}
 	}
 
+invariant queuedAt_is_zero_before_queued(env e, uint40 id)
+	getPayloadState(e, id) == IPayloadsControllerCore.PayloadState.None ||
+	getPayloadState(e, id) == IPayloadsControllerCore.PayloadState.Created => getPayloadQueuedAt(id) == 0
+
+{
+		preserved{
+			requireInvariant null_state_variable_if_out_of_bound_payload(id);
+		}
+	}
+
 //helper: ExecutedAt == 0 before execution
-invariant executedAt_is_zero_before_executed(uint40 id)
+invariant executedAt_is_zero_before_executed_state_variable(uint40 id)
 	getPayloadStateVariable(id) == IPayloadsControllerCore.PayloadState.None ||
 	getPayloadStateVariable(id) == IPayloadsControllerCore.PayloadState.Created || 
 	getPayloadStateVariable(id) == IPayloadsControllerCore.PayloadState.Queued => getPayloadExecutedAt(id) == 0
@@ -763,6 +920,21 @@ invariant executedAt_is_zero_before_executed(uint40 id)
 		}
 	}
 
+invariant executedAt_is_zero_before_executed(env e, uint40 id)
+	getPayloadState(e, id) == IPayloadsControllerCore.PayloadState.None ||
+	getPayloadState(e, id) == IPayloadsControllerCore.PayloadState.Created || 
+	getPayloadState(e, id) == IPayloadsControllerCore.PayloadState.Queued => getPayloadExecutedAt(id) == 0
+
+{
+		preserved{
+			requireInvariant null_state_variable_if_out_of_bound_payload(id);
+		}
+	}
+
+// getPayloadState() is Null if and only if the state storage variable is None
+invariant null_state_equivalence(env e, uint40 payloadId)
+      getPayloadState(e, payloadId) == IPayloadsControllerCore.PayloadState.None <=> 
+	  		getPayloadStateVariable(payloadId) == IPayloadsControllerCore.PayloadState.None;
 
 //helper: One cannot queue a payload if expiration time have elapsed
 rule no_queue_after_expiration{
@@ -781,6 +953,87 @@ rule no_queue_after_expiration{
 	receiveCrossChainMessage(e, originSender, originChainId, message);
 
 	assert expiration_time > timestamp;
+}
+
+// State-machine verification - check post-state of transitions
+rule payload_state_transition_post_state(method f) filtered { f -> !f.isView}{
+	
+	env e1; env e2; env e3; calldataarg args1;
+  	//require 0 < e1.block.timestamp;
+  	require e1.block.timestamp <= e2.block.timestamp;
+  	require e2.block.timestamp <= e3.block.timestamp;
+  	require e3.block.timestamp < 2^40;
+  	calldataarg args;
+	
+	uint40 payloadId;
+
+	requireInvariant null_state_variable_if_out_of_bound_payload(payloadId);
+	requireInvariant payload_grace_period_eq_global_grace_period(payloadId);
+	requireInvariant null_access_level_iff_state_is_none(payloadId);
+	requireInvariant expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY(payloadId);
+
+	IPayloadsControllerCore.PayloadState state1 = getPayloadState(e1,payloadId);
+	f(e2,args);
+	IPayloadsControllerCore.PayloadState state2 = getPayloadState(e3,payloadId);
+
+	assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => ((state1 == IPayloadsControllerCore.PayloadState.None
+				=> state2 == IPayloadsControllerCore.PayloadState.Created ));
+
+	assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => (state1 == IPayloadsControllerCore.PayloadState.Created
+				=> (state2 == IPayloadsControllerCore.PayloadState.Queued || state2 == IPayloadsControllerCore.PayloadState.Cancelled  ));
+
+	assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => (state1 == IPayloadsControllerCore.PayloadState.Queued
+				=> (state2 == IPayloadsControllerCore.PayloadState.Executed || state2 == IPayloadsControllerCore.PayloadState.Cancelled ));
+
+
+	assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => ((state1 == IPayloadsControllerCore.PayloadState.None
+				=> state2 == IPayloadsControllerCore.PayloadState.Created ));
+	
+	assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => (state1 == IPayloadsControllerCore.PayloadState.Created
+				=> (state2 == IPayloadsControllerCore.PayloadState.Queued || state2 == IPayloadsControllerCore.PayloadState.Cancelled  ));
+
+	assert (e1.block.timestamp == e3.block.timestamp && state1 != state2) => (state1 == IPayloadsControllerCore.PayloadState.Queued
+				=> (state2 == IPayloadsControllerCore.PayloadState.Executed || state2 == IPayloadsControllerCore.PayloadState.Cancelled ));
+
+
+}
+
+// State-machine verification - check  pre-state of transitions
+rule payload_state_transition_pre_state(method f) filtered { f -> !f.isView}{
+	
+	env e1; env e2; env e3; calldataarg args1;
+//  	require 0 < e1.block.timestamp;
+  	require e1.block.timestamp <= e2.block.timestamp;
+  	require e2.block.timestamp <= e3.block.timestamp;
+  	require e3.block.timestamp < 2^40;
+  	calldataarg args;
+	
+	uint40 payloadId;
+
+	requireInvariant null_state_variable_if_out_of_bound_payload(payloadId);
+	//requireInvariant payload_grace_period_eq_global_grace_period(payloadId);
+	//requireInvariant null_access_level_iff_state_is_none(payloadId);
+	requireInvariant expirationTime_equal_to_createAt_plus_EXPIRATION_DELAY(payloadId);
+
+	IPayloadsControllerCore.PayloadState state1 = getPayloadState(e1,payloadId);
+	f(e2,args);
+	IPayloadsControllerCore.PayloadState state2 = getPayloadState(e3,payloadId);
+
+	assert (state1 != state2) => (state2 == IPayloadsControllerCore.PayloadState.Created
+				=> state1 == IPayloadsControllerCore.PayloadState.None );
+
+	assert (state1 != state2) => (state2 == IPayloadsControllerCore.PayloadState.Queued
+				=> state1 == IPayloadsControllerCore.PayloadState.Created );
+
+	assert (state1 != state2) => (state2 == IPayloadsControllerCore.PayloadState.Executed
+				=> state1 == IPayloadsControllerCore.PayloadState.Queued );
+
+	assert (state1 != state2) => (state2 == IPayloadsControllerCore.PayloadState.Cancelled
+				=> (state1 == IPayloadsControllerCore.PayloadState.Created || state1 == IPayloadsControllerCore.PayloadState.Queued));
+
+	assert (e2.block.timestamp == e3.block.timestamp  && state1 != state2) => (state2 == IPayloadsControllerCore.PayloadState.Expired
+				=> (state1 == IPayloadsControllerCore.PayloadState.Created || state1 == IPayloadsControllerCore.PayloadState.Queued));
+
 }
 
 
