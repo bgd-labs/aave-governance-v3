@@ -134,4 +134,14 @@ rule configIsImmutable(method f, uint256 proposalId) filtered {
 }
 
 
+/// @title The function `getProposalsVoteConfigurationIds` must not revert
+rule getProposalsConfigsDoesntRevert(uint256 skip, uint256 size) {
+    require size < 2^64;
+    require size + skip < 2^256;  // Avoid overflow
+
+    getProposalsVoteConfigurationIds@withrevert(skip, size);
+    assert !lastReverted, "getProposalsConfigsDoesntRevert must not revert";
+}
+
+
 use rule method_reachability;
