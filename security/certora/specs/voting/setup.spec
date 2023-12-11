@@ -21,6 +21,10 @@ methods
 
     function getIdOfProposal(uint256) external returns (uint256) envfree;
 
+    function getProposalsVoteConfigurationIds(
+        uint256, uint256
+    ) external returns (uint256[] memory) envfree;
+
     // `VotingStrategy` ========================================================
     function VotingStrategyHarness.is_hasRequiredRoots(
         bytes32
