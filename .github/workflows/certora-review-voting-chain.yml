@@ -54,7 +54,7 @@ jobs:
           - verifyLegality.conf --rule legalVote
           - verifyLegality.conf --rule votedPowerIsImmutable method_reachability
           - verifyMisc.conf
-          - verifyPower_summary.conf --rule onlyThreeTokens
+          # verifyPower_summary.conf --rule onlyThreeTokens #TODO: uncomment with certora-cli version 6.0 or higher
           - verifyPower_summary.conf --rule method_reachability
           - verifyProposal_config.conf --rule createdProposalHasRoots
           - verifyProposal_config.conf --rule startedProposalHasConfig
