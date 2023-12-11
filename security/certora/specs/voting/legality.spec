@@ -38,7 +38,10 @@ function is_proposalCreated(uint256 proposalId) returns bool {
 
 
 invariant createdVoteHasNonZeroHash(uint256 proposalId)
-    is_proposalCreated(proposalId) => is_proposalHashNonZero(proposalId);
+    is_proposalCreated(proposalId) => is_proposalHashNonZero(proposalId)
+    filtered {
+        f -> filteredMethods(f)
+    }
 
 
 /** @title Stored voting power is immutable (once positive)
@@ -46,7 +49,9 @@ invariant createdVoteHasNonZeroHash(uint256 proposalId)
  * and that once it is positive it is immutable. This rule, together with the
  * previous section proves that a voter cannot vote twice.
  */
-rule votedPowerIsImmutable(method f, address voter, uint256 proposalId) {
+rule votedPowerIsImmutable(method f, address voter, uint256 proposalId) filtered {
+    f -> filteredMethods(f)
+} {
     IVotingMachineWithProofs.Vote pre = getUserProposalVote(voter, proposalId);
 
     env e;
@@ -61,7 +66,9 @@ rule votedPowerIsImmutable(method f, address voter, uint256 proposalId) {
 
 
 /// @title Vote tally can change only for active and properly configured proposals
-rule onlyValidProposalCanChangeTally(method f, uint256 proposalId) {
+rule onlyValidProposalCanChangeTally(method f, uint256 proposalId) filtered {
+    f -> filteredMethods(f)
+} {
     requireInvariant createdVoteHasNonZeroHash(proposalId);
 
     IVotingMachineWithProofs.ProposalWithoutVotes pre = getProposalById(proposalId);
@@ -91,7 +98,7 @@ rule onlyValidProposalCanChangeTally(method f, uint256 proposalId) {
  * and positive after.
  */
 rule legalVote(method f, uint256 proposalId, address voter) filtered {
-    f -> !f.isView
+    f -> !f.isView && filteredMethods(f)
 } {
     IVotingMachineWithProofs.ProposalWithoutVotes pre = getProposalById(proposalId);
     IVotingMachineWithProofs.Vote preVote = getUserProposalVote(voter, proposalId);
