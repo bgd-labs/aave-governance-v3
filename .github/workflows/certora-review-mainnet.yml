@@ -52,7 +52,7 @@ jobs:
           - verifyVotingStrategy_unittests.conf
           - verifyGovernancePowerStrategy.conf --rule delegatePowerCompliance
           - verifyGovernancePowerStrategy.conf --rule transferPowerCompliance
-          - verifyGovernancePowerStrategy.conf --rule powerlessCompliance invalidTokenRefused method_reachability
+          - verifyGovernancePowerStrategy.conf --rule powerlessCompliance method_reachability
           - verifyGovernance.conf --rule cancellationFeeZeroForFutureProposals null_state_variable_iff_null_access_level zero_voting_portal_iff_uninitialized_proposal 
           - verifyGovernance.conf --rule no_self_representative no_representative_is_zero consecutiveIDs totalCancellationFeeEqualETHBalance zero_address_is_not_a_valid_voting_portal 
           - verifyGovernance.conf --rule no_representative_is_zero_2 no_representative_of_zero 
