@@ -50,26 +50,18 @@ methods
     ) external returns (StateProofVerifier.SlotValue) => NONDET;
 
     // `CrossChainController` ==================================================
-    // NOTE: Not clear why this call is not resolved, we summarize it as `NONDET`
-    // NOTE: Not a view method - not a safe summary! 20231120 Trying without
-    //function CrossChainController.forwardMessage(
-    //    uint256, address, uint256, bytes
-    //) external returns (bytes32,bytes32) => NONDET;
+    // NOTE: Summarized since it contains a `delegatecall` in `CrossChainForwarder.sol`
+    // Line 284
+    // NOTE: This is not a view function, so `NONDET` summary is not safe!
+    function CrossChainController.forwardMessage(
+        uint256, address, uint256, bytes
+    ) external returns (bytes32,bytes32) => NONDET;
 
     // `SlotUtils` =============================================================
     // Summarized for speed-up
     function SlotUtils.getAccountSlotHash(
         address, uint256
     ) internal returns (bytes32) => NONDET;
-}
-
-// setup self check - reachability of currentContract external functions
-rule method_reachability {
-  env e;
-  calldataarg arg;
-  method f;
-  f(e, arg);
-  satisfy true;
 }
 
 
@@ -89,7 +81,6 @@ definition filteredMethods(method f) returns bool = (
 
     // Filtered due to unresolved call from `CrossChainReceiver.sol` Line 231: see above
     f.selector != sig:CrossChainController.deliverEnvelope(
-        //uint256,address,address,uint256,uint256,bytes
         CrossChainController.Envelope
     ).selector &&
 
@@ -97,5 +88,51 @@ definition filteredMethods(method f) returns bool = (
     // to.call{value: amount}(new bytes(0))
     f.selector != sig:CrossChainController.emergencyEtherTransfer(
         address,uint256
+    ).selector &&
+
+    // Filtered due to unresolved call from `Address.sol` Line 189:
+    // `target.delegatecall(data)`
+    f.selector != sig:CrossChainController.enableBridgeAdapters(
+        ICrossChainForwarder.ForwarderBridgeAdapterConfigInput[]
+    ).selector  &&
+
+    // Unreachable methods
+    // NOTE: It is unclear why these are unreachable in 6.0.0
+    f.selector != sig:CrossChainController.isEnvelopeRegistered(
+        CrossChainController.Envelope
+    ).selector &&
+    f.selector != sig:CrossChainController.retryEnvelope(
+        CrossChainController.Envelope, uint256
+    ).selector &&
+    f.selector != sig:CrossChainController.receiveCrossChainMessage(
+        bytes, uint256
+    ).selector &&
+    f.selector != sig:CrossChainController.getEnvelopeState(
+        CrossChainController.Envelope
+    ).selector &&
+    f.selector != sig:CrossChainController.forwardMessage(
+        uint256, address, uint256, bytes
+    ).selector &&
+    f.selector != sig:CrossChainController.retryTransaction(
+        bytes, uint256, address[]
+    ).selector &&
+    f.selector != sig:CrossChainController.initialize(
+        address,
+        address,
+        ICrossChainReceiver.ConfirmationInput[],
+        ICrossChainReceiver.ReceiverBridgeAdapterConfigInput[],
+        ICrossChainForwarder.ForwarderBridgeAdapterConfigInput[],
+        address[]
     ).selector
 );
+
+
+// setup self check - reachability of currentContract external functions
+rule method_reachability(method f) filtered {
+    f -> filteredMethods(f)
+} {
+  env e;
+  calldataarg arg;
+  f(e, arg);
+  satisfy true;
+}
