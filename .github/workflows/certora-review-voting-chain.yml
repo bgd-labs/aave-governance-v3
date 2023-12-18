@@ -1,0 +1,78 @@
+# Github action for verifying the contracts under src/contracts/voting
+name: certora-review-voting-chain
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install python
+        uses: actions/setup-python@v2
+        with: { python-version: 3.9 }
+
+      - name: Install java
+        uses: actions/setup-java@v1
+        with: { java-version: "11", java-package: jre }
+
+      - name: Install certora cli
+        run: pip3 install certora-cli==4.13.1
+
+      - name: Install solc
+        run: |
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
+          chmod +x solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc8.19
+
+      - name: Verify rule ${{ matrix.rule }}
+        run: |
+          certoraRun --disable_auto_cache_key_gen security/certora/confs/voting/${{ matrix.rule }}
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        rule:
+          - verifyLegality.conf --rule createdVoteHasNonZeroHash
+          - verifyLegality.conf --rule onlyValidProposalCanChangeTally
+          - verifyLegality.conf --rule legalVote
+          - verifyLegality.conf --rule votedPowerIsImmutable method_reachability
+          - verifyMisc.conf
+          - verifyPower_summary.conf --rule onlyThreeTokens
+          -  verifyPower_summary.conf --rule method_reachability
+          - verifyProposal_config.conf --rule createdProposalHasRoots
+          - verifyProposal_config.conf --rule startedProposalHasConfig
+          - verifyProposal_config.conf --rule proposalHasNonzeroDuration configIsImmutable newProposalUnusedId method_reachability
+          - verifyProposal_states.conf --rule proposalImmutability
+          - verifyProposal_states.conf --rule startsStrictlyBeforeEnds
+          - verifyProposal_states.conf --rule startsBeforeEnds
+          - verifyProposal_states.conf --rule startedProposalHasConfig
+          - verifyProposal_states.conf --rule proposalMethodStateTransitionCompliance
+          - verifyProposal_states.conf --rule proposalIdIsImmutable proposalHasNonzeroDuration proposalTimeStateTransitionCompliance proposalLegalStates method_reachability
+          - verifyVoting_and_tally.conf --rule voteUpdatesTally
+          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
+          - verifyVoting_and_tally.conf --rule onlyVoteCanChangeResult
+          - verifyVoting_and_tally.conf --rule voteTallyChangedOnlyByVoting
+          - verifyVoting_and_tally.conf --rule  votingTallyCanOnlyIncrease 
+          - verifyVoting_and_tally.conf --rule strangerVoteUnchanged 
+          - verifyVoting_and_tally.conf --rule otherProposalUnchanged 
+          - verifyVoting_and_tally.conf --rule otherVoterUntouched 
+          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative
+          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote
+          - verifyVoting_and_tally.conf --rule method_reachability
