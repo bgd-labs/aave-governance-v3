@@ -39,7 +39,7 @@ endef
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------- DEPLOYMENT SCRIPTS ---------------------------------------------------------
 deploy-initial:
-	$(call deploy_fn,InitialDeployments,ethereum polygon avalanche arbitrum optimism metis base binance gnosis)
+	$(call deploy_fn,InitialDeployments,scroll)
 
 deploy-gov-power-strategy:
 	$(call deploy_fn,Governance/Deploy_Gov_PowerStrategy,ethereum)

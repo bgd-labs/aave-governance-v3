@@ -68,6 +68,12 @@ contract Binance is BaseDeployExecutorLvl2 {
   }
 }
 
+contract Scroll is BaseDeployExecutorLvl2 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SCROLL;
+  }
+}
+
 contract Ethereum_testnet is BaseDeployExecutorLvl2 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
@@ -107,5 +113,11 @@ contract Metis_testnet is BaseDeployExecutorLvl2 {
 contract Binance_testnet is BaseDeployExecutorLvl2 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.BNB_TESTNET;
+  }
+}
+
+contract Scroll_testnet is BaseDeployExecutorLvl2 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.SCROLL_SEPOLIA;
   }
 }
