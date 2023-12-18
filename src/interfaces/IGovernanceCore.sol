@@ -416,14 +416,6 @@ interface IGovernanceCore {
   function PRECISION_DIVIDER() external view returns (uint256);
 
   /**
-   * @notice method to get the the voting tokens cap
-   * @return cap for the voting tokens
-   * @dev This cap is used to limit the number of voting tokens, so as to not drain the bridging funds
-          with a message too big.
-   */
-  function VOTING_TOKENS_CAP() external view returns (uint256);
-
-  /**
    * @notice method to get the expiration time from creation from which the proposal will be invalid
    * @return time in seconds
    */

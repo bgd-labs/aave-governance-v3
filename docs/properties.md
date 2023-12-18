@@ -19,15 +19,13 @@ Only one Governance must exist on the system (Ethereum mainnet), while multiple 
 - When invalidating voting config, proposal can not be queued
 - Guardian can cancel proposals with `proposal.state < 4`
 - The following proposal parameters can only be set once, at proposal creation:
-  creator, accessLevel, votingPortal, votingDuration, creationTime, ipfsHash, payloads.
+  creator, accessLevel, votingPortal, creationTime, ipfsHash, payloads.
 - The following proposal parameters can only be set once, during voting activation:
   votingActivationTime, snapshotBlockHash, votingDuration.
-- Voting via Portal can happen only once per address and proposal, and only when the proposal state is `Active`
 - Only a valid voting portal can queue a proposal and only if this is in `Active` state.
 - A proposal can be executed only in `Queued` state, after passing the cooldown period.
 - The Governance Core system shouldn’t know anything about the voting procedure. It only expects a whitelisted entity to submit voting results about a specific proposal id.
 - The Governance Core system shouldn’t know anything about final execution. From its perspective, execution is sent to a Portal.
-- `VOTING_TOKENS_CAP` in GovernanceCore should be big enough to account for tokens that need to pass multiple slots, and big enough for at least mig to long term
 ## VotingMachine
 - Proposal Ids must match with the existing Proposal Ids generated in governance core (so they can be not sequential)
 - `proposal.state` can't decrease
