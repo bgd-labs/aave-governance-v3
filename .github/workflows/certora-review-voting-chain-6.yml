@@ -1,5 +1,5 @@
 # Github action for verifying the contracts under src/contracts/voting using certora-cli-beta 6
-name: certora-review-voting-chain
+name: certora-review-voting-chain-six
 
 on:
   push:
