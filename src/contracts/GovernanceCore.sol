@@ -29,11 +29,6 @@ abstract contract GovernanceCore is
   // @inheritdoc IGovernanceCore
   address public immutable CANCELLATION_FEE_COLLECTOR;
 
-  // It has been put at 10 because it is a limit that will not be reached in the near future, as we currently have
-  // AAVE, stkAAVE, stkABPT, aAAVE, and probably some others from balancer, curve, etc
-  /// @inheritdoc IGovernanceCore
-  uint256 public constant VOTING_TOKENS_CAP = 10;
-
   // @inheritdoc IGovernanceCore
   uint256 public constant PRECISION_DIVIDER = 1 ether;
 
