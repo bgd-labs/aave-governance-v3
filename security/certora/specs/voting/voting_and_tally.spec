@@ -110,7 +110,10 @@ function getRegisteredVotingPower(uint256 proposalId, address voter) returns uin
  * It follows that if a vote is cast on proposal `i` then `is_someoneVoting(i)` is true.
  */
 invariant votingPowerGhostIsVotingPower(uint256 proposalId, address voter)
-    getRegisteredVotingPower(proposalId, voter) == storedVotingPower(proposalId, voter);
+    getRegisteredVotingPower(proposalId, voter) == storedVotingPower(proposalId, voter)
+    filtered {
+        f -> filteredMethods(f)
+    }
 
 
 // Votes tally =================================================================
@@ -124,7 +127,10 @@ function getVotesSum(uint256 proposalId) returns mathint {
 
 /// @title The sum of votes in favor and against equals the sum of stored voting powers
 invariant sumOfVotes(uint256 proposalId)
-    votesSum[proposalId] == getVotesSum(proposalId);
+    votesSum[proposalId] == getVotesSum(proposalId)
+    filtered {
+        f -> filteredMethods(f)
+    }
 
 
 // Casting votes ===============================================================
@@ -133,7 +139,9 @@ invariant sumOfVotes(uint256 proposalId)
  * To be precise, if the proposal's votes tally changed then there exists a voter `v`
  * whose stored voting power on the proposal changed from zero to positive.
  */
-rule voteTallyChangedOnlyByVoting(method f, uint256 proposalId) {
+rule voteTallyChangedOnlyByVoting(method f, uint256 proposalId) filtered {
+    f -> filteredMethods(f)
+} {
     assert sig:getProposalById(uint256).isView;
 
     IVotingMachineWithProofs.ProposalWithoutVotes pre = getProposalById(proposalId);
@@ -159,7 +167,9 @@ rule voteTallyChangedOnlyByVoting(method f, uint256 proposalId) {
  * If a vote was cast for a proposal, then the proposal's votes tally changed.
  * Moreover, the change in tally corresponds to the vote that was cast.
  */
-rule voteUpdatesTally(method f, uint256 proposalId, address voter) {
+rule voteUpdatesTally(method f, uint256 proposalId, address voter) filtered {
+    f -> filteredMethods(f)
+} {
     env e;
     IVotingMachineWithProofs.ProposalWithoutVotes pre = getProposalById(proposalId);
     IVotingMachineWithProofs.Vote preVote = getUserProposalVote(voter, proposalId);
@@ -263,7 +273,9 @@ function dispatchVote(method f, env e, address voter) {
 
 
 /// @title Vote tally can be changed only by one of the voting methods
-rule onlyVoteCanChangeResult(method f, uint256 proposalId, address voter) {
+rule onlyVoteCanChangeResult(method f, uint256 proposalId, address voter) filtered {
+    f -> filteredMethods(f)
+} {
     env e;
     IVotingMachineWithProofs.ProposalWithoutVotes pre = getProposalById(proposalId);
     IVotingMachineWithProofs.Vote preVote = getUserProposalVote(voter, proposalId);
@@ -303,7 +315,9 @@ rule onlyVoteCanChangeResult(method f, uint256 proposalId, address voter) {
 
 
 /// @title Voting tally can only increase
-rule votingTallyCanOnlyIncrease(method f, uint256 proposalId) {
+rule votingTallyCanOnlyIncrease(method f, uint256 proposalId) filtered {
+    f -> filteredMethods(f)
+} {
     IVotingMachineWithProofs.ProposalWithoutVotes pre = getProposalById(proposalId);
 
     env e;
@@ -326,7 +340,9 @@ rule votingTallyCanOnlyIncrease(method f, uint256 proposalId) {
 
 /// @title A stranger's stored vote is unchanged when another votes
 rule strangerVoteUnchanged(method f, uint256 proposalId, address stranger, address voter) 
-{
+filtered {
+    f -> filteredMethods(f)
+} {
     require voter != stranger;
     IVotingMachineWithProofs.Vote strangePre = getUserProposalVote(stranger, proposalId);
 
@@ -343,7 +359,9 @@ rule strangerVoteUnchanged(method f, uint256 proposalId, address stranger, addre
 /// @title Only a single proposal's tally and votes may change by a single method call
 rule otherProposalUnchanged(
     method f, uint256 proposalId, uint256 otherProposal, address otherVoter
-) {
+) filtered {
+    f -> filteredMethods(f)
+} {
     require proposalId != otherProposal;
 
     env e;
@@ -374,7 +392,9 @@ rule otherProposalUnchanged(
 /// @title Only a single voter's stored voting power may change (on a given proposal)
 rule otherVoterUntouched(
     method f, uint256 proposalId, address voter, address stranger
-) {
+) filtered {
+    f -> filteredMethods(f)
+} {
     require voter != stranger;
 
     env e;
@@ -442,7 +462,9 @@ rule otherVoterUntouched(
 
 //check  submitVoteAsRepresentative and submitVote
 
-rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative(method f) filtered { f -> !f.isView}{
+rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative(method f) filtered {
+    f -> filteredMethods(f) && !f.isView
+} {
     
     env e1;
     env e2;
@@ -492,8 +514,10 @@ rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative(method f) 
 // }
 
 
-rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote(method f) filtered { f -> !f.isView}{
-    
+rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote(method f) filtered {
+    f -> filteredMethods(f) && !f.isView
+} {
+  
     env e1;
     env e2;
     uint256 proposalId1;
@@ -594,7 +618,10 @@ rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote(method f) 
 // }
 
 
-rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote(method f) filtered { f -> !f.isView}{
+rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote(method f)
+filtered {
+    f -> filteredMethods(f) && !f.isView
+} {
     
     env e1;
     env e2;
@@ -645,11 +672,12 @@ rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
 
 
 
-// setup self check - reachability of currentContract external functions
-rule method_reachability {
+// setup self check - reachability of currentContract and external functions
+rule method_reachability(method f) filtered {
+    f -> filteredMethods(f)
+} {
   env e;
   calldataarg arg;
-  method f;
   f(e, arg);
   satisfy true;
 }
