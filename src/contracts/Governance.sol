@@ -37,8 +37,33 @@ contract Governance is GovernanceCore, IGovernance {
   }
 
   /// @inheritdoc IGovernance
-  function initializeWithRevision(uint256 gasLimit) external reinitializer(3) {
-    _updateGasLimit(gasLimit);
+  function initializeWithRevision() external reinitializer(3) {
+    _updateGasLimit(300_000);
+    IGovernanceCore.SetVotingConfigInput[]
+      memory votingConfigs = new IGovernanceCore.SetVotingConfigInput[](2);
+
+    SetVotingConfigInput memory level1Config = SetVotingConfigInput({
+      accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
+      coolDownBeforeVotingStart: 1 days,
+      votingDuration: 3 days,
+      yesThreshold: 320_000 ether,
+      yesNoDifferential: 80_000 ether,
+      minPropositionPower: 80_000 ether
+    });
+    votingConfigs[0] = level1Config;
+
+    IGovernanceCore.SetVotingConfigInput memory level2Config = IGovernanceCore
+      .SetVotingConfigInput({
+        accessLevel: PayloadsControllerUtils.AccessControl.Level_2,
+        coolDownBeforeVotingStart: 1 days,
+        votingDuration: 10 days,
+        yesThreshold: 1_040_000 ether,
+        yesNoDifferential: 1_040_000 ether,
+        minPropositionPower: 200_000 ether
+      });
+    votingConfigs[1] = level2Config;
+
+    _setVotingConfigs(votingConfigs);
   }
 
   /// @inheritdoc IGovernance

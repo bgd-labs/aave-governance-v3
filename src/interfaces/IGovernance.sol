@@ -44,9 +44,8 @@ interface IGovernance {
 
   /**
    * @notice method to initialize revision 3 of governance v3
-   * @param gasLimit updated gas limit needed for payload execution on PayloadsController
    */
-  function initializeWithRevision(uint256 gasLimit) external;
+  function initializeWithRevision() external;
 
   /**
    * @notice method to update the gasLimit
