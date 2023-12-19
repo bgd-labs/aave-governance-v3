@@ -37,7 +37,10 @@ contract Governance_V3_Test is Test {
         payable(address(GovernanceV3Ethereum.GOVERNANCE))
       ),
       address(govV3_Impl),
-      abi.encodeWithSelector(IGovernance.initializeWithRevision.selector)
+      abi.encodeWithSelector(
+        IGovernance.initializeWithRevision.selector,
+        GAS_LIMIT
+      )
     );
   }
 

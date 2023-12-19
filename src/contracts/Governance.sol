@@ -37,8 +37,8 @@ contract Governance is GovernanceCore, IGovernance {
   }
 
   /// @inheritdoc IGovernance
-  function initializeWithRevision() external reinitializer(3) {
-    _updateGasLimit(300_000);
+  function initializeWithRevision(uint256 gasLimit) external reinitializer(3) {
+    _updateGasLimit(gasLimit);
     IGovernanceCore.SetVotingConfigInput[]
       memory votingConfigs = new IGovernanceCore.SetVotingConfigInput[](2);
 
