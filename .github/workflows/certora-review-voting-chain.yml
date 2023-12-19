@@ -1,4 +1,4 @@
-# Github action for verifying the contracts under src/contracts/voting
+# Github action for verifying the contracts under src/contracts/voting using certora-cli-beta 6
 name: certora-review-voting-chain
 
 on:
@@ -30,7 +30,7 @@ jobs:
         with: { java-version: "11", java-package: jre }
 
       - name: Install certora cli
-        run: pip3 install certora-cli==4.13.1
+        run: pip3 install certora-cli-beta==6.0.0
 
       - name: Install solc
         run: |
@@ -50,29 +50,37 @@ jobs:
       matrix:
         rule:
           - verifyLegality.conf --rule createdVoteHasNonZeroHash
+          - verifyLegality.conf --rule votedPowerIsImmutable
           - verifyLegality.conf --rule onlyValidProposalCanChangeTally
           - verifyLegality.conf --rule legalVote
-          - verifyLegality.conf --rule votedPowerIsImmutable method_reachability
+          - verifyLegality.conf --rule method_reachability
           - verifyMisc.conf
-          - verifyPower_summary.conf --rule onlyThreeTokens
-          -  verifyPower_summary.conf --rule method_reachability
-          - verifyProposal_config.conf --rule createdProposalHasRoots
+          - verifyPower_summary.conf --rule onlyThreeTokens #TODO: uncomment with certora-cli version 6.0 or higher
+          - verifyPower_summary.conf --rule method_reachability
           - verifyProposal_config.conf --rule startedProposalHasConfig
-          - verifyProposal_config.conf --rule proposalHasNonzeroDuration configIsImmutable newProposalUnusedId method_reachability
-          - verifyProposal_states.conf --rule proposalImmutability
-          - verifyProposal_states.conf --rule startsStrictlyBeforeEnds
+          - verifyProposal_config.conf --rule createdProposalHasRoots
+          - verifyProposal_config.conf --rule proposalHasNonzeroDuration newProposalUnusedId configIsImmutable
+          - verifyProposal_config.conf --rule getProposalsConfigsDoesntRevert
+          - verifyProposal_config.conf --rule method_reachability
           - verifyProposal_states.conf --rule startsBeforeEnds
-          - verifyProposal_states.conf --rule startedProposalHasConfig
+          - verifyProposal_states.conf --rule startsStrictlyBeforeEnds
+          - verifyProposal_states.conf --rule proposalLegalStates
           - verifyProposal_states.conf --rule proposalMethodStateTransitionCompliance
-          - verifyProposal_states.conf --rule proposalIdIsImmutable proposalHasNonzeroDuration proposalTimeStateTransitionCompliance proposalLegalStates method_reachability
-          - verifyVoting_and_tally.conf --rule voteUpdatesTally
-          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
-          - verifyVoting_and_tally.conf --rule onlyVoteCanChangeResult
+          - verifyProposal_states.conf --rule proposalTimeStateTransitionCompliance
+          - verifyProposal_states.conf --rule proposalIdIsImmutable
+          - verifyProposal_states.conf --rule proposalImmutability
+          - verifyProposal_states.conf --rule startedProposalHasConfig
+          - verifyProposal_states.conf --rule proposalHasNonzeroDuration method_reachability
+          - verifyVoting_and_tally.conf --rule votingPowerGhostIsVotingPower
+          - verifyVoting_and_tally.conf --rule sumOfVotes
           - verifyVoting_and_tally.conf --rule voteTallyChangedOnlyByVoting
-          - verifyVoting_and_tally.conf --rule  votingTallyCanOnlyIncrease 
-          - verifyVoting_and_tally.conf --rule strangerVoteUnchanged 
-          - verifyVoting_and_tally.conf --rule otherProposalUnchanged 
-          - verifyVoting_and_tally.conf --rule otherVoterUntouched 
+          - verifyVoting_and_tally.conf --rule voteUpdatesTally
+          - verifyVoting_and_tally.conf --rule onlyVoteCanChangeResult
+          - verifyVoting_and_tally.conf --rule votingTallyCanOnlyIncrease
+          - verifyVoting_and_tally.conf --rule strangerVoteUnchanged
+          - verifyVoting_and_tally.conf --rule otherProposalUnchanged
+          - verifyVoting_and_tally.conf --rule otherVoterUntouched
           - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative
           - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote
+          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
           - verifyVoting_and_tally.conf --rule method_reachability
