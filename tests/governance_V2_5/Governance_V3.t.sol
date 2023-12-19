@@ -23,7 +23,7 @@ contract Governance_V3_Test is Test {
   uint256 currentProposalCount;
 
   function setUp() public {
-    vm.createSelectFork('ethereum', 18526717);
+    vm.createSelectFork('ethereum', 18820742);
 
     govV3_Impl = new Governance(
       GovernanceV3Ethereum.CROSS_CHAIN_CONTROLLER,
