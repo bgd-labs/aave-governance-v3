@@ -16,14 +16,14 @@ import {IGovernanceCore, PayloadsControllerUtils} from 'aave-address-book/Govern
 import {IWithGuardian} from 'solidity-utils/contracts/access-control/interfaces/IWithGuardian.sol';
 
 contract Governance_V3_Test is Test {
-  uint256 constant GAS_LIMIT = 180_000;
+  uint256 constant GAS_LIMIT = 300_000;
 
   IGovernance govV3_Impl;
 
   uint256 currentProposalCount;
 
   function setUp() public {
-    vm.createSelectFork('ethereum', 18526717);
+    vm.createSelectFork('ethereum', 18820742);
 
     govV3_Impl = new Governance(
       GovernanceV3Ethereum.CROSS_CHAIN_CONTROLLER,
@@ -52,7 +52,7 @@ contract Governance_V3_Test is Test {
     );
     assertEq(
       IGovernance(address(GovernanceV3Ethereum.GOVERNANCE)).getGasLimit(),
-      180_000
+      GAS_LIMIT
     );
     require(
       GovernanceV3Ethereum.GOVERNANCE.CANCELLATION_FEE_COLLECTOR() !=
@@ -86,17 +86,17 @@ contract Governance_V3_Test is Test {
     assertEq(votingConfigLvl1.votingDuration, 3 days);
     assertEq(votingConfigLvl1.yesThreshold, 320_000);
     assertEq(votingConfigLvl1.yesNoDifferential, 80_000);
-    assertEq(votingConfigLvl1.minPropositionPower, 50_000);
+    assertEq(votingConfigLvl1.minPropositionPower, 80_000);
 
     IGovernanceCore.VotingConfig memory votingConfigLvl2 = GovernanceV3Ethereum
       .GOVERNANCE
       .getVotingConfig(PayloadsControllerUtils.AccessControl.Level_2);
 
     assertEq(votingConfigLvl2.coolDownBeforeVotingStart, 1 days);
-    assertEq(votingConfigLvl2.votingDuration, 7 days);
-    assertEq(votingConfigLvl2.yesThreshold, 1_400_000);
-    assertEq(votingConfigLvl2.yesNoDifferential, 1_400_000);
-    assertEq(votingConfigLvl2.minPropositionPower, 80_000);
+    assertEq(votingConfigLvl2.votingDuration, 10 days);
+    assertEq(votingConfigLvl2.yesThreshold, 1_040_000);
+    assertEq(votingConfigLvl2.yesNoDifferential, 1_040_000);
+    assertEq(votingConfigLvl2.minPropositionPower, 200_000);
 
     assertEq(
       GovernanceV3Ethereum.GOVERNANCE.isVotingPortalApproved(
