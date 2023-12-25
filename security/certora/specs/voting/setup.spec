@@ -69,47 +69,47 @@ methods
 definition filteredMethods(method f) returns bool = (
     // Filtered due to unresolved call from `Address.sol` Line 136:
     // `target.call{value: value}(data)`
-    f.selector != sig:CrossChainController.emergencyTokenTransfer(
-        address, address, uint256
-    ).selector &&
+    // f.selector != sig:CrossChainController.emergencyTokenTransfer(
+    //     address, address, uint256
+    // ).selector &&
 
     // Filtered due to unresolved call from `CrossChainReceiver.sol` Line 231:
     // `IBaseReceiverPortal(envelope.destination).receiveCrossChainMessage(`
     // `   envelope.origin,envelope.originChainId,envelope.message`
     // `)`
-    f.selector != sig:receiveCrossChainMessage(address,uint256,bytes).selector &&
+    //f.selector != sig:receiveCrossChainMessage(address,uint256,bytes).selector &&
 
     // Filtered due to unresolved call from `CrossChainReceiver.sol` Line 231: see above
-    f.selector != sig:CrossChainController.deliverEnvelope(
-        CrossChainController.Envelope
-    ).selector &&
+    // f.selector != sig:CrossChainController.deliverEnvelope(
+    //     CrossChainController.Envelope
+    // ).selector &&
 
     // Filtered due to unresolved call from `Rescuable.sol` Line 3:
     // to.call{value: amount}(new bytes(0))
-    f.selector != sig:CrossChainController.emergencyEtherTransfer(
-        address,uint256
-    ).selector &&
+    // f.selector != sig:CrossChainController.emergencyEtherTransfer(
+    //     address,uint256
+    // ).selector &&
 
     // Filtered due to unresolved call from `Address.sol` Line 189:
     // `target.delegatecall(data)`
-    f.selector != sig:CrossChainController.enableBridgeAdapters(
-        ICrossChainForwarder.ForwarderBridgeAdapterConfigInput[]
-    ).selector  &&
+    // f.selector != sig:CrossChainController.enableBridgeAdapters(
+    //     ICrossChainForwarder.ForwarderBridgeAdapterConfigInput[]
+    // ).selector  &&
 
     // Unreachable methods
     // NOTE: It is unclear why these are unreachable in 6.0.0
-    f.selector != sig:CrossChainController.isEnvelopeRegistered(
-        CrossChainController.Envelope
-    ).selector &&
+    // f.selector != sig:CrossChainController.isEnvelopeRegistered(
+    //     CrossChainController.Envelope
+    // ).selector &&
     f.selector != sig:CrossChainController.retryEnvelope(
         CrossChainController.Envelope, uint256
     ).selector &&
-    f.selector != sig:CrossChainController.receiveCrossChainMessage(
-        bytes, uint256
-    ).selector &&
-    f.selector != sig:CrossChainController.getEnvelopeState(
-        CrossChainController.Envelope
-    ).selector &&
+    // f.selector != sig:CrossChainController.receiveCrossChainMessage(
+    //     bytes, uint256
+    // ).selector &&
+    // f.selector != sig:CrossChainController.getEnvelopeState(
+    //     CrossChainController.Envelope
+    // ).selector &&
     f.selector != sig:CrossChainController.forwardMessage(
         uint256, address, uint256, bytes
     ).selector &&
