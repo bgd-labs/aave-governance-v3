@@ -241,3 +241,6 @@ rule proposalImmutability(method f, uint256 proposalId) {
 /// @title A created proposal vote's ID is never changed
 invariant proposalIdIsImmutable(uint256 proposalId)
     isProposalStarted(proposalId) => (getIdOfProposal(proposalId) == proposalId);
+
+
+use rule method_reachability;

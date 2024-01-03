@@ -225,3 +225,5 @@ register-payload:
 create-proposal:
 	$(call deploy_fn,helpers/CreateProposal,ethereum)
 
+deploy-gov-v2_5:
+	$(call deploy_fn,Governance/Deploy_Governance_V2_5,ethereum)

@@ -121,3 +121,6 @@ rule configIsImmutable(method f, uint256 proposalId) {
         (preConf.votingDuration == postConf.votingDuration)
     );
 }
+
+
+use rule method_reachability;

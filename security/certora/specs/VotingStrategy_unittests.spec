@@ -188,3 +188,12 @@ rule wrongAssetYieldsZeroPower(
     uint256 votingPower = getVotingPower(e, asset, baseStorageSlot, power, blockHash);
     assert votingPower == 0, "Non-zero voting power despite wrong asset";
 }
+
+// setup self check - reachability of currentContract external functions
+rule method_reachability {
+  env e;
+  calldataarg arg;
+  method f;
+  f(e, arg);
+  satisfy true;
+}
