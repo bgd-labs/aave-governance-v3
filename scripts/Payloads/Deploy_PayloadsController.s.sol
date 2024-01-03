@@ -229,6 +229,16 @@ contract Gnosis is BaseDeployPayloadsController {
   }
 }
 
+contract Scroll is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SCROLL;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
 contract Ethereum_testnet is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
@@ -403,6 +413,28 @@ contract Base_testnet is BaseDeployPayloadsController {
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_GOERLI;
+  }
+
+  function LVL1_DELAY() public pure override returns (uint40) {
+    return uint40(1 days);
+  }
+
+  function LVL2_DELAY() public pure override returns (uint40) {
+    return uint40(1 days);
+  }
+
+  function isTest() public pure override returns (bool) {
+    return true;
+  }
+}
+
+contract Scroll_testnet is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.SCROLL_SEPOLIA;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ETHEREUM_SEPOLIA;
   }
 
   function LVL1_DELAY() public pure override returns (uint40) {

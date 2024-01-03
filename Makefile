@@ -39,7 +39,7 @@ endef
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------- DEPLOYMENT SCRIPTS ---------------------------------------------------------
 deploy-initial:
-	$(call deploy_fn,InitialDeployments,ethereum polygon avalanche arbitrum optimism metis base binance gnosis)
+	$(call deploy_fn,InitialDeployments,ethereum polygon avalanche arbitrum optimism metis base binance gnosis scroll)
 
 deploy-gov-power-strategy:
 	$(call deploy_fn,Governance/Deploy_Gov_PowerStrategy,ethereum)
@@ -66,14 +66,14 @@ set-vm-as-ccf-sender:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon)
 
 deploy-executor-lvl1:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,ethereum avalanche polygon arbitrum optimism metis gnosis scroll)
 
 deploy-executor-lvl2:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,ethereum avalanche polygon arbitrum optimism metis gnosis scroll)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals:
@@ -89,7 +89,7 @@ set-vp-as_ccf-senders:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts:
-	$(call deploy_fn,Deploy_ContractHelpers,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Deploy_ContractHelpers,ethereum avalanche polygon arbitrum optimism metis gnosis scroll)
 
 ##Generate Addresses Json
 write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedAddresses -vvvv
@@ -99,7 +99,7 @@ write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedA
 
 
 deploy-initial-test:
-	$(call deploy_fn,InitialDeployments,gnosis)
+	$(call deploy_fn,InitialDeployments,scroll)
 
 # Deploy Governance contracts
 deploy-governance-test:
