@@ -30,6 +30,7 @@ library GovDeployerHelpers {
     address governancePowerStrategy;
     address guardian;
     address metaDelegateHelper;
+    address mockGovernance;
     address owner;
     address payloadsController;
     address payloadsControllerDataHelper;
@@ -65,7 +66,7 @@ library GovDeployerHelpers {
     } else if (chainId == ChainIds.GNOSIS) {
       return './deployments/gov/mainnet/gnosis.json';
     } else if (chainId == ChainIds.SCROLL) {
-      return './deployments/gov/mainnet/pre_prod_scroll.json';
+      return './deployments/gov/mainnet/scroll.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
@@ -137,6 +138,10 @@ library GovDeployerHelpers {
         persistedJson.parseRaw('.metaDelegateHelper'),
         (address)
       ),
+      mockGovernance: abi.decode(
+        persistedJson.parseRaw('.mockGovernance'),
+        (address)
+      ),
       owner: abi.decode(persistedJson.parseRaw('.owner'), (address)),
       payloadsController: abi.decode(
         persistedJson.parseRaw('.payloadsController'),
@@ -204,6 +209,7 @@ library GovDeployerHelpers {
     );
     json.serialize('guardian', addresses.guardian);
     json.serialize('metaDelegateHelper', addresses.metaDelegateHelper);
+    json.serialize('mockGovernance', addresses.mockGovernance);
     json.serialize('owner', addresses.owner);
     json.serialize('payloadsController', addresses.payloadsController);
     json.serialize(

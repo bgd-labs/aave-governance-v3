@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
-import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
-import {IMockGovernance} from './IMockGovernance.sol';
+import {IMockGovernance, PayloadsControllerUtils} from './IMockGovernance.sol';
 import {EnumerableSet} from 'openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol';
 import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
+import {Errors} from '../../src/contracts/libraries/Errors.sol';
 
 /**
  * @title MockGovernance
@@ -41,7 +41,7 @@ contract MockGovernance is Ownable, IMockGovernance {
     address crossChainController,
     uint256 gasLimit,
     address owner,
-    address[] addressesToAllow
+    address[] memory addressesToAllow
   ) {
     require(
       crossChainController != address(0),
@@ -99,7 +99,7 @@ contract MockGovernance is Ownable, IMockGovernance {
   }
 
   /// @inheritdoc IMockGovernance
-  function getAllowedAddresses() external view returns (bytes32[] memory) {
+  function getAllowedAddresses() external view returns (address[] memory) {
     return _allowedAddresses.values();
   }
 
@@ -115,8 +115,8 @@ contract MockGovernance is Ownable, IMockGovernance {
   /**
    * @notice method to remove a list of addresses from the allowed list
    */
-  function _disallowAddresses(address[] addressesToDisallow) internal {
-    for (uint256 i = 0; i < addressesToAllow.length; i++) {
+  function _disallowAddresses(address[] memory addressesToDisallow) internal {
+    for (uint256 i = 0; i < addressesToDisallow.length; i++) {
       _allowedAddresses.remove(addressesToDisallow[i]);
     }
   }

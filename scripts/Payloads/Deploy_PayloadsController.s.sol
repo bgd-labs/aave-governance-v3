@@ -21,6 +21,10 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
     return false;
   }
 
+  function isPreProd() public view virtual returns (bool) {
+    return false;
+  }
+
   function LVL1_DELAY() public view virtual returns (uint40) {
     return uint40(1 days);
   }
@@ -87,6 +91,14 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
         new PayloadsControllerExtended(
           ccAddresses.crossChainController,
           govAddresses.governance,
+          govAddresses.chainId
+        )
+      );
+    } else if (isPreProd()) {
+      addresses.payloadsControllerImpl = address(
+        new PayloadsController(
+          ccAddresses.crossChainController,
+          govAddresses.mockGovernance,
           govAddresses.chainId
         )
       );
@@ -236,6 +248,10 @@ contract Scroll is BaseDeployPayloadsController {
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
+  }
+
+  function isPreProd() public pure override returns (bool) {
+    return true;
   }
 }
 

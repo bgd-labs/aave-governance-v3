@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
+
 /**
  * @title IMockGovernance
  * @author BGD Labs
@@ -18,6 +20,16 @@ interface IMockGovernance {
    * @return address of CrossChainController contract
    */
   function CROSS_CHAIN_CONTROLLER() external view returns (address);
+
+  /**
+   * @notice method to send a payload to execution chain
+   * @param payload object with the information needed for execution
+   * @param proposalVoteActivationTimestamp proposal vote activation timestamp in seconds
+   */
+  function forwardPayloadForExecution(
+    PayloadsControllerUtils.Payload memory payload,
+    uint40 proposalVoteActivationTimestamp
+  ) external;
 
   /**
    * @notice method to update the gasLimit
@@ -45,5 +57,5 @@ interface IMockGovernance {
   /**
    * @notice method to get the allowed addresses
    */
-  function getAllowedAddresses() external view returns (bytes32[] memory);
+  function getAllowedAddresses() external view returns (address[] memory);
 }
