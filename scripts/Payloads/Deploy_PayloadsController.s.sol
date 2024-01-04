@@ -129,12 +129,12 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
         Constants.PAYLOADS_CONTROLLER_SALT
       );
 
-    if (addresses.chainId != ChainIds.ETHEREUM) {
-      for (uint256 i = 0; i < executors.length; i++) {
-        Ownable(address(executors[i].executorConfig.executor))
-          .transferOwnership(addresses.payloadsController);
-      }
-    }
+    //    if (addresses.chainId != ChainIds.ETHEREUM) {
+    //      for (uint256 i = 0; i < executors.length; i++) {
+    //        Ownable(address(executors[i].executorConfig.executor))
+    //          .transferOwnership(addresses.payloadsController);
+    //      }
+    //    }
   }
 }
 
@@ -248,10 +248,6 @@ contract Scroll is BaseDeployPayloadsController {
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
-  }
-
-  function isPreProd() public pure override returns (bool) {
-    return true;
   }
 }
 
