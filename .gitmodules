@@ -17,4 +17,3 @@
 [submodule "lib/aave-delivery-infrastructure"]
 	path = lib/aave-delivery-infrastructure
 	url = https://github.com/bgd-labs/aave-delivery-infrastructure
-	branch = v1.0.0
