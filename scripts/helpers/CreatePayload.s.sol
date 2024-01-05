@@ -59,6 +59,12 @@ contract Metis is BaseCreatePayload {
   }
 }
 
+contract Scroll is BaseCreatePayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SCROLL;
+  }
+}
+
 contract Binance is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.BNB;

@@ -20,6 +20,33 @@ abstract contract BaseRegisterPayload is GovBaseScript {
   }
 }
 
+contract Scroll is BaseRegisterPayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SCROLL;
+  }
+
+  function getPayloadActions()
+    public
+    pure
+    override
+    returns (IPayloadsControllerCore.ExecutionAction[] memory)
+  {
+    IPayloadsControllerCore.ExecutionAction[]
+      memory actions = new IPayloadsControllerCore.ExecutionAction[](1);
+
+    actions[0] = IPayloadsControllerCore.ExecutionAction({
+      target: 0x3829943c53F2d00e20B58475aF19716724bF90Ba,
+      withDelegateCall: true,
+      accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
+      value: 0,
+      signature: 'execute()',
+      callData: ''
+    });
+
+    return actions;
+  }
+}
+
 contract Polygon_testnet is BaseRegisterPayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.POLYGON_MUMBAI;

@@ -21,6 +21,10 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
     return false;
   }
 
+  function isPreProd() public view virtual returns (bool) {
+    return false;
+  }
+
   function LVL1_DELAY() public view virtual returns (uint40) {
     return uint40(1 days);
   }
@@ -87,6 +91,14 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
         new PayloadsControllerExtended(
           ccAddresses.crossChainController,
           govAddresses.governance,
+          govAddresses.chainId
+        )
+      );
+    } else if (isPreProd()) {
+      addresses.payloadsControllerImpl = address(
+        new PayloadsController(
+          ccAddresses.crossChainController,
+          govAddresses.mockGovernance,
           govAddresses.chainId
         )
       );
@@ -222,6 +234,16 @@ contract Base is BaseDeployPayloadsController {
 contract Gnosis is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.GNOSIS;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Scroll is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SCROLL;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
@@ -403,6 +425,28 @@ contract Base_testnet is BaseDeployPayloadsController {
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_GOERLI;
+  }
+
+  function LVL1_DELAY() public pure override returns (uint40) {
+    return uint40(1 days);
+  }
+
+  function LVL2_DELAY() public pure override returns (uint40) {
+    return uint40(1 days);
+  }
+
+  function isTest() public pure override returns (bool) {
+    return true;
+  }
+}
+
+contract Scroll_testnet is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.SCROLL_SEPOLIA;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ETHEREUM_SEPOLIA;
   }
 
   function LVL1_DELAY() public pure override returns (uint40) {
