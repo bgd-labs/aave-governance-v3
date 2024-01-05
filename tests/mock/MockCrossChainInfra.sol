@@ -15,6 +15,7 @@ contract MockToImport {
     new LayerZeroAdapter(
       address(0),
       address(0),
+      0,
       new LayerZeroAdapter.TrustedRemotesConfig[](0)
     );
     new Executor();

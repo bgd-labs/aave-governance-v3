@@ -88,6 +88,18 @@ contract Gnosis is BaseDeployExecutorLvl1 {
   }
 }
 
+contract Zkevm is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.POLYGON_ZK_EVM;
+  }
+}
+
+contract Scroll is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SCROLL;
+  }
+}
+
 contract Ethereum_testnet is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
