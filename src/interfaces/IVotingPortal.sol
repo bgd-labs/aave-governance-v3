@@ -11,16 +11,6 @@ import {IVotingMachineWithProofs} from '../contracts/voting/interfaces/IVotingMa
  */
 interface IVotingPortal is IBaseReceiverPortal {
   /**
-   * @notice enum containing the different type of messages that can be bridged
-   * @param Null empty state
-   * @param Proposal indicates that the message is to bridge a proposal configuration
-   */
-  enum MessageType {
-    Null,
-    Proposal
-  }
-
-  /**
    * @notice emitted when "Start voting" gas limit gets updated
    * @param gasLimit the new gas limit
    */

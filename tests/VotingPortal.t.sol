@@ -8,6 +8,7 @@ import {VotingPortal, IGovernanceCore, IVotingMachineWithProofs} from '../src/co
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {ICrossChainReceiver} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainReceiver.sol';
 import {Errors} from '../src/contracts/libraries/Errors.sol';
+import {BridgingHelper} from '../src/contracts/libraries/BridgingHelper.sol';
 
 contract VotingPortalTest is Test {
   address public constant CROSS_CHAIN_CONTROLLER = address(123);
@@ -21,7 +22,7 @@ contract VotingPortalTest is Test {
 
   event GasLimitUpdated(
     uint256 indexed gasLimit,
-    IVotingPortal.MessageType indexed messageType
+    BridgingHelper.MessageType indexed messageType
   );
   event VoteMessageReceived(
     address indexed originSender,
@@ -142,7 +143,7 @@ contract VotingPortalTest is Test {
     bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
 
     bytes memory messageWithType = abi.encode(
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message
     );
 

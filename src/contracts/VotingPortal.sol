@@ -7,6 +7,7 @@ import {IVotingPortal, IBaseReceiverPortal} from '../interfaces/IVotingPortal.so
 import {Errors} from './libraries/Errors.sol';
 import {IVotingMachineWithProofs} from './voting/interfaces/IVotingMachineWithProofs.sol';
 import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
+import {BridgingHelper} from './libraries/BridgingHelper.sol';
 
 /**
  * @title VotingPortal
@@ -121,7 +122,7 @@ contract VotingPortal is Ownable, IVotingPortal {
     bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
     _sendMessage(
       msg.sender,
-      MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       getStartVotingGasLimit(),
       message
     );
@@ -146,7 +147,7 @@ contract VotingPortal is Ownable, IVotingPortal {
 
   function _sendMessage(
     address caller,
-    MessageType messageType,
+    BridgingHelper.MessageType messageType,
     uint256 gasLimit,
     bytes memory message
   ) internal {

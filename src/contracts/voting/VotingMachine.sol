@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ICrossChainController} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainController.sol';
-import {IVotingMachine, IBaseReceiverPortal, IVotingPortal} from './interfaces/IVotingMachine.sol';
+import {IVotingMachine, IBaseReceiverPortal, IVotingPortal, BridgingHelper} from './interfaces/IVotingMachine.sol';
 import {VotingMachineWithProofs, IDataWarehouse, IVotingStrategy, IVotingMachineWithProofs} from './VotingMachineWithProofs.sol';
 import {Errors} from '../libraries/Errors.sol';
 
@@ -84,11 +84,11 @@ contract VotingMachine is VotingMachineWithProofs, IVotingMachine {
     );
 
     try this.decodeMessage(messageWithType) returns (
-      IVotingPortal.MessageType messageType,
+      BridgingHelper.MessageType messageType,
       bytes memory message
     ) {
       bytes memory empty;
-      if (messageType == IVotingPortal.MessageType.Proposal) {
+      if (messageType == BridgingHelper.MessageType.Proposal_Vote) {
         try this.decodeProposalMessage(message) returns (
           uint256 proposalId,
           bytes32 blockHash,
@@ -152,8 +152,8 @@ contract VotingMachine is VotingMachineWithProofs, IVotingMachine {
   /// @inheritdoc IVotingMachine
   function decodeMessage(
     bytes memory message
-  ) external pure returns (IVotingPortal.MessageType, bytes memory) {
-    return abi.decode(message, (IVotingPortal.MessageType, bytes));
+  ) external pure returns (BridgingHelper.MessageType, bytes memory) {
+    return abi.decode(message, (BridgingHelper.MessageType, bytes));
   }
 
   /**

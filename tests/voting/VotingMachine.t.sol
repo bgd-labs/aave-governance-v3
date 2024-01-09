@@ -10,6 +10,7 @@ import {VotingStrategy, IBaseVotingStrategy} from '../../src/contracts/voting/Vo
 import {IVotingPortal} from '../../src/interfaces/IVotingPortal.sol';
 import {ChainIds} from 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
+import {BridgingHelper} from '../../src/contracts/libraries/BridgingHelper.sol';
 
 // Mocked so we can make it revert
 contract MockVotingStrategy {
@@ -83,7 +84,7 @@ contract VotingMachineTest is Test {
     address indexed originSender,
     uint256 indexed originChainId,
     bool indexed delivered,
-    IVotingPortal.MessageType messageType,
+    BridgingHelper.MessageType messageType,
     bytes message,
     bytes reason
   );
@@ -194,7 +195,7 @@ contract VotingMachineTest is Test {
     bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
 
     bytes memory messageWithType = abi.encode(
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message
     );
     bytes memory empty;
@@ -226,7 +227,7 @@ contract VotingMachineTest is Test {
       originSender,
       originChainId,
       true,
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message,
       empty
     );
@@ -253,7 +254,7 @@ contract VotingMachineTest is Test {
     bytes memory message = abi.encode(proposalId);
 
     bytes memory messageWithType = abi.encode(
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message
     );
 
@@ -264,7 +265,7 @@ contract VotingMachineTest is Test {
       originSender,
       originChainId,
       false,
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message,
       reason
     );
@@ -284,7 +285,7 @@ contract VotingMachineTest is Test {
     bytes memory message = abi.encode(proposalId);
 
     bytes memory messageWithType = abi.encode(
-      IVotingPortal.MessageType.Null,
+      BridgingHelper.MessageType.Null,
       message
     );
 
@@ -296,7 +297,7 @@ contract VotingMachineTest is Test {
       messageWithType,
       abi.encodePacked(
         'unsupported message type: ',
-        IVotingPortal.MessageType.Null
+        BridgingHelper.MessageType.Null
       )
     );
     votingMachine.receiveCrossChainMessage(
@@ -317,7 +318,7 @@ contract VotingMachineTest is Test {
     bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
 
     bytes memory messageWithType = abi.encode(
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message
     );
 
@@ -340,7 +341,7 @@ contract VotingMachineTest is Test {
     bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
 
     bytes memory messageWithType = abi.encode(
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message
     );
 
@@ -364,7 +365,7 @@ contract VotingMachineTest is Test {
     bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
 
     bytes memory messageWithType = abi.encode(
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message
     );
     hoax(CROSS_CHAIN_CONTROLLER);
@@ -386,7 +387,7 @@ contract VotingMachineTest is Test {
     uint24 votingDuration = uint24(1234);
     bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
 
-    bytes memory messageWithType = abi.encode(uint8(3), message);
+    bytes memory messageWithType = abi.encode(uint8(4), message);
     hoax(CROSS_CHAIN_CONTROLLER);
     bytes memory reason;
     vm.expectEmit(true, true, false, true);
@@ -414,7 +415,7 @@ contract VotingMachineTest is Test {
     bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
 
     bytes memory messageWithType = abi.encode(
-      IVotingPortal.MessageType.Proposal,
+      BridgingHelper.MessageType.Proposal_Vote,
       message
     );
 
