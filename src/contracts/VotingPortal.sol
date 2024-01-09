@@ -74,7 +74,7 @@ contract VotingPortal is Ownable, IVotingPortal {
   function receiveCrossChainMessage(
     address originSender,
     uint256 originChainId,
-    bytes memory message
+    bytes memory messageType
   ) external {
     require(
       msg.sender == CROSS_CHAIN_CONTROLLER &&
@@ -83,31 +83,53 @@ contract VotingPortal is Ownable, IVotingPortal {
       Errors.WRONG_MESSAGE_ORIGIN
     );
 
-    try this.decodeMessage(message) returns (
-      uint256 proposalId,
-      uint128 forVotes,
-      uint128 againstVotes
+    try this.decodeMessage(messageWithType) returns (
+      BridgingHelper.MessageType messageType,
+      bytes memory message
     ) {
-      IGovernanceCore(GOVERNANCE).queueProposal(
-        proposalId,
-        forVotes,
-        againstVotes
-      );
-
       bytes memory empty;
-      emit VoteMessageReceived(
-        originSender,
-        originChainId,
-        true,
-        message,
-        empty
-      );
+      if (messageType == BridgingHelper.MessageType.Vote_Results) {
+        try this.decodeVoteResultMessage(message) returns (
+          uint256 proposalId,
+          uint128 forVotes,
+          uint128 againstVotes
+        ) {
+          IGovernanceCore(GOVERNANCE).queueProposal(
+            proposalId,
+            forVotes,
+            againstVotes
+          );
+
+          bytes memory empty;
+          emit VoteMessageReceived(
+            originSender,
+            originChainId,
+            true,
+            message,
+            empty
+          );
+        } catch (bytes memory decodingError) {
+          emit VoteMessageReceived(
+            originSender,
+            originChainId,
+            false,
+            message,
+            decodingError
+          );
+        }
+      } else {
+        emit IncorrectTypeMessageReceived(
+          originSender,
+          originChainId,
+          messageWithType,
+          abi.encodePacked('unsupported message type: ', messageType)
+        );
+      }
     } catch (bytes memory decodingError) {
-      emit VoteMessageReceived(
+      emit IncorrectTypeMessageReceived(
         originSender,
         originChainId,
-        false,
-        message,
+        messageWithType,
         decodingError
       );
     }
@@ -130,6 +152,13 @@ contract VotingPortal is Ownable, IVotingPortal {
 
   /// @inheritdoc IVotingPortal
   function decodeMessage(
+    bytes memory message
+  ) external pure returns (BridgingHelper.MessageType, bytes memory) {
+    return abi.decode(message, (BridgingHelper.MessageType, bytes));
+  }
+
+  /// @inheritdoc IVotingPortal
+  function decodeVoteResultMessage(
     bytes memory message
   ) external pure returns (uint256, uint128, uint128) {
     return abi.decode(message, (uint256, uint128, uint128));

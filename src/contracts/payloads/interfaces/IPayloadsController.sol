@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {IBaseReceiverPortal} from 'aave-delivery-infrastructure/contracts/interfaces/IBaseReceiverPortal.sol';
 import {IPayloadsControllerCore} from './IPayloadsControllerCore.sol';
 import {PayloadsControllerUtils} from '../PayloadsControllerUtils.sol';
+import {BridgingHelper} from '../../libraries/BridgingHelper.sol';
 
 /**
  * @title IPayloadsController
@@ -28,6 +29,15 @@ interface IPayloadsController is IBaseReceiverPortal, IPayloadsControllerCore {
    * @return address of the originator contract
    */
   function MESSAGE_ORIGINATOR() external view returns (address);
+
+  /**
+   * @notice method to decode a message from governance chain
+   * @param message encoded message with message type
+   * @return messageType and governance underlying message
+   */
+  function decodeMessage(
+    bytes memory message
+  ) external view returns (BridgingHelper.MessageType, bytes memory);
 
   /**
    * @notice method to decode a message from from governance chain

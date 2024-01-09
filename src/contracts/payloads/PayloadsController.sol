@@ -2,7 +2,7 @@
 pragma solidity ^0.8.8;
 
 import {PayloadsControllerCore, PayloadsControllerUtils} from './PayloadsControllerCore.sol';
-import {IPayloadsController, IBaseReceiverPortal} from './interfaces/IPayloadsController.sol';
+import {IPayloadsController, IBaseReceiverPortal, BridgingHelper} from './interfaces/IPayloadsController.sol';
 import {Errors} from '../libraries/Errors.sol';
 
 /**
@@ -51,7 +51,7 @@ contract PayloadsController is PayloadsControllerCore, IPayloadsController {
   function receiveCrossChainMessage(
     address originSender,
     uint256 originChainId,
-    bytes memory message
+    bytes memory messageWithType
   ) external {
     require(
       msg.sender == CROSS_CHAIN_CONTROLLER &&
@@ -60,26 +60,52 @@ contract PayloadsController is PayloadsControllerCore, IPayloadsController {
       Errors.WRONG_MESSAGE_ORIGIN
     );
 
-    try this.decodeMessage(message) returns (
-      uint40 payloadId,
-      PayloadsControllerUtils.AccessControl accessLevel,
-      uint40 proposalVoteActivationTimestamp
+    try this.decodeMessage(messageWithType) returns (
+      BridgingHelper.MessageType messageType,
+      bytes memory message
     ) {
-      _queuePayload(payloadId, accessLevel, proposalVoteActivationTimestamp);
       bytes memory empty;
-      emit PayloadExecutionMessageReceived(
-        originSender,
-        originChainId,
-        true,
-        message,
-        empty
-      );
+      if (messageType == BridgingHelper.MessageType.Payload_Execution) {
+        try this.decodePayloadMessage(message) returns (
+          uint40 payloadId,
+          PayloadsControllerUtils.AccessControl accessLevel,
+          uint40 proposalVoteActivationTimestamp
+        ) {
+          _queuePayload(
+            payloadId,
+            accessLevel,
+            proposalVoteActivationTimestamp
+          );
+          bytes memory empty;
+          emit PayloadExecutionMessageReceived(
+            originSender,
+            originChainId,
+            true,
+            message,
+            empty
+          );
+        } catch (bytes memory decodingError) {
+          emit PayloadExecutionMessageReceived(
+            originSender,
+            originChainId,
+            false,
+            message,
+            decodingError
+          );
+        }
+      } else {
+        emit IncorrectTypeMessageReceived(
+          originSender,
+          originChainId,
+          messageWithType,
+          abi.encodePacked('unsupported message type: ', messageType)
+        );
+      }
     } catch (bytes memory decodingError) {
-      emit PayloadExecutionMessageReceived(
+      emit IncorrectTypeMessageReceived(
         originSender,
         originChainId,
-        false,
-        message,
+        messageWithType,
         decodingError
       );
     }
@@ -87,6 +113,13 @@ contract PayloadsController is PayloadsControllerCore, IPayloadsController {
 
   /// @inheritdoc IPayloadsController
   function decodeMessage(
+    bytes memory message
+  ) external pure returns (BridgingHelper.MessageType, bytes memory) {
+    return abi.decode(message, (BridgingHelper.MessageType, bytes));
+  }
+
+  /// @inheritdoc IPayloadsController
+  function decodePayloadMessage(
     bytes memory message
   )
     external

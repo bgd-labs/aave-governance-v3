@@ -132,17 +132,6 @@ contract VotingMachine is VotingMachineWithProofs, IVotingMachine {
   }
 
   /// @inheritdoc IVotingMachine
-  function decodeVoteMessage(
-    bytes memory message
-  )
-    external
-    pure
-    returns (uint256, address, bool, VotingAssetWithSlot[] memory)
-  {
-    return abi.decode(message, (uint256, address, bool, VotingAssetWithSlot[]));
-  }
-
-  /// @inheritdoc IVotingMachine
   function decodeProposalMessage(
     bytes memory message
   ) external pure returns (uint256, bytes32, uint24) {
@@ -167,11 +156,17 @@ contract VotingMachine is VotingMachineWithProofs, IVotingMachine {
     uint256 forVotes,
     uint256 againstVotes
   ) internal override {
+    bytes memory message = abi.encode(proposalId, forVotes, againstVotes);
+    bytes memory messageWithType = abi.encode(
+      BridgingHelper.MessageType.Vote_Results,
+      message
+    );
+
     ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
       L1_VOTING_PORTAL_CHAIN_ID,
       L1_VOTING_PORTAL,
       _gasLimit,
-      abi.encode(proposalId, forVotes, againstVotes)
+      messageWithType
     );
   }
 

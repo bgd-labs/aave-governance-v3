@@ -69,30 +69,13 @@ interface IVotingMachine is IBaseReceiverPortal {
   function CROSS_CHAIN_CONTROLLER() external view returns (address);
 
   /**
-   * @notice method to decode a message from from governance chain
+   * @notice method to decode a message from governance chain
    * @param message encoded message with message type
    * @return messageType and governance underlying message
    */
   function decodeMessage(
     bytes memory message
   ) external view returns (BridgingHelper.MessageType, bytes memory);
-
-  /**
-   * @notice method to decode a vote message
-   * @param message encoded vote message
-   * @return information to vote on a proposal, including proposalId, voter, support, votingTokens
-   */
-  function decodeVoteMessage(
-    bytes memory message
-  )
-    external
-    view
-    returns (
-      uint256,
-      address,
-      bool,
-      IVotingMachineWithProofs.VotingAssetWithSlot[] memory
-    );
 
   /**
    * @notice method to decode a proposal message from from governance chain
