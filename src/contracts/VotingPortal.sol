@@ -3,11 +3,11 @@ pragma solidity ^0.8.8;
 
 import {ICrossChainController} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainController.sol';
 import {IGovernanceCore} from '../interfaces/IGovernanceCore.sol';
-import {IVotingPortal, IBaseReceiverPortal} from '../interfaces/IVotingPortal.sol';
+import {IVotingPortal} from '../interfaces/IVotingPortal.sol';
 import {Errors} from './libraries/Errors.sol';
 import {IVotingMachineWithProofs} from './voting/interfaces/IVotingMachineWithProofs.sol';
 import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
-import {BridgingHelper} from './libraries/BridgingHelper.sol';
+import {BridgingHelper, MessageWithTypeReceiver} from './MessageWithTypeReceiver.sol';
 
 /**
  * @title VotingPortal
@@ -15,7 +15,7 @@ import {BridgingHelper} from './libraries/BridgingHelper.sol';
  * @notice Contract with the knowledge on how to initialize a proposal voting and get the votes results,
            from a vote that happened on a different or same chain.
  */
-contract VotingPortal is Ownable, IVotingPortal {
+contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
   /// @inheritdoc IVotingPortal
   address public immutable CROSS_CHAIN_CONTROLLER;
 
@@ -69,68 +69,63 @@ contract VotingPortal is Ownable, IVotingPortal {
     _transferOwnership(owner);
   }
 
-  /// @inheritdoc IBaseReceiverPortal
-  /// @dev pushes the voting result and queues the proposal identified by proposalId
-  function receiveCrossChainMessage(
+  function _checkOrigin(
+    address caller,
     address originSender,
-    uint256 originChainId,
-    bytes memory messageType
-  ) external {
+    uint256 originChainId
+  ) internal view override {
     require(
-      msg.sender == CROSS_CHAIN_CONTROLLER &&
+      caller == CROSS_CHAIN_CONTROLLER &&
         originSender == VOTING_MACHINE &&
         originChainId == VOTING_MACHINE_CHAIN_ID,
       Errors.WRONG_MESSAGE_ORIGIN
     );
+  }
 
-    try this.decodeMessage(messageWithType) returns (
-      BridgingHelper.MessageType messageType,
-      bytes memory message
-    ) {
-      bytes memory empty;
-      if (messageType == BridgingHelper.MessageType.Vote_Results) {
-        try this.decodeVoteResultMessage(message) returns (
-          uint256 proposalId,
-          uint128 forVotes,
-          uint128 againstVotes
-        ) {
-          IGovernanceCore(GOVERNANCE).queueProposal(
-            proposalId,
-            forVotes,
-            againstVotes
-          );
+  /// @dev pushes the voting result and queues the proposal identified by proposalId
+  function _parseReceivedMessage(
+    address originSender,
+    uint256 originChainId,
+    BridgingHelper.MessageType messageType,
+    bytes memory message
+  ) internal override {
+    bytes memory empty;
+    if (messageType == BridgingHelper.MessageType.Vote_Results) {
+      try this.decodeVoteResultMessage(message) returns (
+        uint256 proposalId,
+        uint128 forVotes,
+        uint128 againstVotes
+      ) {
+        IGovernanceCore(GOVERNANCE).queueProposal(
+          proposalId,
+          forVotes,
+          againstVotes
+        );
 
-          bytes memory empty;
-          emit VoteMessageReceived(
-            originSender,
-            originChainId,
-            true,
-            message,
-            empty
-          );
-        } catch (bytes memory decodingError) {
-          emit VoteMessageReceived(
-            originSender,
-            originChainId,
-            false,
-            message,
-            decodingError
-          );
-        }
-      } else {
-        emit IncorrectTypeMessageReceived(
+        emit MessageReceived(
           originSender,
           originChainId,
-          messageWithType,
-          abi.encodePacked('unsupported message type: ', messageType)
+          true,
+          messageType,
+          message,
+          empty
+        );
+      } catch (bytes memory decodingError) {
+        emit MessageReceived(
+          originSender,
+          originChainId,
+          false,
+          messageType,
+          message,
+          decodingError
         );
       }
-    } catch (bytes memory decodingError) {
+    } else {
       emit IncorrectTypeMessageReceived(
         originSender,
         originChainId,
-        messageWithType,
-        decodingError
+        message,
+        abi.encodePacked('unsupported message type: ', messageType)
       );
     }
   }
@@ -148,13 +143,6 @@ contract VotingPortal is Ownable, IVotingPortal {
       getStartVotingGasLimit(),
       message
     );
-  }
-
-  /// @inheritdoc IVotingPortal
-  function decodeMessage(
-    bytes memory message
-  ) external pure returns (BridgingHelper.MessageType, bytes memory) {
-    return abi.decode(message, (BridgingHelper.MessageType, bytes));
   }
 
   /// @inheritdoc IVotingPortal

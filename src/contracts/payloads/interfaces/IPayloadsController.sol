@@ -1,17 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IBaseReceiverPortal} from 'aave-delivery-infrastructure/contracts/interfaces/IBaseReceiverPortal.sol';
 import {IPayloadsControllerCore} from './IPayloadsControllerCore.sol';
 import {PayloadsControllerUtils} from '../PayloadsControllerUtils.sol';
-import {BridgingHelper} from '../../libraries/BridgingHelper.sol';
+import {IMessageWithTypeReceiver} from '../../../interfaces/IMessageWithTypeReceiver.sol';
 
 /**
  * @title IPayloadsController
  * @author BGD Labs
  * @notice interface containing the objects, events and methods definitions of the PayloadsController contract
  */
-interface IPayloadsController is IBaseReceiverPortal, IPayloadsControllerCore {
+interface IPayloadsController is
+  IMessageWithTypeReceiver,
+  IPayloadsControllerCore
+{
   /**
    * @notice get contract address from where the messages come
    * @return address of the message registry
@@ -31,20 +33,11 @@ interface IPayloadsController is IBaseReceiverPortal, IPayloadsControllerCore {
   function MESSAGE_ORIGINATOR() external view returns (address);
 
   /**
-   * @notice method to decode a message from governance chain
-   * @param message encoded message with message type
-   * @return messageType and governance underlying message
-   */
-  function decodeMessage(
-    bytes memory message
-  ) external view returns (BridgingHelper.MessageType, bytes memory);
-
-  /**
    * @notice method to decode a message from from governance chain
    * @param message encoded message with message type
    * @return payloadId, accessLevel, proposalVoteActivationTimestamp from the decoded message
    */
-  function decodeMessage(
+  function decodePayloadMessage(
     bytes memory message
   )
     external

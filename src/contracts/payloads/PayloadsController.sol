@@ -2,8 +2,9 @@
 pragma solidity ^0.8.8;
 
 import {PayloadsControllerCore, PayloadsControllerUtils} from './PayloadsControllerCore.sol';
-import {IPayloadsController, IBaseReceiverPortal, BridgingHelper} from './interfaces/IPayloadsController.sol';
+import {IPayloadsController} from './interfaces/IPayloadsController.sol';
 import {Errors} from '../libraries/Errors.sol';
+import {BridgingHelper, MessageWithTypeReceiver} from '../MessageWithTypeReceiver.sol';
 
 /**
  * @title PayloadsController
@@ -11,7 +12,11 @@ import {Errors} from '../libraries/Errors.sol';
  * @notice Contract with the logic to manage receiving cross chain messages. This contract knows how to receive and
            decode messages from CrossChainController
  */
-contract PayloadsController is PayloadsControllerCore, IPayloadsController {
+contract PayloadsController is
+  PayloadsControllerCore,
+  MessageWithTypeReceiver,
+  IPayloadsController
+{
   /// @inheritdoc IPayloadsController
   address public immutable MESSAGE_ORIGINATOR;
 
@@ -47,75 +52,60 @@ contract PayloadsController is PayloadsControllerCore, IPayloadsController {
     ORIGIN_CHAIN_ID = originChainId;
   }
 
-  /// @inheritdoc IBaseReceiverPortal
-  function receiveCrossChainMessage(
+  function _checkOrigin(
+    address caller,
     address originSender,
-    uint256 originChainId,
-    bytes memory messageWithType
-  ) external {
+    uint256 originChainId
+  ) internal view override {
     require(
-      msg.sender == CROSS_CHAIN_CONTROLLER &&
+      caller == CROSS_CHAIN_CONTROLLER &&
         originSender == MESSAGE_ORIGINATOR &&
         originChainId == ORIGIN_CHAIN_ID,
       Errors.WRONG_MESSAGE_ORIGIN
     );
+  }
 
-    try this.decodeMessage(messageWithType) returns (
-      BridgingHelper.MessageType messageType,
-      bytes memory message
-    ) {
-      bytes memory empty;
-      if (messageType == BridgingHelper.MessageType.Payload_Execution) {
-        try this.decodePayloadMessage(message) returns (
-          uint40 payloadId,
-          PayloadsControllerUtils.AccessControl accessLevel,
-          uint40 proposalVoteActivationTimestamp
-        ) {
-          _queuePayload(
-            payloadId,
-            accessLevel,
-            proposalVoteActivationTimestamp
-          );
-          bytes memory empty;
-          emit PayloadExecutionMessageReceived(
-            originSender,
-            originChainId,
-            true,
-            message,
-            empty
-          );
-        } catch (bytes memory decodingError) {
-          emit PayloadExecutionMessageReceived(
-            originSender,
-            originChainId,
-            false,
-            message,
-            decodingError
-          );
-        }
-      } else {
-        emit IncorrectTypeMessageReceived(
+  /// @dev queues the payload id
+  function _parseReceivedMessage(
+    address originSender,
+    uint256 originChainId,
+    BridgingHelper.MessageType messageType,
+    bytes memory message
+  ) internal override {
+    bytes memory empty;
+    if (messageType == BridgingHelper.MessageType.Payload_Execution) {
+      try this.decodePayloadMessage(message) returns (
+        uint40 payloadId,
+        PayloadsControllerUtils.AccessControl accessLevel,
+        uint40 proposalVoteActivationTimestamp
+      ) {
+        _queuePayload(payloadId, accessLevel, proposalVoteActivationTimestamp);
+        emit MessageReceived(
           originSender,
           originChainId,
-          messageWithType,
-          abi.encodePacked('unsupported message type: ', messageType)
+          true,
+          messageType,
+          message,
+          empty
+        );
+      } catch (bytes memory decodingError) {
+        emit MessageReceived(
+          originSender,
+          originChainId,
+          false,
+          messageType,
+          message,
+          decodingError
         );
       }
-    } catch (bytes memory decodingError) {
+    } else {
       emit IncorrectTypeMessageReceived(
         originSender,
         originChainId,
-        messageWithType,
-        decodingError
+        message,
+        abi.encodePacked('unsupported message type: ', messageType)
       );
     }
-  }
-
-  /// @inheritdoc IPayloadsController
-  function decodeMessage(
-    bytes memory message
-  ) external pure returns (BridgingHelper.MessageType, bytes memory) {
-    return abi.decode(message, (BridgingHelper.MessageType, bytes));
   }
 
   /// @inheritdoc IPayloadsController

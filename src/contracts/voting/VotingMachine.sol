@@ -2,9 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {ICrossChainController} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainController.sol';
-import {IVotingMachine, IBaseReceiverPortal, IVotingPortal, BridgingHelper} from './interfaces/IVotingMachine.sol';
+import {IVotingMachine, IVotingPortal} from './interfaces/IVotingMachine.sol';
 import {VotingMachineWithProofs, IDataWarehouse, IVotingStrategy, IVotingMachineWithProofs} from './VotingMachineWithProofs.sol';
 import {Errors} from '../libraries/Errors.sol';
+import {BridgingHelper, MessageWithTypeReceiver} from '../MessageWithTypeReceiver.sol';
 
 /**
  * @title VotingMachine
@@ -14,7 +15,11 @@ import {Errors} from '../libraries/Errors.sol';
  * @dev This contract can receive messages of types Proposal and Vote from governance chain, and send voting results
         back.
  */
-contract VotingMachine is VotingMachineWithProofs, IVotingMachine {
+contract VotingMachine is
+  VotingMachineWithProofs,
+  MessageWithTypeReceiver,
+  IVotingMachine
+{
   /// @inheritdoc IVotingMachine
   address public immutable CROSS_CHAIN_CONTROLLER;
 
@@ -70,63 +75,58 @@ contract VotingMachine is VotingMachineWithProofs, IVotingMachine {
     _updateGasLimit(gasLimit);
   }
 
-  /// @inheritdoc IBaseReceiverPortal
-  function receiveCrossChainMessage(
+  function _checkOrigin(
+    address caller,
     address originSender,
-    uint256 originChainId,
-    bytes memory messageWithType
-  ) external {
+    uint256 originChainId
+  ) internal view override {
     require(
-      msg.sender == CROSS_CHAIN_CONTROLLER &&
+      caller == CROSS_CHAIN_CONTROLLER &&
         originSender == L1_VOTING_PORTAL &&
         originChainId == L1_VOTING_PORTAL_CHAIN_ID,
       Errors.WRONG_MESSAGE_ORIGIN
     );
+  }
 
-    try this.decodeMessage(messageWithType) returns (
-      BridgingHelper.MessageType messageType,
-      bytes memory message
-    ) {
-      bytes memory empty;
-      if (messageType == BridgingHelper.MessageType.Proposal_Vote) {
-        try this.decodeProposalMessage(message) returns (
-          uint256 proposalId,
-          bytes32 blockHash,
-          uint24 votingDuration
-        ) {
-          _createBridgedProposalVote(proposalId, blockHash, votingDuration);
-          emit MessageReceived(
-            originSender,
-            originChainId,
-            true,
-            messageType,
-            message,
-            empty
-          );
-        } catch (bytes memory decodingError) {
-          emit MessageReceived(
-            originSender,
-            originChainId,
-            false,
-            messageType,
-            message,
-            decodingError
-          );
-        }
-      } else {
-        emit IncorrectTypeMessageReceived(
+  /// @dev creates a proposal vote
+  function _parseReceivedMessage(
+    address originSender,
+    uint256 originChainId,
+    BridgingHelper.MessageType messageType,
+    bytes memory message
+  ) internal override {
+    bytes memory empty;
+    if (messageType == BridgingHelper.MessageType.Proposal_Vote) {
+      try this.decodeProposalMessage(message) returns (
+        uint256 proposalId,
+        bytes32 blockHash,
+        uint24 votingDuration
+      ) {
+        _createBridgedProposalVote(proposalId, blockHash, votingDuration);
+        emit MessageReceived(
           originSender,
           originChainId,
-          messageWithType,
-          abi.encodePacked('unsupported message type: ', messageType)
+          true,
+          messageType,
+          message,
+          empty
+        );
+      } catch (bytes memory decodingError) {
+        emit MessageReceived(
+          originSender,
+          originChainId,
+          false,
+          messageType,
+          message,
+          decodingError
         );
       }
-    } catch (bytes memory decodingError) {
+    } else {
       emit IncorrectTypeMessageReceived(
         originSender,
         originChainId,
-        messageWithType,
-        decodingError
+        message,
+        abi.encodePacked('unsupported message type: ', messageType)
       );
     }
   }
@@ -136,13 +136,6 @@ contract VotingMachine is VotingMachineWithProofs, IVotingMachine {
     bytes memory message
   ) external pure returns (uint256, bytes32, uint24) {
     return abi.decode(message, (uint256, bytes32, uint24));
-  }
-
-  /// @inheritdoc IVotingMachine
-  function decodeMessage(
-    bytes memory message
-  ) external pure returns (BridgingHelper.MessageType, bytes memory) {
-    return abi.decode(message, (BridgingHelper.MessageType, bytes));
   }
 
   /**
