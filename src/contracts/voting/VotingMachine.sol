@@ -75,6 +75,48 @@ contract VotingMachine is
     _updateGasLimit(gasLimit);
   }
 
+  /// @inheritdoc IVotingMachine
+  function decodeProposalMessage(
+    bytes memory message
+  ) external pure returns (uint256, bytes32, uint24) {
+    return BridgingHelper.decodeStartProposalVoteMessage(message);
+  }
+
+  /**
+   * @dev method to send the vote result to the voting portal on governance chain
+   * @param proposalId id of the proposal voted on
+   * @param forVotes votes in favor of the proposal
+   * @param againstVotes votes against the proposal
+   */
+  function _sendVoteResults(
+    uint256 proposalId,
+    uint256 forVotes,
+    uint256 againstVotes
+  ) internal override {
+    bytes memory messageWithType = BridgingHelper.encodeVoteResultsMessage(
+      proposalId,
+      forVotes,
+      againstVotes
+    );
+
+    ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
+      L1_VOTING_PORTAL_CHAIN_ID,
+      L1_VOTING_PORTAL,
+      _gasLimit,
+      messageWithType
+    );
+  }
+
+  /**
+   * @notice method to update the gasLimit
+   * @param gasLimit the new gas limit
+   */
+  function _updateGasLimit(uint256 gasLimit) internal {
+    _gasLimit = gasLimit;
+
+    emit GasLimitUpdated(gasLimit);
+  }
+
   function _checkOrigin(
     address caller,
     address originSender,
@@ -129,47 +171,5 @@ contract VotingMachine is
         abi.encodePacked('unsupported message type: ', messageType)
       );
     }
-  }
-
-  /// @inheritdoc IVotingMachine
-  function decodeProposalMessage(
-    bytes memory message
-  ) external pure returns (uint256, bytes32, uint24) {
-    return abi.decode(message, (uint256, bytes32, uint24));
-  }
-
-  /**
-   * @dev method to send the vote result to the voting portal on governance chain
-   * @param proposalId id of the proposal voted on
-   * @param forVotes votes in favor of the proposal
-   * @param againstVotes votes against the proposal
-   */
-  function _sendVoteResults(
-    uint256 proposalId,
-    uint256 forVotes,
-    uint256 againstVotes
-  ) internal override {
-    bytes memory message = abi.encode(proposalId, forVotes, againstVotes);
-    bytes memory messageWithType = abi.encode(
-      BridgingHelper.MessageType.Vote_Results,
-      message
-    );
-
-    ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
-      L1_VOTING_PORTAL_CHAIN_ID,
-      L1_VOTING_PORTAL,
-      _gasLimit,
-      messageWithType
-    );
-  }
-
-  /**
-   * @notice method to update the gasLimit
-   * @param gasLimit the new gas limit
-   */
-  function _updateGasLimit(uint256 gasLimit) internal {
-    _gasLimit = gasLimit;
-
-    emit GasLimitUpdated(gasLimit);
   }
 }

@@ -52,6 +52,17 @@ contract PayloadsController is
     ORIGIN_CHAIN_ID = originChainId;
   }
 
+  /// @inheritdoc IPayloadsController
+  function decodePayloadMessage(
+    bytes memory message
+  )
+    external
+    pure
+    returns (uint40, PayloadsControllerUtils.AccessControl, uint40)
+  {
+    return BridgingHelper.decodePayloadExecutionMessage(message);
+  }
+
   function _checkOrigin(
     address caller,
     address originSender,
@@ -106,20 +117,5 @@ contract PayloadsController is
         abi.encodePacked('unsupported message type: ', messageType)
       );
     }
-  }
-
-  /// @inheritdoc IPayloadsController
-  function decodePayloadMessage(
-    bytes memory message
-  )
-    external
-    pure
-    returns (uint40, PayloadsControllerUtils.AccessControl, uint40)
-  {
-    return
-      abi.decode(
-        message,
-        (uint40, PayloadsControllerUtils.AccessControl, uint40)
-      );
   }
 }

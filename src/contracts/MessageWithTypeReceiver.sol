@@ -8,7 +8,7 @@ abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
   function receiveCrossChainMessage(
     address originSender,
     uint256 originChainId,
-    bytes memory messageWithType // TODO: not sure if i can change the name here when interface is different
+    bytes memory messageWithType
   ) external {
     _checkOrigin(msg.sender, originSender, originChainId);
 
@@ -31,7 +31,7 @@ abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
   function decodeMessage(
     bytes memory message
   ) external pure returns (BridgingHelper.MessageType, bytes memory) {
-    return abi.decode(message, (BridgingHelper.MessageType, bytes));
+    return BridgingHelper.decodeMessageWithType(message);
   }
 
   function _checkOrigin(

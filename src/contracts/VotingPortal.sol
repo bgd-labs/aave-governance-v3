@@ -69,6 +69,51 @@ contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
     _transferOwnership(owner);
   }
 
+  /// @inheritdoc IVotingPortal
+  function forwardStartVotingMessage(
+    uint256 proposalId,
+    bytes32 blockHash,
+    uint24 votingDuration
+  ) external {
+    require(msg.sender == GOVERNANCE, Errors.CALLER_NOT_GOVERNANCE);
+
+    bytes memory messageWithType = BridgingHelper
+      .encodeStartProposalVoteMessage(proposalId, blockHash, votingDuration);
+
+    ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
+      VOTING_MACHINE_CHAIN_ID,
+      VOTING_MACHINE,
+      _startVotingGasLimit,
+      messageWithType
+    );
+  }
+
+  /// @inheritdoc IVotingPortal
+  function decodeVoteResultMessage(
+    bytes memory message
+  ) external pure returns (uint256, uint128, uint128) {
+    return BridgingHelper.decodeVoteResultMessage(message);
+  }
+
+  /// @inheritdoc IVotingPortal
+  function setStartVotingGasLimit(uint128 gasLimit) external onlyOwner {
+    _updateStartVotingGasLimit(gasLimit);
+  }
+
+  /// @inheritdoc IVotingPortal
+  function getStartVotingGasLimit() public view returns (uint128) {
+    return _startVotingGasLimit;
+  }
+
+  /**
+   * @notice method to update the _startVotingGasLimit
+   * @param gasLimit the new gas limit
+   */
+  function _updateStartVotingGasLimit(uint128 gasLimit) internal {
+    _startVotingGasLimit = gasLimit;
+    emit StartVotingGasLimitUpdated(gasLimit);
+  }
+
   function _checkOrigin(
     address caller,
     address originSender,
@@ -128,63 +173,5 @@ contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
         abi.encodePacked('unsupported message type: ', messageType)
       );
     }
-  }
-
-  /// @inheritdoc IVotingPortal
-  function forwardStartVotingMessage(
-    uint256 proposalId,
-    bytes32 blockHash,
-    uint24 votingDuration
-  ) external {
-    bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
-    _sendMessage(
-      msg.sender,
-      BridgingHelper.MessageType.Proposal_Vote,
-      getStartVotingGasLimit(),
-      message
-    );
-  }
-
-  /// @inheritdoc IVotingPortal
-  function decodeVoteResultMessage(
-    bytes memory message
-  ) external pure returns (uint256, uint128, uint128) {
-    return abi.decode(message, (uint256, uint128, uint128));
-  }
-
-  /// @inheritdoc IVotingPortal
-  function setStartVotingGasLimit(uint128 gasLimit) external onlyOwner {
-    _updateStartVotingGasLimit(gasLimit);
-  }
-
-  /// @inheritdoc IVotingPortal
-  function getStartVotingGasLimit() public view returns (uint128) {
-    return _startVotingGasLimit;
-  }
-
-  function _sendMessage(
-    address caller,
-    BridgingHelper.MessageType messageType,
-    uint256 gasLimit,
-    bytes memory message
-  ) internal {
-    require(caller == GOVERNANCE, Errors.CALLER_NOT_GOVERNANCE);
-    bytes memory messageWithType = abi.encode(messageType, message);
-
-    ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
-      VOTING_MACHINE_CHAIN_ID,
-      VOTING_MACHINE,
-      gasLimit,
-      messageWithType
-    );
-  }
-
-  /**
-   * @notice method to update the _startVotingGasLimit
-   * @param gasLimit the new gas limit
-   */
-  function _updateStartVotingGasLimit(uint128 gasLimit) internal {
-    _startVotingGasLimit = gasLimit;
-    emit StartVotingGasLimitUpdated(gasLimit);
   }
 }
