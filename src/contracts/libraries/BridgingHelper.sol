@@ -50,7 +50,7 @@ library BridgingHelper {
     return abi.decode(message, (uint256, uint128, uint128));
   }
 
-  function encodePayloadMessageForExecution(
+  function encodePayloadExecutionMessage(
     PayloadsControllerUtils.Payload memory payload,
     uint40 proposalVoteActivationTimestamp
   ) internal pure returns (bytes memory) {

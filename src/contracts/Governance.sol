@@ -107,11 +107,10 @@ contract Governance is GovernanceCore, IGovernance {
     PayloadsControllerUtils.Payload memory payload,
     uint40 proposalVoteActivationTimestamp
   ) internal override {
-    bytes memory messageWithType = BridgingHelper
-      .encodePayloadMessageForExecution(
-        payload,
-        proposalVoteActivationTimestamp
-      );
+    bytes memory messageWithType = BridgingHelper.encodePayloadExecutionMessage(
+      payload,
+      proposalVoteActivationTimestamp
+    );
 
     ICrossChainForwarder(CROSS_CHAIN_CONTROLLER).forwardMessage(
       payload.chain,

@@ -113,8 +113,10 @@ contract PayloadsControllerTest is Test {
       PayloadsControllerUtils.AccessControl.Level_1,
       timestamp
     );
-    bytes memory messageWithType = BridgingHelper
-      .encodePayloadMessageForExecution(payload, timestamp);
+    bytes memory messageWithType = BridgingHelper.encodePayloadExecutionMessage(
+      payload,
+      timestamp
+    );
 
     hoax(CROSS_CHAIN_CONTROLLER);
     bytes memory empty;

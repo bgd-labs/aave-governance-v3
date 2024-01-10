@@ -1451,11 +1451,10 @@ contract GovernanceCoreTest is Test {
         payloadId: preProposal.payloads[0].payloadId
       });
 
-    bytes memory messageWithType = BridgingHelper
-      .encodePayloadMessageForExecution(
-        payload,
-        preProposal.votingActivationTime
-      );
+    bytes memory messageWithType = BridgingHelper.encodePayloadExecutionMessage(
+      payload,
+      preProposal.votingActivationTime
+    );
 
     skip(
       block.timestamp +
@@ -2165,11 +2164,10 @@ contract GovernanceCoreTest is Test {
         payloadId: preProposal.payloads[0].payloadId
       });
 
-    bytes memory messageWithType = BridgingHelper
-      .encodePayloadMessageForExecution(
-        payload,
-        preProposal.votingActivationTime
-      );
+    bytes memory messageWithType = BridgingHelper.encodePayloadExecutionMessage(
+      payload,
+      preProposal.votingActivationTime
+    );
 
     vm.mockCall(
       CROSS_CHAIN_CONTROLLER,
