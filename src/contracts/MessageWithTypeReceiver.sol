@@ -25,7 +25,6 @@ abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
     ) {
       _parseReceivedMessage(originSender, originChainId, messageType, message);
     } catch (bytes memory decodingError) {
-      console.logBytes(decodingError);
       emit IncorrectTypeMessageReceived(
         originSender,
         originChainId,

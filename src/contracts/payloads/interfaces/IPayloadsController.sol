@@ -33,11 +33,11 @@ interface IPayloadsController is
   function MESSAGE_ORIGINATOR() external view returns (address);
 
   /**
-   * @notice method to decode a message from from governance chain
+   * @notice method to decode a message from governance chain
    * @param message encoded message with message type
    * @return payloadId, accessLevel, proposalVoteActivationTimestamp from the decoded message
    */
-  function decodePayloadMessage(
+  function decodePayloadExecutionMessage(
     bytes memory message
   )
     external

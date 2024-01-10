@@ -40,7 +40,7 @@ interface IVotingMachine is IMessageWithTypeReceiver {
    * @param message encoded proposal message
    * @return information to start a proposal vote, including proposalId, blockHash and votingDuration
    */
-  function decodeProposalMessage(
+  function decodeStartProposalVoteMessage(
     bytes memory message
   ) external view returns (uint256, bytes32, uint24);
 
