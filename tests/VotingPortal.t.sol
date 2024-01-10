@@ -24,10 +24,17 @@ contract VotingPortalTest is Test {
     uint256 indexed gasLimit,
     BridgingHelper.MessageType indexed messageType
   );
-  event VoteMessageReceived(
+  event MessageReceived(
     address indexed originSender,
     uint256 indexed originChainId,
     bool indexed delivered,
+    BridgingHelper.MessageType messageType,
+    bytes message,
+    bytes reason
+  );
+  event IncorrectTypeMessageReceived(
+    address indexed originSender,
+    uint256 indexed originChainId,
     bytes message,
     bytes reason
   );
@@ -189,7 +196,11 @@ contract VotingPortalTest is Test {
     uint128 forVotes,
     uint128 againstVotes
   ) public {
-    bytes memory message = abi.encode(proposalId, forVotes, againstVotes);
+    bytes memory message = BridgingHelper.encodeVoteResultsMessage(
+      proposalId,
+      forVotes,
+      againstVotes
+    );
     bytes memory reason;
     hoax(CROSS_CHAIN_CONTROLLER);
     vm.mockCall(
@@ -207,11 +218,12 @@ contract VotingPortalTest is Test {
       )
     );
     vm.expectEmit(true, true, true, true);
-    emit VoteMessageReceived(
+    emit MessageReceived(
       VOTING_MACHINE,
       VOTING_MACHINE_CHAIN_ID,
       true,
-      message,
+      BridgingHelper.MessageType.Vote_Results,
+      abi.encode(proposalId, forVotes, againstVotes),
       reason
     );
     votingPortal.receiveCrossChainMessage(
@@ -228,10 +240,9 @@ contract VotingPortalTest is Test {
     hoax(CROSS_CHAIN_CONTROLLER);
 
     vm.expectEmit(true, true, true, true);
-    emit VoteMessageReceived(
+    emit IncorrectTypeMessageReceived(
       VOTING_MACHINE,
       VOTING_MACHINE_CHAIN_ID,
-      false,
       message,
       reason
     );

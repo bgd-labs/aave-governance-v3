@@ -294,7 +294,7 @@ contract VotingMachineTest is Test {
     emit IncorrectTypeMessageReceived(
       originSender,
       originChainId,
-      messageWithType,
+      message,
       abi.encodePacked(
         'unsupported message type: ',
         BridgingHelper.MessageType.Null

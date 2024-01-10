@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
-
+import 'forge-std/console.sol';
 import {BridgingHelper, IMessageWithTypeReceiver, IBaseReceiverPortal} from '../interfaces/IMessageWithTypeReceiver.sol';
 
 abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
@@ -18,6 +18,7 @@ abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
     ) {
       _parseReceivedMessage(originSender, originChainId, messageType, message);
     } catch (bytes memory decodingError) {
+      console.logBytes(decodingError);
       emit IncorrectTypeMessageReceived(
         originSender,
         originChainId,

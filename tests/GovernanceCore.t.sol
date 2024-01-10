@@ -6,7 +6,7 @@ import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
 import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
 import {ChainIds} from 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol';
 import {GovernanceCore} from '../src/contracts/GovernanceCore.sol';
-import {Governance, IGovernance, IGovernanceCore, PayloadsControllerUtils} from '../src/contracts/Governance.sol';
+import {Governance, IGovernance, IGovernanceCore, PayloadsControllerUtils, BridgingHelper} from '../src/contracts/Governance.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
 import {IGovernancePowerStrategy} from '../src/interfaces/IGovernancePowerStrategy.sol';
 import {IVotingPortal} from '../src/interfaces/IVotingPortal.sol';
@@ -1443,6 +1443,20 @@ contract GovernanceCoreTest is Test {
       proposalId
     );
 
+    PayloadsControllerUtils.Payload memory payload = PayloadsControllerUtils
+      .Payload({
+        chain: preProposal.payloads[0].chain,
+        accessLevel: preProposal.payloads[0].accessLevel,
+        payloadsController: preProposal.payloads[0].payloadsController,
+        payloadId: preProposal.payloads[0].payloadId
+      });
+
+    bytes memory messageWithType = BridgingHelper
+      .encodePayloadMessageForExecution(
+        payload,
+        preProposal.votingActivationTime
+      );
+
     skip(
       block.timestamp +
         preProposal.queuingTime +
@@ -1464,11 +1478,7 @@ contract GovernanceCoreTest is Test {
         preProposal.payloads[0].chain,
         preProposal.payloads[0].payloadsController,
         EXECUTION_GAS_LIMIT,
-        abi.encode(
-          preProposal.payloads[0].payloadId,
-          preProposal.payloads[0].accessLevel,
-          preProposal.votingActivationTime
-        )
+        messageWithType
       ),
       abi.encode(bytes32(0), bytes32(0))
     );
@@ -1647,7 +1657,6 @@ contract GovernanceCoreTest is Test {
     IGovernanceCore.Proposal memory proposal = governance.getProposal(
       proposalId
     );
-    console.log('state', uint8(proposal.state));
 
     _executeProposal(proposalId);
 
@@ -2148,6 +2157,19 @@ contract GovernanceCoreTest is Test {
       ),
       abi.encode(10000000 ether)
     );
+    PayloadsControllerUtils.Payload memory payload = PayloadsControllerUtils
+      .Payload({
+        chain: preProposal.payloads[0].chain,
+        accessLevel: preProposal.payloads[0].accessLevel,
+        payloadsController: preProposal.payloads[0].payloadsController,
+        payloadId: preProposal.payloads[0].payloadId
+      });
+
+    bytes memory messageWithType = BridgingHelper
+      .encodePayloadMessageForExecution(
+        payload,
+        preProposal.votingActivationTime
+      );
 
     vm.mockCall(
       CROSS_CHAIN_CONTROLLER,
@@ -2156,11 +2178,7 @@ contract GovernanceCoreTest is Test {
         preProposal.payloads[0].chain,
         preProposal.payloads[0].payloadsController,
         EXECUTION_GAS_LIMIT,
-        abi.encode(
-          preProposal.payloads[0].payloadId,
-          preProposal.payloads[0].accessLevel,
-          preProposal.votingActivationTime
-        )
+        messageWithType
       ),
       abi.encode(bytes32(0), bytes32(0))
     );
