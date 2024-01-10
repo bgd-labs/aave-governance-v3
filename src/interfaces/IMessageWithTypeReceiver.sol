@@ -4,6 +4,11 @@ pragma solidity ^0.8.0;
 import {IBaseReceiverPortal} from 'aave-delivery-infrastructure/contracts/interfaces/IBaseReceiverPortal.sol';
 import {BridgingHelper} from '../contracts/libraries/BridgingHelper.sol';
 
+/**
+ * @title IMessageWithTypeReceiver
+ * @author BGD Labs
+ * @notice Interface defining the methods, objects and events on the MessageWithTypeReceiver contract
+ */
 interface IMessageWithTypeReceiver is IBaseReceiverPortal {
   /**
    * @notice emitted when a cross chain message gets received
@@ -38,11 +43,11 @@ interface IMessageWithTypeReceiver is IBaseReceiverPortal {
   );
 
   /**
-   * @notice method to decode a message from governance chain
+   * @notice method to decode a message containing a message type
    * @param message encoded message with message type
-   * @return messageType and governance underlying message
+   * @return messageType and underlying message
    */
-  function decodeMessage(
+  function decodeMessageWithType(
     bytes memory message
   ) external view returns (BridgingHelper.MessageType, bytes memory);
 }

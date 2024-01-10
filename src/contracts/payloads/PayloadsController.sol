@@ -53,7 +53,7 @@ contract PayloadsController is
   }
 
   /// @inheritdoc IPayloadsController
-  function decodePayloadMessage(
+  function decodePayloadExecutionMessage(
     bytes memory message
   )
     external
@@ -85,7 +85,7 @@ contract PayloadsController is
   ) internal override {
     bytes memory empty;
     if (messageType == BridgingHelper.MessageType.Payload_Execution) {
-      try this.decodePayloadMessage(message) returns (
+      try this.decodePayloadExecutionMessage(message) returns (
         uint40 payloadId,
         PayloadsControllerUtils.AccessControl accessLevel,
         uint40 proposalVoteActivationTimestamp

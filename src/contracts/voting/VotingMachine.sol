@@ -76,7 +76,7 @@ contract VotingMachine is
   }
 
   /// @inheritdoc IVotingMachine
-  function decodeProposalMessage(
+  function decodeStartProposalVoteMessage(
     bytes memory message
   ) external pure returns (uint256, bytes32, uint24) {
     return BridgingHelper.decodeStartProposalVoteMessage(message);
@@ -139,7 +139,7 @@ contract VotingMachine is
   ) internal override {
     bytes memory empty;
     if (messageType == BridgingHelper.MessageType.Proposal_Vote) {
-      try this.decodeProposalMessage(message) returns (
+      try this.decodeStartProposalVoteMessage(message) returns (
         uint256 proposalId,
         bytes32 blockHash,
         uint24 votingDuration
