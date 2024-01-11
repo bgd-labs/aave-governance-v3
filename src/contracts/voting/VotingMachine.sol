@@ -153,7 +153,12 @@ contract VotingMachine is
         originSender,
         originChainId,
         message,
-        abi.encodePacked('unsupported message type: ', messageType)
+        abi.encode(
+          'unsupported message type for origin: ',
+          messageType,
+          originSender,
+          originChainId
+        )
       );
     }
   }

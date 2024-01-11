@@ -153,7 +153,12 @@ contract VotingPortal is Ownable, CrossChainControllerAdapter, IVotingPortal {
         originSender,
         originChainId,
         message,
-        abi.encodePacked('unsupported message type: ', messageType)
+        abi.encode(
+          'unsupported message type for origin: ',
+          BridgingHelper.MessageType.Payload_Execution,
+          originSender,
+          originChainId
+        )
       );
     }
   }

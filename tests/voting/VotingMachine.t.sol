@@ -280,7 +280,7 @@ contract VotingMachineTest is Test {
 
     // message info
     uint256 proposalId = 0;
-    bytes memory message = abi.encode(proposalId);
+    bytes memory message = abi.encode(proposalId, bytes32(0), 1245);
 
     bytes memory messageWithType = abi.encode(
       BridgingHelper.MessageType.Null,
@@ -288,14 +288,16 @@ contract VotingMachineTest is Test {
     );
 
     hoax(CROSS_CHAIN_CONTROLLER);
-    vm.expectEmit(true, true, true, true);
+    vm.expectEmit(true, true, false, true);
     emit IncorrectTypeMessageReceived(
       originSender,
       originChainId,
       message,
-      abi.encodePacked(
-        'unsupported message type: ',
-        BridgingHelper.MessageType.Null
+      abi.encode(
+        'unsupported message type for origin: ',
+        BridgingHelper.MessageType.Null,
+        originSender,
+        originChainId
       )
     );
     votingMachine.receiveCrossChainMessage(
@@ -320,7 +322,7 @@ contract VotingMachineTest is Test {
       message
     );
 
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
+    vm.expectRevert(bytes(Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
     votingMachine.receiveCrossChainMessage(
       originSender,
       originChainId,
@@ -344,7 +346,18 @@ contract VotingMachineTest is Test {
     );
 
     hoax(CROSS_CHAIN_CONTROLLER);
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
+    vm.expectEmit(true, true, false, true);
+    emit IncorrectTypeMessageReceived(
+      originSender,
+      originChainId,
+      message,
+      abi.encode(
+        'unsupported message type for origin: ',
+        BridgingHelper.MessageType.Proposal_Vote,
+        originSender,
+        originChainId
+      )
+    );
     votingMachine.receiveCrossChainMessage(
       originSender,
       originChainId,
@@ -367,7 +380,18 @@ contract VotingMachineTest is Test {
       message
     );
     hoax(CROSS_CHAIN_CONTROLLER);
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
+    vm.expectEmit(true, true, false, true);
+    emit IncorrectTypeMessageReceived(
+      originSender,
+      originChainId,
+      message,
+      abi.encode(
+        'unsupported message type for origin: ',
+        BridgingHelper.MessageType.Proposal_Vote,
+        originSender,
+        originChainId
+      )
+    );
     votingMachine.receiveCrossChainMessage(
       originSender,
       originChainId,
