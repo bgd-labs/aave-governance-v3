@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {BridgingHelper, IMessageWithTypeReceiver, IBaseReceiverPortal} from '../interfaces/IMessageWithTypeReceiver.sol';
+import {Errors} from './libraries/Errors.sol';
 
 /**
  * @title MessageWithTypeReceiver
@@ -17,7 +18,10 @@ abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
     uint256 originChainId,
     bytes memory messageWithType
   ) external {
-    _checkOrigin(msg.sender, originSender, originChainId);
+    require(
+      _checkOrigin(msg.sender, originSender, originChainId),
+      Errors.WRONG_MESSAGE_ORIGIN
+    );
 
     try this.decodeMessageWithType(messageWithType) returns (
       BridgingHelper.MessageType messageType,
@@ -46,12 +50,13 @@ abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
    * @param caller address that is calling this method
    * @param originSender address where the message originated
    * @param originChainId id of the chain where the message originated
+   * @return flag indicating if the check passed or not
    */
   function _checkOrigin(
     address caller,
     address originSender,
     uint256 originChainId
-  ) internal view virtual;
+  ) internal view virtual returns (bool);
 
   /**
    * @notice method that implements the logic to work with the bridged message of expected type

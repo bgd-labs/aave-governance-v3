@@ -121,13 +121,11 @@ contract VotingMachine is
     address caller,
     address originSender,
     uint256 originChainId
-  ) internal view override {
-    require(
+  ) internal view override returns (bool) {
+    return
       caller == CROSS_CHAIN_CONTROLLER &&
-        originSender == L1_VOTING_PORTAL &&
-        originChainId == L1_VOTING_PORTAL_CHAIN_ID,
-      Errors.WRONG_MESSAGE_ORIGIN
-    );
+      originSender == L1_VOTING_PORTAL &&
+      originChainId == L1_VOTING_PORTAL_CHAIN_ID;
   }
 
   /// @dev creates a proposal vote

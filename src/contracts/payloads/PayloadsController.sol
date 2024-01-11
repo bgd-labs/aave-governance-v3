@@ -67,13 +67,11 @@ contract PayloadsController is
     address caller,
     address originSender,
     uint256 originChainId
-  ) internal view override {
-    require(
+  ) internal view override returns (bool) {
+    return
       caller == CROSS_CHAIN_CONTROLLER &&
-        originSender == MESSAGE_ORIGINATOR &&
-        originChainId == ORIGIN_CHAIN_ID,
-      Errors.WRONG_MESSAGE_ORIGIN
-    );
+      originSender == MESSAGE_ORIGINATOR &&
+      originChainId == ORIGIN_CHAIN_ID;
   }
 
   /// @dev queues the payload id

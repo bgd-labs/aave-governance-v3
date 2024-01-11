@@ -118,13 +118,11 @@ contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
     address caller,
     address originSender,
     uint256 originChainId
-  ) internal view override {
-    require(
+  ) internal view override returns (bool) {
+    return
       caller == CROSS_CHAIN_CONTROLLER &&
-        originSender == VOTING_MACHINE &&
-        originChainId == VOTING_MACHINE_CHAIN_ID,
-      Errors.WRONG_MESSAGE_ORIGIN
-    );
+      originSender == VOTING_MACHINE &&
+      originChainId == VOTING_MACHINE_CHAIN_ID;
   }
 
   /// @dev pushes the voting result and queues the proposal identified by proposalId
