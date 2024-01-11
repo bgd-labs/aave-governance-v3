@@ -2,14 +2,14 @@
 pragma solidity ^0.8.0;
 
 import {IVotingMachineWithProofs} from '../contracts/voting/interfaces/IVotingMachineWithProofs.sol';
-import {IMessageWithTypeReceiver} from './IMessageWithTypeReceiver.sol';
+import {ICrossChainControllerAdapter} from './ICrossChainControllerAdapter.sol';
 
 /**
  * @title IVotingPortal
  * @author BGD Labs
  * @notice interface containing the objects, events and methods definitions of the VotingPortal contract
  */
-interface IVotingPortal is IMessageWithTypeReceiver {
+interface IVotingPortal is ICrossChainControllerAdapter {
   /**
    * @notice emitted when "Start voting" gas limit gets updated
    * @param gasLimit the new gas limit
@@ -33,12 +33,6 @@ interface IVotingPortal is IMessageWithTypeReceiver {
    * @return governance address
    */
   function GOVERNANCE() external view returns (address);
-
-  /**
-   * @notice gets the address of the CrossChainController deployed on current network
-   * @return CrossChainController address
-   */
-  function CROSS_CHAIN_CONTROLLER() external view returns (address);
 
   /**
    * @notice method to set the gas limit for "Start voting" bridging tx

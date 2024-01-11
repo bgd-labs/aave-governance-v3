@@ -7,7 +7,7 @@ import {IVotingPortal} from '../interfaces/IVotingPortal.sol';
 import {Errors} from './libraries/Errors.sol';
 import {IVotingMachineWithProofs} from './voting/interfaces/IVotingMachineWithProofs.sol';
 import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
-import {BridgingHelper, MessageWithTypeReceiver} from './MessageWithTypeReceiver.sol';
+import {BridgingHelper, CrossChainControllerAdapter} from './CrossChainControllerAdapter.sol';
 
 /**
  * @title VotingPortal
@@ -15,10 +15,7 @@ import {BridgingHelper, MessageWithTypeReceiver} from './MessageWithTypeReceiver
  * @notice Contract with the knowledge on how to initialize a proposal voting and get the votes results,
            from a vote that happened on a different or same chain.
  */
-contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
-  /// @inheritdoc IVotingPortal
-  address public immutable CROSS_CHAIN_CONTROLLER;
-
+contract VotingPortal is Ownable, CrossChainControllerAdapter, IVotingPortal {
   /// @inheritdoc IVotingPortal
   address public immutable GOVERNANCE;
 
@@ -47,19 +44,15 @@ contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
     uint256 votingMachineChainId,
     uint128 startVotingGasLimit,
     address owner
-  ) {
+  ) CrossChainControllerAdapter(crossChainController) {
     require(owner != address(0), Errors.INVALID_VOTING_PORTAL_OWNER);
-    require(
-      crossChainController != address(0),
-      Errors.INVALID_VOTING_PORTAL_CROSS_CHAIN_CONTROLLER
-    );
+
     require(governance != address(0), Errors.INVALID_VOTING_PORTAL_GOVERNANCE);
     require(
       votingMachine != address(0),
       Errors.INVALID_VOTING_PORTAL_VOTING_MACHINE
     );
     require(votingMachineChainId > 0, Errors.INVALID_VOTING_MACHINE_CHAIN_ID);
-    CROSS_CHAIN_CONTROLLER = crossChainController;
     GOVERNANCE = governance;
     VOTING_MACHINE = votingMachine;
     VOTING_MACHINE_CHAIN_ID = votingMachineChainId;
@@ -80,7 +73,7 @@ contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
     bytes memory messageWithType = BridgingHelper
       .encodeStartProposalVoteMessage(proposalId, blockHash, votingDuration);
 
-    ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
+    _forwardMessageToCrossChainController(
       VOTING_MACHINE_CHAIN_ID,
       VOTING_MACHINE,
       _startVotingGasLimit,
@@ -114,17 +107,6 @@ contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
     emit StartVotingGasLimitUpdated(gasLimit);
   }
 
-  function _checkOrigin(
-    address caller,
-    address originSender,
-    uint256 originChainId
-  ) internal view override returns (bool) {
-    return
-      caller == CROSS_CHAIN_CONTROLLER &&
-      originSender == VOTING_MACHINE &&
-      originChainId == VOTING_MACHINE_CHAIN_ID;
-  }
-
   /// @dev pushes the voting result and queues the proposal identified by proposalId
   function _parseReceivedMessage(
     address originSender,
@@ -133,7 +115,11 @@ contract VotingPortal is Ownable, MessageWithTypeReceiver, IVotingPortal {
     bytes memory message
   ) internal override {
     bytes memory empty;
-    if (messageType == BridgingHelper.MessageType.Vote_Results) {
+    if (
+      messageType == BridgingHelper.MessageType.Vote_Results &&
+      originSender == VOTING_MACHINE &&
+      originChainId == VOTING_MACHINE_CHAIN_ID
+    ) {
       try this.decodeVoteResultMessage(message) returns (
         uint256 proposalId,
         uint128 forVotes,

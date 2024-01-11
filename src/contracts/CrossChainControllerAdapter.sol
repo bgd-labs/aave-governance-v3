@@ -1,27 +1,38 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import {BridgingHelper, IMessageWithTypeReceiver, IBaseReceiverPortal} from '../interfaces/IMessageWithTypeReceiver.sol';
+import {BridgingHelper, ICrossChainControllerAdapter, IBaseReceiverPortal} from '../interfaces/ICrossChainControllerAdapter.sol';
 import {Errors} from './libraries/Errors.sol';
 
 /**
- * @title MessageWithTypeReceiver
+ * @title CrossChainControllerAdapter
  * @author BGD Labs
- * @notice Abstract contract implementing the base method to receive messages from the CrossChainController.
+ * @notice Abstract contract implementing the base methods of communication with CrossChainController.
  * @dev Contracts that inherit from here, must implement the _checkOrigin and _parseReceivedMessage to be able to
         work with the bridged message
  */
-abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
+abstract contract CrossChainControllerAdapter is ICrossChainControllerAdapter {
+  /// @inheritdoc ICrossChainControllerAdapter
+  address public immutable CROSS_CHAIN_CONTROLLER;
+
+  /**
+   * @param crossChainController address of current network message controller (cross chain controller or same chain controller)
+   */
+  constructor(address crossChainController) {
+    require(
+      crossChainController != address(0),
+      Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS
+    );
+    CROSS_CHAIN_CONTROLLER = crossChainController;
+  }
+
   /// @inheritdoc IBaseReceiverPortal
   function receiveCrossChainMessage(
     address originSender,
     uint256 originChainId,
     bytes memory messageWithType
   ) external {
-    require(
-      _checkOrigin(msg.sender, originSender, originChainId),
-      Errors.WRONG_MESSAGE_ORIGIN
-    );
+    require(msg.sender == CROSS_CHAIN_CONTROLLER);
 
     try this.decodeMessageWithType(messageWithType) returns (
       BridgingHelper.MessageType messageType,
@@ -38,7 +49,7 @@ abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
     }
   }
 
-  /// @inheritdoc IMessageWithTypeReceiver
+  /// @inheritdoc ICrossChainControllerAdapter
   function decodeMessageWithType(
     bytes memory message
   ) external pure returns (BridgingHelper.MessageType, bytes memory) {
@@ -46,17 +57,25 @@ abstract contract MessageWithTypeReceiver is IMessageWithTypeReceiver {
   }
 
   /**
-   * @notice method that implements necessary checks to validate the origin of the bridged message
-   * @param caller address that is calling this method
-   * @param originSender address where the message originated
-   * @param originChainId id of the chain where the message originated
-   * @return flag indicating if the check passed or not
+   * @notice method to pass a message to aDI for delivery
+   * @param destinationChainId id of the chain where the message needs to be delivered
+   * @param destination address where the message needs to be delivered
+   * @param gasLimit upper limit of the gas used on destination chain to deliver the message
+   * @param message bytes to bridge
    */
-  function _checkOrigin(
-    address caller,
-    address originSender,
-    uint256 originChainId
-  ) internal view virtual returns (bool);
+  function _forwardMessageToCrossChainController(
+    uint256 destinationChainId,
+    address destination,
+    uint256 gasLimit,
+    bytes memory message
+  ) internal {
+    ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
+      destinationChainId,
+      destination,
+      gasLimit,
+      message
+    );
+  }
 
   /**
    * @notice method that implements the logic to work with the bridged message of expected type
