@@ -120,9 +120,7 @@ contract VotingMachineTest is Test {
   }
 
   function testContractCreationWhenInvalidCCC() public {
-    vm.expectRevert(
-      bytes(Errors.INVALID_VOTING_MACHINE_CROSS_CHAIN_CONTROLLER)
-    );
+    vm.expectRevert(bytes(Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
     new VotingMachine(
       address(0),
       GAS_LIMIT,

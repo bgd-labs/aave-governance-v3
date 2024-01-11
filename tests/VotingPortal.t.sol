@@ -53,7 +53,7 @@ contract VotingPortalTest is Test {
   }
 
   function testContractCreationWhenInvalidCCC() public {
-    vm.expectRevert(bytes(Errors.INVALID_VOTING_PORTAL_CROSS_CHAIN_CONTROLLER));
+    vm.expectRevert(bytes(Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
     votingPortal = new VotingPortal(
       address(0),
       GOVERNANCE,

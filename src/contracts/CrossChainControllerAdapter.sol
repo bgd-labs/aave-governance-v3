@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
+import {ICrossChainController} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainController.sol';
 import {BridgingHelper, ICrossChainControllerAdapter, IBaseReceiverPortal} from '../interfaces/ICrossChainControllerAdapter.sol';
 import {Errors} from './libraries/Errors.sol';
 
@@ -89,5 +90,5 @@ abstract contract CrossChainControllerAdapter is ICrossChainControllerAdapter {
     uint256 originChainId,
     BridgingHelper.MessageType messageType,
     bytes memory message
-  ) internal virtual;
+  ) internal virtual {}
 }

@@ -17,12 +17,6 @@ interface IGovernance {
   event GasLimitUpdated(uint256 indexed gasLimit);
 
   /**
-   * @notice method to get the CrossChainController contract address of the currently deployed address
-   * @return address of CrossChainController contract
-   */
-  function CROSS_CHAIN_CONTROLLER() external view returns (address);
-
-  /**
    * @notice method to initialize governance v3 on first deploy
    * @param owner address of the new owner of governance
    * @param guardian address of the new guardian of governance

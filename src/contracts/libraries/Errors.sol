@@ -61,11 +61,9 @@ library Errors {
   string public constant INVALID_ACTION_TARGET = '51';
   string public constant INVALID_ACTION_ACCESS_LEVEL = '52';
   string public constant INVALID_EXECUTOR_ACCESS_LEVEL = '53';
-  string public constant INVALID_VOTING_PORTAL_CROSS_CHAIN_CONTROLLER = '54';
   string public constant INVALID_VOTING_PORTAL_VOTING_MACHINE = '55';
   string public constant INVALID_VOTING_PORTAL_GOVERNANCE = '56';
   string public constant INVALID_VOTING_MACHINE_CHAIN_ID = '57';
-  string public constant G_INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS = '58';
   string public constant G_INVALID_IPFS_HASH = '59';
   string public constant G_INVALID_PAYLOAD_ACCESS_LEVEL = '60';
   string public constant G_INVALID_PAYLOADS_CONTROLLER = '61';
@@ -76,7 +74,6 @@ library Errors {
   string public constant NO_BRIDGED_VOTING_ASSETS = '66';
   string public constant INVALID_VOTER = '67';
   string public constant INVALID_DATA_WAREHOUSE = '68';
-  string public constant INVALID_VOTING_MACHINE_CROSS_CHAIN_CONTROLLER = '69';
   string public constant INVALID_L1_VOTING_PORTAL = '70';
   string public constant INVALID_VOTING_PORTAL_CHAIN_ID = '71';
   string public constant INVALID_VOTING_STRATEGY = '72';
