@@ -53,7 +53,7 @@ contract VotingPortalTest is Test {
   }
 
   function testContractCreationWhenInvalidCCC() public {
-    vm.expectRevert(bytes(Errors.INVALID_VOTING_PORTAL_CROSS_CHAIN_CONTROLLER));
+    vm.expectRevert(bytes(Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
     votingPortal = new VotingPortal(
       address(0),
       GOVERNANCE,
@@ -254,25 +254,55 @@ contract VotingPortalTest is Test {
   }
 
   function testReceiveCrossChainMessageWhenIncorrectOriginator() public {
-    bytes memory message = abi.encode();
-
+    (bytes memory message, bytes memory messageWithType) = _getMessages(
+      0,
+      123,
+      123
+    );
     hoax(CROSS_CHAIN_CONTROLLER);
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
+    vm.expectEmit(true, true, false, true);
+    emit IncorrectTypeMessageReceived(
+      address(1),
+      VOTING_MACHINE_CHAIN_ID,
+      message,
+      abi.encode(
+        'unsupported message type for origin: ',
+        BridgingHelper.MessageType.Payload_Execution,
+        address(1),
+        VOTING_MACHINE_CHAIN_ID
+      )
+    );
     votingPortal.receiveCrossChainMessage(
       address(1),
       VOTING_MACHINE_CHAIN_ID,
-      message
+      messageWithType
     );
   }
 
   function testReceiveCrossChainMessageWhenIncorrectChainId() public {
-    bytes memory message = abi.encode();
+    (bytes memory message, bytes memory messageWithType) = _getMessages(
+      0,
+      123,
+      123
+    );
+
     hoax(CROSS_CHAIN_CONTROLLER);
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
+    vm.expectEmit(true, true, false, true);
+    emit IncorrectTypeMessageReceived(
+      VOTING_MACHINE,
+      ChainIds.AVALANCHE,
+      message,
+      abi.encode(
+        'unsupported message type for origin: ',
+        BridgingHelper.MessageType.Payload_Execution,
+        VOTING_MACHINE,
+        ChainIds.AVALANCHE
+      )
+    );
     votingPortal.receiveCrossChainMessage(
       VOTING_MACHINE,
       ChainIds.AVALANCHE,
-      message
+      messageWithType
     );
   }
 
@@ -281,11 +311,25 @@ contract VotingPortalTest is Test {
   ) public {
     vm.assume(randomDude != votingPortal.CROSS_CHAIN_CONTROLLER());
     bytes memory message = abi.encode();
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
+    vm.expectRevert(bytes(Errors.SENDER_IS_NOT_CROSS_CHAIN_CONTROLLER));
     votingPortal.receiveCrossChainMessage(
       VOTING_MACHINE,
       VOTING_MACHINE_CHAIN_ID,
       message
     );
+  }
+
+  function _getMessages(
+    uint256 proposalId,
+    uint256 forVotes,
+    uint256 againstVotes
+  ) internal returns (bytes memory, bytes memory) {
+    bytes memory message = abi.encode(proposalId, forVotes, againstVotes);
+    bytes memory messageWithType = BridgingHelper.encodeVoteResultsMessage(
+      proposalId,
+      forVotes,
+      againstVotes
+    );
+    return (message, messageWithType);
   }
 }

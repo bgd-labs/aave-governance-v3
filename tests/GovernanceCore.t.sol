@@ -349,7 +349,7 @@ contract GovernanceCoreTest is Test {
   }
 
   function testCreateGovernanceWhenInvalidCCC() public {
-    vm.expectRevert(bytes(Errors.G_INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
+    vm.expectRevert(bytes(Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
     new Governance(address(0), COOLDOWN_PERIOD, CANCELLATION_FEE_COLLECTOR);
   }
 

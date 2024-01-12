@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import {ICrossChainController} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainController.sol';
 import {IVotingMachine, IVotingPortal} from './interfaces/IVotingMachine.sol';
 import {VotingMachineWithProofs, IDataWarehouse, IVotingStrategy, IVotingMachineWithProofs} from './VotingMachineWithProofs.sol';
 import {Errors} from '../libraries/Errors.sol';
-import {BridgingHelper, MessageWithTypeReceiver} from '../MessageWithTypeReceiver.sol';
+import {BridgingHelper, CrossChainControllerAdapter} from '../CrossChainControllerAdapter.sol';
 
 /**
  * @title VotingMachine
@@ -17,12 +16,9 @@ import {BridgingHelper, MessageWithTypeReceiver} from '../MessageWithTypeReceive
  */
 contract VotingMachine is
   VotingMachineWithProofs,
-  MessageWithTypeReceiver,
+  CrossChainControllerAdapter,
   IVotingMachine
 {
-  /// @inheritdoc IVotingMachine
-  address public immutable CROSS_CHAIN_CONTROLLER;
-
   /// @inheritdoc IVotingMachine
   uint256 public immutable L1_VOTING_PORTAL_CHAIN_ID;
 
@@ -48,17 +44,15 @@ contract VotingMachine is
     IVotingStrategy votingStrategy,
     address l1VotingPortal,
     address governance
-  ) VotingMachineWithProofs(votingStrategy, governance) {
-    require(
-      crossChainController != address(0),
-      Errors.INVALID_VOTING_MACHINE_CROSS_CHAIN_CONTROLLER
-    );
+  )
+    VotingMachineWithProofs(votingStrategy, governance)
+    CrossChainControllerAdapter(crossChainController)
+  {
     require(l1VotingPortalChainId > 0, Errors.INVALID_VOTING_PORTAL_CHAIN_ID);
     require(
       l1VotingPortal != address(0),
       Errors.INVALID_VOTING_PORTAL_ADDRESS_IN_VOTING_MACHINE
     );
-    CROSS_CHAIN_CONTROLLER = crossChainController;
     L1_VOTING_PORTAL_CHAIN_ID = l1VotingPortalChainId;
     L1_VOTING_PORTAL = l1VotingPortal;
 
@@ -99,7 +93,7 @@ contract VotingMachine is
       againstVotes
     );
 
-    ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
+    _forwardMessageToCrossChainController(
       L1_VOTING_PORTAL_CHAIN_ID,
       L1_VOTING_PORTAL,
       _gasLimit,
@@ -117,17 +111,6 @@ contract VotingMachine is
     emit GasLimitUpdated(gasLimit);
   }
 
-  function _checkOrigin(
-    address caller,
-    address originSender,
-    uint256 originChainId
-  ) internal view override returns (bool) {
-    return
-      caller == CROSS_CHAIN_CONTROLLER &&
-      originSender == L1_VOTING_PORTAL &&
-      originChainId == L1_VOTING_PORTAL_CHAIN_ID;
-  }
-
   /// @dev creates a proposal vote
   function _parseReceivedMessage(
     address originSender,
@@ -136,7 +119,11 @@ contract VotingMachine is
     bytes memory message
   ) internal override {
     bytes memory empty;
-    if (messageType == BridgingHelper.MessageType.Proposal_Vote) {
+    if (
+      messageType == BridgingHelper.MessageType.Proposal_Vote &&
+      originSender == L1_VOTING_PORTAL &&
+      originChainId == L1_VOTING_PORTAL_CHAIN_ID
+    ) {
       try this.decodeStartProposalVoteMessage(message) returns (
         uint256 proposalId,
         bytes32 blockHash,
@@ -166,7 +153,12 @@ contract VotingMachine is
         originSender,
         originChainId,
         message,
-        abi.encodePacked('unsupported message type: ', messageType)
+        abi.encode(
+          'unsupported message type for origin: ',
+          messageType,
+          originSender,
+          originChainId
+        )
       );
     }
   }

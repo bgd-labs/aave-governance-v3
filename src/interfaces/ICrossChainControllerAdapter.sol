@@ -5,11 +5,11 @@ import {IBaseReceiverPortal} from 'aave-delivery-infrastructure/contracts/interf
 import {BridgingHelper} from '../contracts/libraries/BridgingHelper.sol';
 
 /**
- * @title IMessageWithTypeReceiver
+ * @title ICrossChainControllerAdapter
  * @author BGD Labs
- * @notice Interface defining the methods, objects and events on the MessageWithTypeReceiver contract
+ * @notice Interface defining the methods, objects and events on the CrossChainControllerAdapter contract
  */
-interface IMessageWithTypeReceiver is IBaseReceiverPortal {
+interface ICrossChainControllerAdapter is IBaseReceiverPortal {
   /**
    * @notice emitted when a cross chain message gets received
    * @param originSender address that sent the message on the origin chain
@@ -41,6 +41,12 @@ interface IMessageWithTypeReceiver is IBaseReceiverPortal {
     bytes message,
     bytes reason
   );
+
+  /**
+   * @notice gets the address of the CrossChainController deployed on current network
+   * @return CrossChainController address
+   */
+  function CROSS_CHAIN_CONTROLLER() external view returns (address);
 
   /**
    * @notice method to decode a message containing a message type

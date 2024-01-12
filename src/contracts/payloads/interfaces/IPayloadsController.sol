@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {IPayloadsControllerCore} from './IPayloadsControllerCore.sol';
 import {PayloadsControllerUtils} from '../PayloadsControllerUtils.sol';
-import {IMessageWithTypeReceiver} from '../../../interfaces/IMessageWithTypeReceiver.sol';
+import {ICrossChainControllerAdapter} from '../../../interfaces/ICrossChainControllerAdapter.sol';
 
 /**
  * @title IPayloadsController
@@ -11,15 +11,9 @@ import {IMessageWithTypeReceiver} from '../../../interfaces/IMessageWithTypeRece
  * @notice interface containing the objects, events and methods definitions of the PayloadsController contract
  */
 interface IPayloadsController is
-  IMessageWithTypeReceiver,
+  ICrossChainControllerAdapter,
   IPayloadsControllerCore
 {
-  /**
-   * @notice get contract address from where the messages come
-   * @return address of the message registry
-   */
-  function CROSS_CHAIN_CONTROLLER() external view returns (address);
-
   /**
    * @notice get chain id of the message originator network
    * @return chain id of the originator network

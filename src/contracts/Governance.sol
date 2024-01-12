@@ -32,7 +32,7 @@ contract Governance is GovernanceCore, IGovernance {
   ) GovernanceCore(coolDownPeriod, cancellationFeeCollector) {
     require(
       crossChainController != address(0),
-      Errors.G_INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS
+      Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS
     );
     CROSS_CHAIN_CONTROLLER = crossChainController;
   }
