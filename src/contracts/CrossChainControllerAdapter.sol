@@ -35,7 +35,7 @@ abstract contract CrossChainControllerAdapter is ICrossChainControllerAdapter {
   ) external {
     require(
       msg.sender == CROSS_CHAIN_CONTROLLER,
-      Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS
+      Errors.SENDER_IS_NOT_CROSS_CHAIN_CONTROLLER
     );
 
     try this.decodeMessageWithType(messageWithType) returns (
@@ -93,5 +93,5 @@ abstract contract CrossChainControllerAdapter is ICrossChainControllerAdapter {
     uint256 originChainId,
     BridgingHelper.MessageType messageType,
     bytes memory message
-  ) internal virtual {}
+  ) internal virtual;
 }

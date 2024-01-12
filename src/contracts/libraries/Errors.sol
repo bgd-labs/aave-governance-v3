@@ -55,7 +55,7 @@ library Errors {
   string public constant VOTING_DURATION_NOT_PASSED = '45'; // at least votingDuration should have passed since voting started for a proposal to be queued
   string public constant INVALID_PROPOSAL_ACCESS_LEVEL = '46'; // the bridged proposal access level does not correspond with the maximum access level required by the payload
   string public constant PAYLOAD_NOT_CREATED_BEFORE_PROPOSAL = '47'; // payload must be created before proposal
-  string public constant INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS = '48';
+  string public constant SENDER_IS_NOT_CROSS_CHAIN_CONTROLLER = '48';
   string public constant INVALID_MESSAGE_ORIGINATOR_ADDRESS = '49';
   string public constant INVALID_ORIGIN_CHAIN_ID = '50';
   string public constant INVALID_ACTION_TARGET = '51';
@@ -64,6 +64,7 @@ library Errors {
   string public constant INVALID_VOTING_PORTAL_VOTING_MACHINE = '55';
   string public constant INVALID_VOTING_PORTAL_GOVERNANCE = '56';
   string public constant INVALID_VOTING_MACHINE_CHAIN_ID = '57';
+  string public constant INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS = '58';
   string public constant G_INVALID_IPFS_HASH = '59';
   string public constant G_INVALID_PAYLOAD_ACCESS_LEVEL = '60';
   string public constant G_INVALID_PAYLOADS_CONTROLLER = '61';

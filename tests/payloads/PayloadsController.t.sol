@@ -222,7 +222,7 @@ contract PayloadsControllerTest is Test {
 
   function testReceiveCrossChainMessageWhenIncorrectCaller() public {
     bytes memory message = abi.encode();
-    vm.expectRevert(bytes(Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
+    vm.expectRevert(bytes(Errors.SENDER_IS_NOT_CROSS_CHAIN_CONTROLLER));
     payloadPortal.receiveCrossChainMessage(
       MESSAGE_ORIGINATOR,
       ORIGIN_CHAIN_ID,

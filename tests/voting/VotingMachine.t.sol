@@ -322,7 +322,7 @@ contract VotingMachineTest is Test {
       message
     );
 
-    vm.expectRevert(bytes(Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
+    vm.expectRevert(bytes(Errors.SENDER_IS_NOT_CROSS_CHAIN_CONTROLLER));
     votingMachine.receiveCrossChainMessage(
       originSender,
       originChainId,

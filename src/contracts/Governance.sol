@@ -5,7 +5,7 @@ import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/inter
 import {GovernanceCore, PayloadsControllerUtils} from './GovernanceCore.sol';
 import {IGovernance, IGovernancePowerStrategy, IGovernanceCore} from '../interfaces/IGovernance.sol';
 import {Errors} from './libraries/Errors.sol';
-import {CrossChainControllerAdapter, BridgingHelper} from './CrossChainControllerAdapter.sol';
+import {BridgingHelper} from './libraries/BridgingHelper.sol';
 
 /**
  * @title Governance
@@ -13,11 +13,10 @@ import {CrossChainControllerAdapter, BridgingHelper} from './CrossChainControlle
  * @notice this contract contains the logic to communicate with execution chain.
  * @dev This contract implements the abstract contract GovernanceCore
  */
-contract Governance is
-  GovernanceCore,
-  CrossChainControllerAdapter,
-  IGovernance
-{
+contract Governance is GovernanceCore, IGovernance {
+  /// @inheritdoc IGovernance
+  address public immutable CROSS_CHAIN_CONTROLLER;
+
   // gas limit used for sending the vote result
   uint256 private _gasLimit;
 
@@ -30,10 +29,13 @@ contract Governance is
     address crossChainController,
     uint256 coolDownPeriod,
     address cancellationFeeCollector
-  )
-    GovernanceCore(coolDownPeriod, cancellationFeeCollector)
-    CrossChainControllerAdapter(crossChainController)
-  {}
+  ) GovernanceCore(coolDownPeriod, cancellationFeeCollector) {
+    require(
+      crossChainController != address(0),
+      Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS
+    );
+    CROSS_CHAIN_CONTROLLER = crossChainController;
+  }
 
   /// @inheritdoc IGovernance
   function initializeWithRevision(uint256 gasLimit) external reinitializer(3) {
@@ -110,7 +112,7 @@ contract Governance is
       proposalVoteActivationTimestamp
     );
 
-    _forwardMessageToCrossChainController(
+    ICrossChainForwarder(CROSS_CHAIN_CONTROLLER).forwardMessage(
       payload.chain,
       payload.payloadsController,
       _gasLimit,

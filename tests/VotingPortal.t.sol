@@ -311,7 +311,7 @@ contract VotingPortalTest is Test {
   ) public {
     vm.assume(randomDude != votingPortal.CROSS_CHAIN_CONTROLLER());
     bytes memory message = abi.encode();
-    vm.expectRevert(bytes(Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS));
+    vm.expectRevert(bytes(Errors.SENDER_IS_NOT_CROSS_CHAIN_CONTROLLER));
     votingPortal.receiveCrossChainMessage(
       VOTING_MACHINE,
       VOTING_MACHINE_CHAIN_ID,
