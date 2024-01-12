@@ -9,7 +9,7 @@ import {Errors} from './libraries/Errors.sol';
  * @title CrossChainControllerAdapter
  * @author BGD Labs
  * @notice Abstract contract implementing the base methods of communication with CrossChainController.
- * @dev Contracts that inherit from here, must implement the _checkOrigin and _parseReceivedMessage to be able to
+ * @dev Contracts that inherit from here must implement the _parseReceivedMessage to be able to
         work with the bridged message
  */
 abstract contract CrossChainControllerAdapter is ICrossChainControllerAdapter {
