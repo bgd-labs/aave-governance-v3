@@ -132,9 +132,9 @@ contract Zkevm is BaseInitialDeployment {
 }
 
 contract Scroll is BaseInitialDeployment {
-  //  function GUARDIAN() public pure override returns (address) {
-  //    return ;
-  //  }
+  function GUARDIAN() public pure override returns (address) {
+    return 0x63B20270b695E44Ac94Ad7592D5f81E3575b93e7;
+  }
 
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.SCROLL;
