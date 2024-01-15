@@ -92,9 +92,9 @@ contract Metis is BaseInitialDeployment {
 }
 
 contract Binance is BaseInitialDeployment {
-    function GUARDIAN() public pure override returns (address) {
-      return 0xF6Db48C5968A9eBCB935786435530f28e32Cc501;
-    }
+  function GUARDIAN() public pure override returns (address) {
+    return 0xF6Db48C5968A9eBCB935786435530f28e32Cc501;
+  }
 
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.BNB;
@@ -118,6 +118,26 @@ contract Gnosis is BaseInitialDeployment {
 
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.GNOSIS;
+  }
+}
+
+contract Zkevm is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0x8C05474F1f0161F71276677De0a2d8a347583c45;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.POLYGON_ZK_EVM;
+  }
+}
+
+contract Scroll is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0x63B20270b695E44Ac94Ad7592D5f81E3575b93e7;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SCROLL;
   }
 }
 
