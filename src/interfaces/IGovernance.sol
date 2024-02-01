@@ -17,8 +17,8 @@ interface IGovernance {
   event GasLimitUpdated(uint256 indexed gasLimit);
 
   /**
-   * @notice method to get the CrossChainController contract address of the currently deployed address
-   * @return address of CrossChainController contract
+   * @notice gets the address of the CrossChainController deployed on current network
+   * @return CrossChainController address
    */
   function CROSS_CHAIN_CONTROLLER() external view returns (address);
 

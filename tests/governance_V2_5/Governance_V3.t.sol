@@ -14,6 +14,7 @@ import {Errors} from '../../src/contracts/libraries/Errors.sol';
 import {Governance, IGovernance} from '../../src/contracts/Governance.sol';
 import {IGovernanceCore, PayloadsControllerUtils} from 'aave-address-book/GovernanceV3.sol';
 import {IWithGuardian} from 'solidity-utils/contracts/access-control/interfaces/IWithGuardian.sol';
+import {ICrossChainControllerAdapter} from '../../src/interfaces/ICrossChainControllerAdapter.sol';
 
 contract Governance_V3_Test is Test {
   uint256 constant GAS_LIMIT = 300_000;
@@ -46,7 +47,7 @@ contract Governance_V3_Test is Test {
 
   function test_initialize() public {
     assertEq(
-      IGovernance(address(GovernanceV3Ethereum.GOVERNANCE))
+      ICrossChainControllerAdapter(address(GovernanceV3Ethereum.GOVERNANCE))
         .CROSS_CHAIN_CONTROLLER(),
       GovernanceV3Ethereum.CROSS_CHAIN_CONTROLLER
     );

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.8;
 
 import 'forge-std/Test.sol';
-import {PayloadsController} from '../../src/contracts/payloads/PayloadsController.sol';
+import {PayloadsController, BridgingHelper} from '../../src/contracts/payloads/PayloadsController.sol';
 import {IPayloadsController} from '../../src/contracts/payloads/interfaces/IPayloadsController.sol';
 import {IPayloadsControllerCore} from '../../src/contracts/payloads/interfaces/IPayloadsControllerCore.sol';
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
@@ -29,10 +29,17 @@ contract PayloadsControllerTest is Test {
       })
     });
 
-  event PayloadExecutionMessageReceived(
+  event MessageReceived(
     address indexed originSender,
     uint256 indexed originChainId,
     bool indexed delivered,
+    BridgingHelper.MessageType messageType,
+    bytes message,
+    bytes reason
+  );
+  event IncorrectTypeMessageReceived(
+    address indexed originSender,
+    uint256 indexed originChainId,
     bytes message,
     bytes reason
   );
@@ -93,26 +100,39 @@ contract PayloadsControllerTest is Test {
 
   function testReceiveCrossChainMessage() public {
     uint40 payloadId = _createPayload();
+    PayloadsControllerUtils.Payload memory payload = PayloadsControllerUtils
+      .Payload({
+        chain: ORIGIN_CHAIN_ID,
+        accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
+        payloadsController: address(102358),
+        payloadId: payloadId
+      });
+    uint40 timestamp = uint40(block.timestamp + 10);
     bytes memory message = abi.encode(
       payloadId,
       PayloadsControllerUtils.AccessControl.Level_1,
-      uint40(block.timestamp + 10)
+      timestamp
+    );
+    bytes memory messageWithType = BridgingHelper.encodePayloadExecutionMessage(
+      payload,
+      timestamp
     );
 
     hoax(CROSS_CHAIN_CONTROLLER);
     bytes memory empty;
     vm.expectEmit(true, true, true, true);
-    emit PayloadExecutionMessageReceived(
+    emit MessageReceived(
       MESSAGE_ORIGINATOR,
       ORIGIN_CHAIN_ID,
       true,
+      BridgingHelper.MessageType.Payload_Execution,
       message,
       empty
     );
     payloadPortal.receiveCrossChainMessage(
       MESSAGE_ORIGINATOR,
       ORIGIN_CHAIN_ID,
-      message
+      messageWithType
     );
   }
 
@@ -123,10 +143,9 @@ contract PayloadsControllerTest is Test {
     hoax(CROSS_CHAIN_CONTROLLER);
     bytes memory empty;
     vm.expectEmit(true, true, true, true);
-    emit PayloadExecutionMessageReceived(
+    emit IncorrectTypeMessageReceived(
       MESSAGE_ORIGINATOR,
       ORIGIN_CHAIN_ID,
-      false,
       message,
       empty
     );
@@ -138,32 +157,93 @@ contract PayloadsControllerTest is Test {
   }
 
   function testReceiveCrossChainMessageWhenIncorrectOriginator() public {
-    bytes memory message = abi.encode();
-
+    PayloadsControllerUtils.Payload memory payload = PayloadsControllerUtils
+      .Payload({
+        payloadId: 0,
+        chain: ORIGIN_CHAIN_ID,
+        payloadsController: address(21351),
+        accessLevel: PayloadsControllerUtils.AccessControl.Level_1
+      });
+    (bytes memory message, bytes memory messageWithType) = _getMessages(
+      payload,
+      uint40(block.timestamp)
+    );
     hoax(CROSS_CHAIN_CONTROLLER);
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
+    vm.expectEmit(true, true, false, true);
+    emit IncorrectTypeMessageReceived(
+      address(1),
+      ORIGIN_CHAIN_ID,
+      message,
+      abi.encode(
+        'unsupported message type for origin: ',
+        BridgingHelper.MessageType.Payload_Execution,
+        address(1),
+        ORIGIN_CHAIN_ID
+      )
+    );
     payloadPortal.receiveCrossChainMessage(
       address(1),
       ORIGIN_CHAIN_ID,
-      message
+      messageWithType
     );
   }
 
   function testReceiveCrossChainMessageWhenIncorrectChainId() public {
-    bytes memory message = abi.encode();
+    PayloadsControllerUtils.Payload memory payload = PayloadsControllerUtils
+      .Payload({
+        payloadId: 0,
+        chain: 43114,
+        payloadsController: address(21351),
+        accessLevel: PayloadsControllerUtils.AccessControl.Level_1
+      });
+    (bytes memory message, bytes memory messageWithType) = _getMessages(
+      payload,
+      uint40(block.timestamp)
+    );
     hoax(CROSS_CHAIN_CONTROLLER);
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
-    payloadPortal.receiveCrossChainMessage(MESSAGE_ORIGINATOR, 43114, message);
+    vm.expectEmit(true, true, false, true);
+    emit IncorrectTypeMessageReceived(
+      MESSAGE_ORIGINATOR,
+      payload.chain,
+      message,
+      abi.encode(
+        'unsupported message type for origin: ',
+        BridgingHelper.MessageType.Payload_Execution,
+        MESSAGE_ORIGINATOR,
+        payload.chain
+      )
+    );
+    payloadPortal.receiveCrossChainMessage(
+      MESSAGE_ORIGINATOR,
+      payload.chain,
+      messageWithType
+    );
   }
 
   function testReceiveCrossChainMessageWhenIncorrectCaller() public {
     bytes memory message = abi.encode();
-    vm.expectRevert(bytes(Errors.WRONG_MESSAGE_ORIGIN));
+    vm.expectRevert(bytes(Errors.SENDER_IS_NOT_CROSS_CHAIN_CONTROLLER));
     payloadPortal.receiveCrossChainMessage(
       MESSAGE_ORIGINATOR,
       ORIGIN_CHAIN_ID,
       message
     );
+  }
+
+  function _getMessages(
+    PayloadsControllerUtils.Payload memory payload,
+    uint40 timestamp
+  ) internal returns (bytes memory, bytes memory) {
+    bytes memory message = abi.encode(
+      payload.payloadId,
+      payload.accessLevel,
+      timestamp
+    );
+    bytes memory messageWithType = BridgingHelper.encodePayloadExecutionMessage(
+      payload,
+      timestamp
+    );
+    return (message, messageWithType);
   }
 
   function _createPayload() internal returns (uint40) {

@@ -5,6 +5,7 @@ import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/inter
 import {GovernanceCore, PayloadsControllerUtils} from './GovernanceCore.sol';
 import {IGovernance, IGovernancePowerStrategy, IGovernanceCore} from '../interfaces/IGovernance.sol';
 import {Errors} from './libraries/Errors.sol';
+import {BridgingHelper} from './libraries/BridgingHelper.sol';
 
 /**
  * @title Governance
@@ -31,7 +32,7 @@ contract Governance is GovernanceCore, IGovernance {
   ) GovernanceCore(coolDownPeriod, cancellationFeeCollector) {
     require(
       crossChainController != address(0),
-      Errors.G_INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS
+      Errors.INVALID_CROSS_CHAIN_CONTROLLER_ADDRESS
     );
     CROSS_CHAIN_CONTROLLER = crossChainController;
   }
@@ -106,15 +107,16 @@ contract Governance is GovernanceCore, IGovernance {
     PayloadsControllerUtils.Payload memory payload,
     uint40 proposalVoteActivationTimestamp
   ) internal override {
+    bytes memory messageWithType = BridgingHelper.encodePayloadExecutionMessage(
+      payload,
+      proposalVoteActivationTimestamp
+    );
+
     ICrossChainForwarder(CROSS_CHAIN_CONTROLLER).forwardMessage(
       payload.chain,
       payload.payloadsController,
       _gasLimit,
-      abi.encode(
-        payload.payloadId,
-        payload.accessLevel,
-        proposalVoteActivationTimestamp
-      )
+      messageWithType
     );
   }
 

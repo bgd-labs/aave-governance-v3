@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.8;
 
-import {ICrossChainController} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainController.sol';
 import {IGovernanceCore} from '../interfaces/IGovernanceCore.sol';
-import {IVotingPortal, IBaseReceiverPortal} from '../interfaces/IVotingPortal.sol';
+import {IVotingPortal} from '../interfaces/IVotingPortal.sol';
 import {Errors} from './libraries/Errors.sol';
 import {IVotingMachineWithProofs} from './voting/interfaces/IVotingMachineWithProofs.sol';
 import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
+import {BridgingHelper, CrossChainControllerAdapter} from './CrossChainControllerAdapter.sol';
 
 /**
  * @title VotingPortal
@@ -14,10 +14,7 @@ import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
  * @notice Contract with the knowledge on how to initialize a proposal voting and get the votes results,
            from a vote that happened on a different or same chain.
  */
-contract VotingPortal is Ownable, IVotingPortal {
-  /// @inheritdoc IVotingPortal
-  address public immutable CROSS_CHAIN_CONTROLLER;
-
+contract VotingPortal is Ownable, CrossChainControllerAdapter, IVotingPortal {
   /// @inheritdoc IVotingPortal
   address public immutable GOVERNANCE;
 
@@ -46,19 +43,15 @@ contract VotingPortal is Ownable, IVotingPortal {
     uint256 votingMachineChainId,
     uint128 startVotingGasLimit,
     address owner
-  ) {
+  ) CrossChainControllerAdapter(crossChainController) {
     require(owner != address(0), Errors.INVALID_VOTING_PORTAL_OWNER);
-    require(
-      crossChainController != address(0),
-      Errors.INVALID_VOTING_PORTAL_CROSS_CHAIN_CONTROLLER
-    );
+
     require(governance != address(0), Errors.INVALID_VOTING_PORTAL_GOVERNANCE);
     require(
       votingMachine != address(0),
       Errors.INVALID_VOTING_PORTAL_VOTING_MACHINE
     );
     require(votingMachineChainId > 0, Errors.INVALID_VOTING_MACHINE_CHAIN_ID);
-    CROSS_CHAIN_CONTROLLER = crossChainController;
     GOVERNANCE = governance;
     VOTING_MACHINE = votingMachine;
     VOTING_MACHINE_CHAIN_ID = votingMachineChainId;
@@ -68,70 +61,30 @@ contract VotingPortal is Ownable, IVotingPortal {
     _transferOwnership(owner);
   }
 
-  /// @inheritdoc IBaseReceiverPortal
-  /// @dev pushes the voting result and queues the proposal identified by proposalId
-  function receiveCrossChainMessage(
-    address originSender,
-    uint256 originChainId,
-    bytes memory message
-  ) external {
-    require(
-      msg.sender == CROSS_CHAIN_CONTROLLER &&
-        originSender == VOTING_MACHINE &&
-        originChainId == VOTING_MACHINE_CHAIN_ID,
-      Errors.WRONG_MESSAGE_ORIGIN
-    );
-
-    try this.decodeMessage(message) returns (
-      uint256 proposalId,
-      uint128 forVotes,
-      uint128 againstVotes
-    ) {
-      IGovernanceCore(GOVERNANCE).queueProposal(
-        proposalId,
-        forVotes,
-        againstVotes
-      );
-
-      bytes memory empty;
-      emit VoteMessageReceived(
-        originSender,
-        originChainId,
-        true,
-        message,
-        empty
-      );
-    } catch (bytes memory decodingError) {
-      emit VoteMessageReceived(
-        originSender,
-        originChainId,
-        false,
-        message,
-        decodingError
-      );
-    }
-  }
-
   /// @inheritdoc IVotingPortal
   function forwardStartVotingMessage(
     uint256 proposalId,
     bytes32 blockHash,
     uint24 votingDuration
   ) external {
-    bytes memory message = abi.encode(proposalId, blockHash, votingDuration);
-    _sendMessage(
-      msg.sender,
-      MessageType.Proposal,
-      getStartVotingGasLimit(),
-      message
+    require(msg.sender == GOVERNANCE, Errors.CALLER_NOT_GOVERNANCE);
+
+    bytes memory messageWithType = BridgingHelper
+      .encodeStartProposalVoteMessage(proposalId, blockHash, votingDuration);
+
+    _forwardMessageToCrossChainController(
+      VOTING_MACHINE_CHAIN_ID,
+      VOTING_MACHINE,
+      _startVotingGasLimit,
+      messageWithType
     );
   }
 
   /// @inheritdoc IVotingPortal
-  function decodeMessage(
+  function decodeVoteResultMessage(
     bytes memory message
   ) external pure returns (uint256, uint128, uint128) {
-    return abi.decode(message, (uint256, uint128, uint128));
+    return BridgingHelper.decodeVoteResultMessage(message);
   }
 
   /// @inheritdoc IVotingPortal
@@ -144,23 +97,6 @@ contract VotingPortal is Ownable, IVotingPortal {
     return _startVotingGasLimit;
   }
 
-  function _sendMessage(
-    address caller,
-    MessageType messageType,
-    uint256 gasLimit,
-    bytes memory message
-  ) internal {
-    require(caller == GOVERNANCE, Errors.CALLER_NOT_GOVERNANCE);
-    bytes memory messageWithType = abi.encode(messageType, message);
-
-    ICrossChainController(CROSS_CHAIN_CONTROLLER).forwardMessage(
-      VOTING_MACHINE_CHAIN_ID,
-      VOTING_MACHINE,
-      gasLimit,
-      messageWithType
-    );
-  }
-
   /**
    * @notice method to update the _startVotingGasLimit
    * @param gasLimit the new gas limit
@@ -168,5 +104,62 @@ contract VotingPortal is Ownable, IVotingPortal {
   function _updateStartVotingGasLimit(uint128 gasLimit) internal {
     _startVotingGasLimit = gasLimit;
     emit StartVotingGasLimitUpdated(gasLimit);
+  }
+
+  /// @dev pushes the voting result and queues the proposal identified by proposalId
+  function _parseReceivedMessage(
+    address originSender,
+    uint256 originChainId,
+    BridgingHelper.MessageType messageType,
+    bytes memory message
+  ) internal override {
+    bytes memory empty;
+    if (
+      messageType == BridgingHelper.MessageType.Vote_Results &&
+      originSender == VOTING_MACHINE &&
+      originChainId == VOTING_MACHINE_CHAIN_ID
+    ) {
+      try this.decodeVoteResultMessage(message) returns (
+        uint256 proposalId,
+        uint128 forVotes,
+        uint128 againstVotes
+      ) {
+        IGovernanceCore(GOVERNANCE).queueProposal(
+          proposalId,
+          forVotes,
+          againstVotes
+        );
+
+        emit MessageReceived(
+          originSender,
+          originChainId,
+          true,
+          messageType,
+          message,
+          empty
+        );
+      } catch (bytes memory decodingError) {
+        emit MessageReceived(
+          originSender,
+          originChainId,
+          false,
+          messageType,
+          message,
+          decodingError
+        );
+      }
+    } else {
+      emit IncorrectTypeMessageReceived(
+        originSender,
+        originChainId,
+        message,
+        abi.encode(
+          'unsupported message type for origin: ',
+          BridgingHelper.MessageType.Payload_Execution,
+          originSender,
+          originChainId
+        )
+      );
+    }
   }
 }

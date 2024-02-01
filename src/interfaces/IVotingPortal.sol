@@ -1,46 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IBaseReceiverPortal} from 'aave-delivery-infrastructure/contracts/interfaces/IBaseReceiverPortal.sol';
 import {IVotingMachineWithProofs} from '../contracts/voting/interfaces/IVotingMachineWithProofs.sol';
+import {ICrossChainControllerAdapter} from './ICrossChainControllerAdapter.sol';
 
 /**
  * @title IVotingPortal
  * @author BGD Labs
  * @notice interface containing the objects, events and methods definitions of the VotingPortal contract
  */
-interface IVotingPortal is IBaseReceiverPortal {
-  /**
-   * @notice enum containing the different type of messages that can be bridged
-   * @param Null empty state
-   * @param Proposal indicates that the message is to bridge a proposal configuration
-   */
-  enum MessageType {
-    Null,
-    Proposal
-  }
-
+interface IVotingPortal is ICrossChainControllerAdapter {
   /**
    * @notice emitted when "Start voting" gas limit gets updated
    * @param gasLimit the new gas limit
    */
   event StartVotingGasLimitUpdated(uint128 gasLimit);
-
-  /**
-   * @notice emitted when a vote message is received
-   * @param originSender address that sent the message on the origin chain
-   * @param originChainId id of the chain where the message originated
-   * @param delivered flag indicating if message has been delivered
-   * @param message bytes containing the necessary information to queue the bridged proposal id
-   * @param reason bytes with the revert information
-   */
-  event VoteMessageReceived(
-    address indexed originSender,
-    uint256 indexed originChainId,
-    bool indexed delivered,
-    bytes message,
-    bytes reason
-  );
 
   /**
    * @notice get the chain id where the voting machine which is deployed
@@ -59,12 +33,6 @@ interface IVotingPortal is IBaseReceiverPortal {
    * @return governance address
    */
   function GOVERNANCE() external view returns (address);
-
-  /**
-   * @notice gets the address of the CrossChainController deployed on current network
-   * @return CrossChainController address
-   */
-  function CROSS_CHAIN_CONTROLLER() external view returns (address);
 
   /**
    * @notice method to set the gas limit for "Start voting" bridging tx
@@ -95,7 +63,7 @@ interface IVotingPortal is IBaseReceiverPortal {
    * @param message encoded message with message type
    * @return proposalId, forVotes, againstVotes from the decoded message
    */
-  function decodeMessage(
+  function decodeVoteResultMessage(
     bytes memory message
   ) external pure returns (uint256, uint128, uint128);
 }
