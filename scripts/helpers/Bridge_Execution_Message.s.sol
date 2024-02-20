@@ -42,7 +42,7 @@ contract Ethereum is BaseBridgeExecutionMessage {
   }
 
   function DESTINATION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.SCROLL;
+    return ChainIds.CELO;
   }
 
   function getDestinationPayloadId() public pure override returns (uint40) {

@@ -251,6 +251,20 @@ contract Scroll is BaseDeployPayloadsController {
   }
 }
 
+contract Celo is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.CELO;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+
+  function isPreProd() public pure override returns (bool) {
+    return true;
+  }
+}
+
 contract Ethereum_testnet is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;

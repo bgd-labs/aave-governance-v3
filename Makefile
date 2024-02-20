@@ -14,6 +14,7 @@ custom_polygon-testnet :=  --with-gas-price 20000000000 # 5 gwei
 custom_avalanche := --with-gas-price 27000000000 # 27 gwei
 custom_metis-testnet := --legacy --verifier-url https://goerli.explorer.metisdevops.link/api/
 custom_metis := --verifier-url https://andromeda-explorer.metis.io/api/
+custom_celo := --with-gas-price 7000000000 # 53 gwei
 
 
 # params:
@@ -99,7 +100,7 @@ write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedA
 
 
 deploy-initial-test:
-	$(call deploy_fn,InitialDeployments,scroll)
+	$(call deploy_fn,InitialDeployments,celo)
 
 # Deploy Governance contracts
 deploy-governance-test:
@@ -123,14 +124,14 @@ set-vm-as-ccf-sender-test:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon binance)
 
 deploy-executor-lvl1-test:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,scroll)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,celo)
 
 deploy-executor-lvl2-test:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain-test:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,scroll)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,celo)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals-test:
@@ -147,7 +148,7 @@ set-vp-as_ccf-senders-test:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts-test:
-	$(call deploy_fn,Deploy_ContractHelpers,scroll)
+	$(call deploy_fn,Deploy_ContractHelpers,celo)
 
 deploy-full-key-test:
 		make deploy-initial-test
@@ -217,10 +218,10 @@ update-voting-config:
 	$(call deploy_fn,helpers/GovernanceSetVotingConfig,ethereum)
 
 deploy-payload:
-	$(call deploy_fn,helpers/CreatePayload,scroll)
+	$(call deploy_fn,helpers/CreatePayload,celo)
 
 register-payload:
-	$(call deploy_fn,helpers/RegisterPayload,scroll)
+	$(call deploy_fn,helpers/RegisterPayload,celo)
 
 create-proposal:
 	$(call deploy_fn,helpers/CreateProposal,ethereum)

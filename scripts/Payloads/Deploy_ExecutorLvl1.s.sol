@@ -94,6 +94,12 @@ contract Scroll is BaseDeployExecutorLvl1 {
   }
 }
 
+contract Celo is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.CELO;
+  }
+}
+
 contract Ethereum_testnet is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
