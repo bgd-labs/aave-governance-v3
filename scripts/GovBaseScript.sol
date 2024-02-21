@@ -48,7 +48,7 @@ library GovDeployerHelpers {
     uint256 chainId
   ) internal pure returns (string memory) {
     if (chainId == ChainIds.ETHEREUM) {
-      return './deployments/gov/mainnet/pre_prod_eth.json';
+      return './deployments/gov/mainnet/eth.json';
     } else if (chainId == ChainIds.POLYGON) {
       return './deployments/gov/mainnet/pol.json';
     } else if (chainId == ChainIds.AVALANCHE) {
@@ -68,7 +68,7 @@ library GovDeployerHelpers {
     } else if (chainId == ChainIds.SCROLL) {
       return './deployments/gov/mainnet/scroll.json';
     } else if (chainId == ChainIds.CELO) {
-      return './deployments/gov/mainnet/pre_prod_celo.json';
+      return './deployments/gov/mainnet/celo.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
