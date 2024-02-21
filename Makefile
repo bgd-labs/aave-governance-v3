@@ -8,7 +8,7 @@ test :; forge test -vvvv
 BASE_LEDGER = --legacy --ledger --mnemonic-indexes $(MNEMONIC_INDEX) --sender $(LEDGER_SENDER)
 BASE_KEY = --private-key ${PRIVATE_KEY}
 
-custom_ethereum := --with-gas-price 17000000000 # 25 gwei
+custom_ethereum := --with-gas-price 35000000000 # 25 gwei
 custom_polygon :=  --with-gas-price 170000000000 # 170 gwei
 custom_polygon-testnet :=  --with-gas-price 20000000000 # 5 gwei
 custom_avalanche := --with-gas-price 27000000000 # 27 gwei

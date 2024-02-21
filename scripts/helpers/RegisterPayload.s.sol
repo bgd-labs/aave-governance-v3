@@ -47,6 +47,33 @@ contract Scroll is BaseRegisterPayload {
   }
 }
 
+contract Celo is BaseRegisterPayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.CELO;
+  }
+
+  function getPayloadActions()
+    public
+    pure
+    override
+    returns (IPayloadsControllerCore.ExecutionAction[] memory)
+  {
+    IPayloadsControllerCore.ExecutionAction[]
+      memory actions = new IPayloadsControllerCore.ExecutionAction[](1);
+
+    actions[0] = IPayloadsControllerCore.ExecutionAction({
+      target: 0x118DFD5418890c0332042ab05173Db4A2C1d283c,
+      withDelegateCall: true,
+      accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
+      value: 0,
+      signature: 'execute()',
+      callData: ''
+    });
+
+    return actions;
+  }
+}
+
 contract Polygon_testnet is BaseRegisterPayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.POLYGON_MUMBAI;
