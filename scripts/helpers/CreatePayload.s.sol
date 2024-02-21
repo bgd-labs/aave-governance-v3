@@ -71,6 +71,12 @@ contract Binance is BaseCreatePayload {
   }
 }
 
+contract Celo is BaseCreatePayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.CELO;
+  }
+}
+
 contract Ethereum_testnet is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;

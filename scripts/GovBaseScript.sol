@@ -67,6 +67,8 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/gnosis.json';
     } else if (chainId == ChainIds.SCROLL) {
       return './deployments/gov/mainnet/scroll.json';
+    } else if (chainId == ChainIds.CELO) {
+      return './deployments/gov/mainnet/celo.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
@@ -90,6 +92,8 @@ library GovDeployerHelpers {
       return './deployments/gov/testnet/gnosis_chiado.json';
     } else if (chainId == TestNetChainIds.SCROLL_SEPOLIA) {
       return './deployments/gov/testnet/scroll_sepolia.json';
+    } else if (chainId == TestNetChainIds.CELO_ALFAJORES) {
+      return './deployments/gov/testnet/celo_alfajores.json';
     } else {
       revert('chain id is not supported');
     }
