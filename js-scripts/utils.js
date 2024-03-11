@@ -35,7 +35,9 @@ export const getExtendedBlock = async (
   ]);
 };
 
-// IMPORTANT valid only for post-London blocks, as it includes `baseFeePerGas`
+// IMPORTANT valid only for post-Dancun blocks:
+// https://eips.ethereum.org/EIPS/eip-4844#header-extension
+// https://eips.ethereum.org/EIPS/eip-4788#block-structure-and-validity
 export function prepareBLockRLP(rawBlock) {
   const rawData = [
     rawBlock.parentHash,
@@ -57,6 +59,9 @@ export function prepareBLockRLP(rawBlock) {
     rawBlock.nonce,
     BigNumber.from(rawBlock.baseFeePerGas).toHexString(),
     rawBlock.withdrawalsRoot,
+    BigNumber.from(rawBlock.blobGasUsed).toHexString(),
+    BigNumber.from(rawBlock.excessBlobGas).toHexString(),
+    rawBlock.parentBeaconBlockRoot,
   ];
   return ethers.utils.RLP.encode(rawData);
 }
