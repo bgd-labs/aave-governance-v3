@@ -8,7 +8,7 @@ import {Errors} from '../../src/contracts/libraries/Errors.sol';
 import {BaseProofTest, VotingStrategyTest as VSTest} from '../utils/BaseProofTest.sol';
 
 contract VotingStrategyTest is BaseProofTest {
-  address constant DATA_WAREHOUSE = address(123);
+  address constant DATA_WAREHOUSE = address(65536+123);
 
   function setUp() public {
     votingStrategy = new VSTest(DATA_WAREHOUSE);
