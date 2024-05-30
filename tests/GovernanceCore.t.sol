@@ -2051,6 +2051,11 @@ contract GovernanceCoreTest is Test {
     );
     skip(config.coolDownBeforeVotingStart + 1);
     vm.mockCall(
+      VOTING_PORTAL,
+      abi.encodeWithSelector(IVotingPortal.forwardStartVotingMessage.selector),
+      abi.encode()
+    );
+    vm.mockCall(
       VOTING_STRATEGY,
       abi.encodeWithSelector(
         IGovernancePowerStrategy.getFullPropositionPower.selector,
@@ -2121,6 +2126,16 @@ contract GovernanceCoreTest is Test {
         address(this)
       ),
       abi.encode(10000000 ether)
+    );
+    vm.mockCall(
+      VOTING_PORTAL,
+      abi.encodeWithSelector(
+        IVotingPortal.forwardStartVotingMessage.selector,
+        0,
+        0,
+        votingConfigLvl1.votingDuration
+      ),
+      abi.encode()
     );
     hoax(VOTING_PORTAL);
     governance.queueProposal(proposalId, forVotes, againstVotes);
