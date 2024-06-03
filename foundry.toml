@@ -14,6 +14,11 @@ ffi = true
 
 #https://github.com/foundry-rs/foundry/issues/4060
 
+[profile.zksync]
+src = 'src'
+libs = ['lib']
+fallback_oz = true
+mode = "3"
 
 [rpc_endpoints]
 ethereum="${RPC_MAINNET}"
@@ -38,6 +43,8 @@ zkevm="${RPC_ZKEVM}"
 zkevm-testnet="${RPC_ZKEVM_TESTNET}"
 scroll="${RPC_SCROLL}"
 scroll-testnet="${RPC_SCROLL_TESTNET}"
+zksync="${RPC_ZK_SYNC}"
+zksync-testnet="${RPC_ZK_SYNC_TESTNET}"
 
 [etherscan]
 ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
@@ -62,7 +69,12 @@ zkevm={key="${ETHERSCAN_API_KEY_ZKEVM}",chain=1101}
 zkevm-testnet={key="${ETHERSCAN_API_KEY_ZKEVM}",chain=1442}
 scroll={key="${ETHERSCAN_API_KEY_SCROLL}", chain=534352, utl='https://api.scrollscan.com/api/'}
 scroll-testnet={key="${ETHERSCAN_API_KEY_SCROLL}", chain=534351, url='https://api-sepolia.scrollscan.com/api/'}
-
+zksync={key="${ETHERSCAN_API_KEY_ZK_SYNC}", chain=324}
+zksync-testnet={key="${ETHERSCAN_API_KEY_ZK_SYNC}", chain=300, url='https://api-sepolia-era.zksync.network/api'}
 
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config
+[fuzz]
+no_zksync_reserved_addresses = true
+[invariant]
+no_zksync_reserved_addresses = true

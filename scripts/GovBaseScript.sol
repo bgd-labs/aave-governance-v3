@@ -96,7 +96,7 @@ library GovDeployerHelpers {
     } else if (chainId == TestNetChainIds.SCROLL_SEPOLIA) {
       return './deployments/gov/testnet/scroll_sepolia.json';
     } else if (chainId == TestNetChainIds.ZK_SYNC_SEPOLIA) {
-      return './deployments/gov/mainnet/zksync_sep.json';
+      return './deployments/gov/testnet/zksync_sep.json';
     } else {
       revert('chain id is not supported');
     }

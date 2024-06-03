@@ -14,7 +14,8 @@ custom_polygon-testnet :=  --with-gas-price 20000000000 # 5 gwei
 custom_avalanche := --with-gas-price 27000000000 # 27 gwei
 custom_metis-testnet := --legacy --verifier-url https://goerli.explorer.metisdevops.link/api/
 custom_metis := --verifier-url https://andromeda-explorer.metis.io/api/
-
+custom_zksync := --zksync
+custom_zksync-testnet := --legacy --zksync
 
 # params:
 #  1 - path/file_name
@@ -99,7 +100,7 @@ write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedA
 
 
 deploy-initial-test:
-	$(call deploy_fn,InitialDeployments,gnosis)
+	$(call deploy_fn,InitialDeployments,zksync)
 
 # Deploy Governance contracts
 deploy-governance-test:
@@ -123,7 +124,7 @@ set-vm-as-ccf-sender-test:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon binance)
 
 deploy-executor-lvl1-test:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,ethereum avalanche polygon binance)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,zksync)
 
 deploy-executor-lvl2-test:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
