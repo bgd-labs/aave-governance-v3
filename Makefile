@@ -131,7 +131,7 @@ deploy-executor-lvl2-test:
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain-test:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,gnosis)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,zksync)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals-test:

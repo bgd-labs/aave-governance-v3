@@ -437,3 +437,25 @@ contract Base_testnet is BaseDeployPayloadsController {
     return true;
   }
 }
+
+contract Zksync_testnet is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ZK_SYNC_SEPOLIA;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ETHEREUM_SEPOLIA;
+  }
+
+  function LVL1_DELAY() public pure override returns (uint40) {
+    return uint40(1 days);
+  }
+
+  function LVL2_DELAY() public pure override returns (uint40) {
+    return uint40(1 days);
+  }
+
+  function isTest() public pure override returns (bool) {
+    return true;
+  }
+}
