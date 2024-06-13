@@ -106,3 +106,9 @@ contract Binance_testnet is BaseCreatePayload {
     return TestNetChainIds.BNB_TESTNET;
   }
 }
+
+contract Zksync_testnet is BaseCreatePayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ZK_SYNC_SEPOLIA;
+  }
+}

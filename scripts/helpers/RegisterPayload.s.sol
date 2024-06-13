@@ -46,3 +46,30 @@ contract Polygon_testnet is BaseRegisterPayload {
     return actions;
   }
 }
+
+contract Zksync_testnet is BaseRegisterPayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ZK_SYNC_SEPOLIA;
+  }
+
+  function getPayloadActions()
+    public
+    pure
+    override
+    returns (IPayloadsControllerCore.ExecutionAction[] memory)
+  {
+    IPayloadsControllerCore.ExecutionAction[]
+      memory actions = new IPayloadsControllerCore.ExecutionAction[](1);
+
+    actions[0] = IPayloadsControllerCore.ExecutionAction({
+      target: 0xa8ecDdD3e8beB59efD45b9e152898c6a90baA3d0,
+      withDelegateCall: true,
+      accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
+      value: 0,
+      signature: 'execute()',
+      callData: ''
+    });
+
+    return actions;
+  }
+}

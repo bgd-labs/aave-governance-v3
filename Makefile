@@ -218,10 +218,10 @@ update-voting-config:
 	$(call deploy_fn,helpers/GovernanceSetVotingConfig,ethereum)
 
 deploy-payload:
-	$(call deploy_fn,helpers/CreatePayload,polygon)
+	$(call deploy_fn,helpers/CreatePayload,zksync)
 
 register-payload:
-	$(call deploy_fn,helpers/RegisterPayload,polygon)
+	$(call deploy_fn,helpers/RegisterPayload,zksync)
 
 create-proposal:
 	$(call deploy_fn,helpers/CreateProposal,ethereum)
