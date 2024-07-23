@@ -65,6 +65,12 @@ contract Binance is BaseCreatePayload {
   }
 }
 
+contract Zksync is BaseCreatePayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ZK_SYNC;
+  }
+}
+
 contract Ethereum_testnet is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;

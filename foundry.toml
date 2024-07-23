@@ -14,11 +14,12 @@ ffi = true
 
 #https://github.com/foundry-rs/foundry/issues/4060
 
-[profile.zksync]
+[profile.default.zksync]
 src = 'src'
 libs = ['lib']
 fallback_oz = true
 mode = "3"
+zksolc="1.4.1"
 
 [rpc_endpoints]
 ethereum="${RPC_MAINNET}"
