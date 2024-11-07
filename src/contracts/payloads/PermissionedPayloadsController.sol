@@ -12,6 +12,16 @@ contract PermissionedPayloadsController is
   WithPayloadsManager,
   IPermissionedPayloadsController
 {
+  function initialize(
+    address owner,
+    address guardian,
+    address initialPayloadsManager,
+    UpdateExecutorInput[] calldata executors
+  ) external {
+    initialize(owner, guardian, executors);
+    _updatePayloadsManager(initialPayloadsManager);
+  }
+
   function EXPIRATION_DELAY()
     public
     pure
@@ -67,16 +77,6 @@ contract PermissionedPayloadsController is
     returns (uint40)
   {
     return super.createPayload(actions);
-  }
-
-  function initialize(
-    address owner,
-    address guardian,
-    address initialPayloadsManager,
-    UpdateExecutorInput[] calldata executors
-  ) external {
-    initialize(owner, guardian, executors);
-    _updatePayloadsManager(initialPayloadsManager);
   }
 
   function queuePayload(

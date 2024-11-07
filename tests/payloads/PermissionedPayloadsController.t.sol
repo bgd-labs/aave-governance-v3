@@ -7,8 +7,8 @@ import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsCont
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
 import {Executor, IExecutor, Ownable} from '../../src/contracts/payloads/Executor.sol';
-import {PayloadTest} from "./utils/PayloadTest.sol";
-import {Test} from "forge-std/Test.sol";
+import {PayloadTest} from './utils/PayloadTest.sol';
+import {Test} from 'forge-std/Test.sol';
 
 contract PermissionedPayloadsControllerTest is Test {
   address constant ADMIN = address(123);
@@ -54,7 +54,9 @@ contract PermissionedPayloadsControllerTest is Test {
       )
     );
 
-    Ownable(address(executor)).transferOwnership(address(permissionedPayloadPortal));
+    Ownable(address(executor)).transferOwnership(
+      address(permissionedPayloadPortal)
+    );
   }
 
   function testGetPayloadsManager() external {
@@ -62,7 +64,7 @@ contract PermissionedPayloadsControllerTest is Test {
   }
 
   function testPayloadsCreationWithInvalidCaller() external {
-    vm.expectRevert("ONLY_BY_PAYLOAD_MANAGER");
+    vm.expectRevert('ONLY_BY_PAYLOAD_MANAGER');
     _createPayload();
   }
 
@@ -75,21 +77,30 @@ contract PermissionedPayloadsControllerTest is Test {
     hoax(PAYLOAD_MANAGER);
     uint40 payloadId = _createPayload();
 
-    vm.expectRevert("ONLY_BY_PAYLOAD_MANAGER");
-    permissionedPayloadPortal.queuePayload(payloadId, PayloadsControllerUtils.AccessControl.Level_1);
+    vm.expectRevert('ONLY_BY_PAYLOAD_MANAGER');
+    permissionedPayloadPortal.queuePayload(
+      payloadId,
+      PayloadsControllerUtils.AccessControl.Level_1
+    );
   }
 
   function testPayloadQueuing() external {
     vm.startPrank(PAYLOAD_MANAGER);
     uint40 payloadId = _createPayload();
 
-    permissionedPayloadPortal.queuePayload(payloadId, PayloadsControllerUtils.AccessControl.Level_1);
+    permissionedPayloadPortal.queuePayload(
+      payloadId,
+      PayloadsControllerUtils.AccessControl.Level_1
+    );
   }
 
   function testPayloadTimeLockNotExceeded() external {
     vm.startPrank(PAYLOAD_MANAGER);
     uint40 payloadId = _createPayload();
-    permissionedPayloadPortal.queuePayload(payloadId, PayloadsControllerUtils.AccessControl.Level_1);
+    permissionedPayloadPortal.queuePayload(
+      payloadId,
+      PayloadsControllerUtils.AccessControl.Level_1
+    );
 
     vm.expectRevert(bytes(Errors.TIMELOCK_NOT_FINISHED));
     permissionedPayloadPortal.executePayload(payloadId);
@@ -100,20 +111,23 @@ contract PermissionedPayloadsControllerTest is Test {
     PayloadTest helper = new PayloadTest();
     vm.startPrank(PAYLOAD_MANAGER);
     uint40 payloadId = _createPayload(address(helper));
-    permissionedPayloadPortal.queuePayload(payloadId, PayloadsControllerUtils.AccessControl.Level_1);
+    permissionedPayloadPortal.queuePayload(
+      payloadId,
+      PayloadsControllerUtils.AccessControl.Level_1
+    );
     vm.stopPrank();
 
     // solium-disable-next-line
     vm.warp(block.timestamp + 1 days + 1);
     vm.expectEmit(false, false, false, false);
-    emit SimpleExecute("simple");
+    emit SimpleExecute('simple');
     permissionedPayloadPortal.executePayload(payloadId);
   }
 
   function testPayloadCancellationWithInvalidCaller() external {
     vm.prank(PAYLOAD_MANAGER);
     uint40 payloadId = _createPayload();
-    vm.expectRevert("ONLY_BY_PAYLOAD_MANAGER_OR_GUARDIAN");
+    vm.expectRevert('ONLY_BY_PAYLOAD_MANAGER_OR_GUARDIAN');
     permissionedPayloadPortal.cancelPayload(payloadId);
   }
 
@@ -130,7 +144,6 @@ contract PermissionedPayloadsControllerTest is Test {
     vm.prank(PAYLOAD_MANAGER);
     permissionedPayloadPortal.cancelPayload(payloadId);
   }
-
 
   function _createPayload() internal returns (uint40) {
     return _createPayload(address(123));
