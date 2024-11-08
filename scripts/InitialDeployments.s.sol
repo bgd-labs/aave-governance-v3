@@ -22,9 +22,9 @@ abstract contract BaseInitialDeployment is GovBaseScript {
   function _execute(
     GovDeployerHelpers.Addresses memory addresses
   ) internal override {
-    addresses.create3Factory = CREATE3_FACTORY() == address(0)
-      ? address(new Create3Factory{salt: Constants.CREATE3_FACTORY_SALT}())
-      : CREATE3_FACTORY();
+    //    addresses.create3Factory = CREATE3_FACTORY() == address(0)
+    //      ? address(new Create3Factory{salt: Constants.CREATE3_FACTORY_SALT}())
+    //      : CREATE3_FACTORY();
     addresses.chainId = TRANSACTION_NETWORK();
     addresses.owner = OWNER();
     addresses.guardian = GUARDIAN();
@@ -141,6 +141,12 @@ contract Scroll is BaseInitialDeployment {
   }
 }
 
+contract Zksync is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ZK_SYNC;
+  }
+}
+
 contract Ethereum_testnet is BaseInitialDeployment {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
@@ -186,5 +192,11 @@ contract Binance_testnet is BaseInitialDeployment {
 contract Base_testnet is BaseInitialDeployment {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.BASE_GOERLI;
+  }
+}
+
+contract Zksync_testnet is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ZK_SYNC_SEPOLIA;
   }
 }

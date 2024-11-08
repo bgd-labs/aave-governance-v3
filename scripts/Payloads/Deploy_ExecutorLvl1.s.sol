@@ -94,6 +94,12 @@ contract Zkevm is BaseDeployExecutorLvl1 {
   }
 }
 
+contract Zksync is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ZK_SYNC;
+  }
+}
+
 contract Scroll is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.SCROLL;
@@ -139,5 +145,11 @@ contract Metis_testnet is BaseDeployExecutorLvl1 {
 contract Binance_testnet is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.BNB_TESTNET;
+  }
+}
+
+contract Zksync_testnet is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ZK_SYNC_SEPOLIA;
   }
 }
