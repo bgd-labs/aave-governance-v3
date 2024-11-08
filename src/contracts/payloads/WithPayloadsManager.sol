@@ -36,13 +36,13 @@ abstract contract WithPayloadsManager is OwnableWithGuardian, IWithPayloadsManag
   }
 
   function _checkPayloadsManager() internal view {
-    require(_msgSender() == payloadsManager(), 'ONLY_BY_PAYLOAD_MANAGER');
+    require(_msgSender() == payloadsManager(), 'ONLY_BY_PAYLOADS_MANAGER');
   }
 
   function _checkPayloadsManagerOrGuardian() internal view {
     require(
       _msgSender() == payloadsManager() || _msgSender() == guardian(),
-      'ONLY_BY_PAYLOAD_MANAGER_OR_GUARDIAN'
+      'ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN'
     );
   }
 }

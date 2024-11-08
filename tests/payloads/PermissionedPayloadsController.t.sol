@@ -13,7 +13,7 @@ import {Test} from 'forge-std/Test.sol';
 contract PermissionedPayloadsControllerTest is Test {
   address constant ADMIN = address(123);
   address constant GUARDIAN = address(1234);
-  address public constant PAYLOAD_MANAGER = address(184823);
+  address public constant PAYLOADS_MANAGER = address(184823);
 
   IPermissionedPayloadsController permissionedPayloadPortal;
 
@@ -48,7 +48,7 @@ contract PermissionedPayloadsControllerTest is Test {
           IPermissionedPayloadsController.initialize.selector,
           address(this),
           GUARDIAN,
-          PAYLOAD_MANAGER,
+          PAYLOADS_MANAGER,
           executors
         )
       )
@@ -60,24 +60,28 @@ contract PermissionedPayloadsControllerTest is Test {
   }
 
   function testGetPayloadsManager() external {
-    assertEq(permissionedPayloadPortal.payloadsManager(), PAYLOAD_MANAGER);
+    assertEq(permissionedPayloadPortal.payloadsManager(), PAYLOADS_MANAGER);
   }
 
-  function testPayloadsCreationWithInvalidCaller() external {
-    vm.expectRevert('ONLY_BY_PAYLOAD_MANAGER');
+  function testPayloadsCreationWithInvalidCaller(address user) external {
+    vm.assume(user != PAYLOADS_MANAGER);
+    vm.expectRevert('ONLY_BY_PAYLOADS_MANAGER');
+    vm.prank(user);
     _createPayload();
   }
 
   function testPayloadsCreation() external {
-    hoax(PAYLOAD_MANAGER);
+    hoax(PAYLOADS_MANAGER);
     _createPayload();
   }
 
-  function testPayloadQueuingWithInvalidCaller() external {
-    hoax(PAYLOAD_MANAGER);
+  function testPayloadQueuingWithInvalidCaller(address user) external {
+    vm.assume(user != PAYLOADS_MANAGER);
+    hoax(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
 
-    vm.expectRevert('ONLY_BY_PAYLOAD_MANAGER');
+    vm.expectRevert('ONLY_BY_PAYLOADS_MANAGER');
+    vm.prank(user);
     permissionedPayloadPortal.queuePayload(
       payloadId,
       PayloadsControllerUtils.AccessControl.Level_1
@@ -85,7 +89,7 @@ contract PermissionedPayloadsControllerTest is Test {
   }
 
   function testPayloadQueuing() external {
-    vm.startPrank(PAYLOAD_MANAGER);
+    vm.startPrank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
 
     permissionedPayloadPortal.queuePayload(
@@ -94,14 +98,16 @@ contract PermissionedPayloadsControllerTest is Test {
     );
   }
 
-  function testPayloadTimeLockNotExceeded() external {
-    vm.startPrank(PAYLOAD_MANAGER);
+  function testPayloadTimeLockNotExceeded(uint256 warpTime) external {
+    vm.startPrank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
     permissionedPayloadPortal.queuePayload(
       payloadId,
       PayloadsControllerUtils.AccessControl.Level_1
     );
 
+    uint256 invalidWarpTime = warpTime % 1 days;
+    vm.warp(invalidWarpTime);
     vm.expectRevert(bytes(Errors.TIMELOCK_NOT_FINISHED));
     permissionedPayloadPortal.executePayload(payloadId);
   }
@@ -109,7 +115,7 @@ contract PermissionedPayloadsControllerTest is Test {
   function testPayloadExecution() external {
     // create and queue payload
     PayloadTest helper = new PayloadTest();
-    vm.startPrank(PAYLOAD_MANAGER);
+    vm.startPrank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload(address(helper));
     permissionedPayloadPortal.queuePayload(
       payloadId,
@@ -124,24 +130,27 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal.executePayload(payloadId);
   }
 
-  function testPayloadCancellationWithInvalidCaller() external {
-    vm.prank(PAYLOAD_MANAGER);
+  function testPayloadCancellationWithInvalidCaller(address user) external {
+    vm.assume(user != PAYLOADS_MANAGER);
+    vm.assume(user != GUARDIAN);
+    vm.prank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
-    vm.expectRevert('ONLY_BY_PAYLOAD_MANAGER_OR_GUARDIAN');
+    vm.expectRevert('ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN');
+    vm.prank(user);
     permissionedPayloadPortal.cancelPayload(payloadId);
   }
 
   function testPayloadCancellationWithGuardian() external {
-    vm.prank(PAYLOAD_MANAGER);
+    vm.prank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
     vm.prank(GUARDIAN);
     permissionedPayloadPortal.cancelPayload(payloadId);
   }
 
   function testPayloadCancellationWithPayloadsManager() external {
-    vm.prank(PAYLOAD_MANAGER);
+    vm.prank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
-    vm.prank(PAYLOAD_MANAGER);
+    vm.prank(PAYLOADS_MANAGER);
     permissionedPayloadPortal.cancelPayload(payloadId);
   }
 

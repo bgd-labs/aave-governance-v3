@@ -162,23 +162,10 @@ abstract contract PayloadsControllerCore is
   }
 
   /// @inheritdoc IPayloadsControllerCore
-  function cancelPayload(uint40 payloadId) external virtual override onlyGuardian {
+  function cancelPayload(
+    uint40 payloadId
+  ) external virtual override onlyGuardian {
     _cancelPayload(payloadId);
-  }
-
-  function _cancelPayload(uint40 payloadId) internal {
-    Payload storage payload = _payloads[payloadId];
-
-    PayloadState payloadState = _getPayloadState(payload);
-    require(
-      payloadState < PayloadState.Executed &&
-        payloadState >= PayloadState.Created,
-      Errors.PAYLOAD_NOT_IN_THE_CORRECT_STATE
-    );
-    payload.state = PayloadState.Cancelled;
-    payload.cancelledAt = uint40(block.timestamp);
-
-    emit PayloadCancelled(payloadId);
   }
 
   /// @inheritdoc IPayloadsControllerCore
@@ -227,6 +214,25 @@ abstract contract PayloadsControllerCore is
   }
 
   receive() external payable {}
+
+  /**
+   * @notice method to cancel a payload
+   * @param payloadId id of the payload that needs to be canceled
+   */
+  function _cancelPayload(uint40 payloadId) internal {
+    Payload storage payload = _payloads[payloadId];
+
+    PayloadState payloadState = _getPayloadState(payload);
+    require(
+      payloadState < PayloadState.Executed &&
+        payloadState >= PayloadState.Created,
+      Errors.PAYLOAD_NOT_IN_THE_CORRECT_STATE
+    );
+    payload.state = PayloadState.Cancelled;
+    payload.cancelledAt = uint40(block.timestamp);
+
+    emit PayloadCancelled(payloadId);
+  }
 
   /**
    * @notice method to get the current state of a payload
