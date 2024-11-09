@@ -65,6 +65,7 @@ contract PermissionedPayloadsControllerTest is Test {
 
   function testPayloadsCreationWithInvalidCaller(address user) external {
     vm.assume(user != PAYLOADS_MANAGER);
+    vm.assume(user != ADMIN);
     vm.expectRevert('ONLY_BY_PAYLOADS_MANAGER');
     vm.prank(user);
     _createPayload();
@@ -77,6 +78,7 @@ contract PermissionedPayloadsControllerTest is Test {
 
   function testPayloadQueuingWithInvalidCaller(address user) external {
     vm.assume(user != PAYLOADS_MANAGER);
+    vm.assume(user != ADMIN);
     hoax(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
 
@@ -133,6 +135,7 @@ contract PermissionedPayloadsControllerTest is Test {
   function testPayloadCancellationWithInvalidCaller(address user) external {
     vm.assume(user != PAYLOADS_MANAGER);
     vm.assume(user != GUARDIAN);
+    vm.assume(user != ADMIN);
     vm.prank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
     vm.expectRevert('ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN');
