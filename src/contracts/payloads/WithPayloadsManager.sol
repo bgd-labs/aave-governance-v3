@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {IWithPayloadsManager} from './interfaces/IWithPayloadsManager.sol';
 import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
-
+import {Errors} from '../libraries/Errors.sol';
 
 /**
  * @title WithPayloadsManager
@@ -22,38 +22,32 @@ contract WithPayloadsManager is OwnableWithGuardian, IWithPayloadsManager {
   }
 
   modifier onlyPayloadsManager() {
-    _checkPayloadsManager();
+    require(_msgSender() == payloadsManager(), Errors.ONLY_BY_PAYLOADS_MANAGER);
     _;
   }
 
   modifier onlyPayloadsManagerOrGuardian() {
-    _checkPayloadsManagerOrGuardian();
+    require(
+      _msgSender() == payloadsManager() || _msgSender() == guardian(),
+      Errors.ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN
+    );
     _;
   }
 
   /// @inheritdoc IWithPayloadsManager
-  function payloadsManager() public view override returns (address) {
+  function payloadsManager() public view returns (address) {
     return _payloadsManager;
   }
 
   /// @inheritdoc IWithPayloadsManager
-  function updatePayloadsManager(address newPayloadsManager) external override onlyOwnerOrGuardian {
+  function updatePayloadsManager(
+    address newPayloadsManager
+  ) external onlyOwnerOrGuardian {
     _updatePayloadsManager(newPayloadsManager);
   }
 
   function _updatePayloadsManager(address newPayloadsManager) internal {
     _payloadsManager = newPayloadsManager;
     emit PayloadsManagerUpdated(newPayloadsManager);
-  }
-
-  function _checkPayloadsManager() internal view {
-    require(_msgSender() == payloadsManager(), 'ONLY_BY_PAYLOADS_MANAGER');
-  }
-
-  function _checkPayloadsManagerOrGuardian() internal view {
-    require(
-      _msgSender() == payloadsManager() || _msgSender() == guardian(),
-      'ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN'
-    );
   }
 }

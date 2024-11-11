@@ -106,4 +106,6 @@ library Errors {
   string public constant CALLER_IS_NOT_VOTER_REPRESENTATIVE = '96'; // to represent a voter, caller must be the stored representative
   string public constant VM_INVALID_GOVERNANCE_ADDRESS = '97'; // governance address can not be 0
   string public constant ALL_DELEGATION_ACTIONS_FAILED = '98'; // all meta delegation actions failed on MetaDelegateHelper
+  string public constant ONLY_BY_PAYLOADS_MANAGER = '99'; // only payloads manager can call this function
+  string public constant ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN = '100'; // only payloads manager or guardian can call this function
 }
