@@ -151,6 +151,12 @@ If any change in logic is needed, the Executor/s should be migrated to a new one
 
 <br>
 
+- [PermissionedPayloadsController](../src/contracts/payloads/PermissionedPayloadsController.sol): permissioned version of payloads controller.
+  
+  Only payloads manager can create payloads. Payloads creation and queuing is atomic operation for this contract, once payload is created it's automatically queued. This contract needed to let trusted entities submit protocol changes without governance cycle, but with timelock. Timelock leaves a gap to react in case invalid or malicious payload was submitted. 
+
+<br>
+
 ## Proposal lifecycle
 
 
