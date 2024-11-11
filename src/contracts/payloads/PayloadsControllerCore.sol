@@ -80,7 +80,7 @@ abstract contract PayloadsControllerCore is
   /// @inheritdoc IPayloadsControllerCore
   function createPayload(
     ExecutionAction[] calldata actions
-  ) public virtual override returns (uint40) {
+  ) public virtual returns (uint40) {
     require(actions.length != 0, Errors.INVALID_EMPTY_TARGETS);
 
     uint40 payloadId = _payloadsCount++;
@@ -164,7 +164,7 @@ abstract contract PayloadsControllerCore is
   /// @inheritdoc IPayloadsControllerCore
   function cancelPayload(
     uint40 payloadId
-  ) external virtual override onlyGuardian {
+  ) external virtual onlyGuardian {
     _cancelPayload(payloadId);
   }
 

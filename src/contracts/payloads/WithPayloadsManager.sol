@@ -4,7 +4,16 @@ pragma solidity ^0.8.0;
 import {IWithPayloadsManager} from './interfaces/IWithPayloadsManager.sol';
 import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
 
-abstract contract WithPayloadsManager is OwnableWithGuardian, IWithPayloadsManager {
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there are accounts(owner, guardian and payloads manager) which can be granted
+ * exclusive access to specific functions.
+ *
+ * By default, all the roles will be assigned to the one that deploys the contract. This
+ * can later be changed with appropriate functions.
+ */
+contract WithPayloadsManager is OwnableWithGuardian, IWithPayloadsManager {
   address private _payloadsManager;
 
   constructor() {
@@ -21,18 +30,19 @@ abstract contract WithPayloadsManager is OwnableWithGuardian, IWithPayloadsManag
     _;
   }
 
+  /// @inheritdoc IWithPayloadsManager
   function payloadsManager() public view override returns (address) {
     return _payloadsManager;
   }
 
+  /// @inheritdoc IWithPayloadsManager
   function updatePayloadsManager(address newPayloadsManager) external override onlyOwnerOrGuardian {
     _updatePayloadsManager(newPayloadsManager);
   }
 
   function _updatePayloadsManager(address newPayloadsManager) internal {
-    address oldPayloadsManager = _payloadsManager;
     _payloadsManager = newPayloadsManager;
-    emit PayloadsManagerUpdated(oldPayloadsManager, newPayloadsManager);
+    emit PayloadsManagerUpdated(newPayloadsManager);
   }
 
   function _checkPayloadsManager() internal view {

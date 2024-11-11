@@ -7,6 +7,15 @@ import {PayloadsControllerUtils} from './PayloadsControllerUtils.sol';
 import {WithPayloadsManager} from './WithPayloadsManager.sol';
 import {IPermissionedPayloadsController} from './interfaces/IPermissionedPayloadsController.sol';
 
+/**
+ * @title PermissionedPayloadsController
+ * @author BGD Labs
+ * @notice this contract contains the logic to execute payloads
+ * without governance cycle but leaving the gap to review and cancel payloads.
+ * @dev this contract is permissioned, only the payloads manager can create
+ * and queue payloads. Also, not only guardian but also the payloads manager can cancel payloads.
+ * @dev constants were adjusted as the governance cycle is no longer needed.
+ */
 contract PermissionedPayloadsController is
   PayloadsControllerCore,
   WithPayloadsManager,
