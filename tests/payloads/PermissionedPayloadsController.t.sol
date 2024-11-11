@@ -11,29 +11,31 @@ import {PayloadTest} from './utils/PayloadTest.sol';
 import {Test} from 'forge-std/Test.sol';
 
 contract PermissionedPayloadsControllerTest is Test {
-  address constant ADMIN = address(123);
-  address constant GUARDIAN = address(1234);
-  address public constant PAYLOADS_MANAGER = address(184823);
-
   IPermissionedPayloadsController permissionedPayloadPortal;
 
   IExecutor internal executor;
-  IPayloadsControllerCore.UpdateExecutorInput executorInput =
-    IPayloadsControllerCore.UpdateExecutorInput({
-      accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
-      executorConfig: IPayloadsControllerCore.ExecutorConfig({
-        delay: 1 days,
-        executor: address(0)
-      })
-    });
 
-  event SimpleExecute(string);
+  modifier initializeTest(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) {
+    vm.startPrank(origin);
 
-  function setUp() external {
     executor = new Executor();
     TransparentProxyFactory proxyFactory = new TransparentProxyFactory();
 
     permissionedPayloadPortal = new PermissionedPayloadsController();
+
+    IPayloadsControllerCore.UpdateExecutorInput memory executorInput = IPayloadsControllerCore
+        .UpdateExecutorInput({
+          accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
+          executorConfig: IPayloadsControllerCore.ExecutorConfig({
+            delay: 1 days,
+            executor: address(0)
+          })
+        });
 
     executorInput.executorConfig.executor = address(executor);
     IPayloadsControllerCore.UpdateExecutorInput[]
@@ -43,12 +45,12 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal = IPermissionedPayloadsController(
       proxyFactory.create(
         address(permissionedPayloadPortal),
-        ADMIN,
+        admin,
         abi.encodeWithSelector(
           IPermissionedPayloadsController.initialize.selector,
           address(this),
-          GUARDIAN,
-          PAYLOADS_MANAGER,
+          guardian,
+          payloadsManager,
           executors
         )
       )
@@ -57,28 +59,51 @@ contract PermissionedPayloadsControllerTest is Test {
     Ownable(address(executor)).transferOwnership(
       address(permissionedPayloadPortal)
     );
+    _;
+    vm.stopPrank();
   }
 
-  function testGetPayloadsManager() external {
-    assertEq(permissionedPayloadPortal.payloadsManager(), PAYLOADS_MANAGER);
+  event SimpleExecute(string);
+
+  function testGetPayloadsManager(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    assertEq(permissionedPayloadPortal.payloadsManager(), payloadsManager);
   }
 
-  function testPayloadsCreationWithInvalidCaller(address user) external {
-    vm.assume(user != PAYLOADS_MANAGER);
-    vm.assume(user != ADMIN);
-    vm.expectRevert('ONLY_BY_PAYLOADS_MANAGER');
-    vm.prank(user);
-    _createPayload();
+  function testPayloadsCreationWithInvalidCaller(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin,
+    address user
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    vm.assume(user != payloadsManager);
+    vm.assume(user != admin);
+    vm.expectRevert(bytes(Errors.ONLY_BY_PAYLOADS_MANAGER));
+    _createPayload(user);
   }
 
-  function testPayloadsCreation() external {
-    hoax(PAYLOADS_MANAGER);
-    _createPayload();
+  function testPayloadsCreation(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    _createPayload(payloadsManager);
   }
 
-  function testPayloadTimeLockNotExceeded(uint256 warpTime) external {
-    vm.prank(PAYLOADS_MANAGER);
-    uint40 payloadId = _createPayload();
+  function testPayloadTimeLockNotExceeded(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin,
+    uint256 warpTime
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    uint40 payloadId = _createPayload(payloadsManager);
 
     uint256 invalidWarpTime = warpTime % 1 days;
     vm.warp(invalidWarpTime);
@@ -86,11 +111,15 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal.executePayload(payloadId);
   }
 
-  function testPayloadExecution() external {
+  function testPayloadExecution(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
     // create and queue payload
     PayloadTest helper = new PayloadTest();
-    vm.prank(PAYLOADS_MANAGER);
-    uint40 payloadId = _createPayload(address(helper));
+    uint40 payloadId = _createPayload(payloadsManager, address(helper));
 
     // solium-disable-next-line
     vm.warp(block.timestamp + 1 days + 1);
@@ -99,36 +128,50 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal.executePayload(payloadId);
   }
 
-  function testPayloadCancellationWithInvalidCaller(address user) external {
-    vm.assume(user != PAYLOADS_MANAGER);
-    vm.assume(user != GUARDIAN);
-    vm.assume(user != ADMIN);
-    vm.prank(PAYLOADS_MANAGER);
-    uint40 payloadId = _createPayload();
-    vm.expectRevert('ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN');
-    vm.prank(user);
+  function testPayloadCancellationWithInvalidCaller(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin,
+    address user
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    vm.assume(user != payloadsManager);
+    vm.assume(user != guardian);
+    vm.assume(user != admin);
+    uint40 payloadId = _createPayload(payloadsManager);
+    vm.expectRevert(bytes(Errors.ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN));
     permissionedPayloadPortal.cancelPayload(payloadId);
   }
 
-  function testPayloadCancellationWithGuardian() external {
-    vm.prank(PAYLOADS_MANAGER);
-    uint40 payloadId = _createPayload();
-    vm.prank(GUARDIAN);
+  function testPayloadCancellationWithGuardian(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    uint40 payloadId = _createPayload(payloadsManager);
+    vm.startPrank(guardian);
     permissionedPayloadPortal.cancelPayload(payloadId);
+    vm.stopPrank();
   }
 
-  function testPayloadCancellationWithPayloadsManager() external {
-    vm.prank(PAYLOADS_MANAGER);
-    uint40 payloadId = _createPayload();
-    vm.prank(PAYLOADS_MANAGER);
+  function testPayloadCancellationWithPayloadsManager(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    uint40 payloadId = _createPayload(payloadsManager);
+    vm.startPrank(payloadsManager);
     permissionedPayloadPortal.cancelPayload(payloadId);
+    vm.stopPrank();
   }
 
-  function _createPayload() internal returns (uint40) {
-    return _createPayload(address(123));
+  function _createPayload(address caller) internal returns (uint40) {
+    return _createPayload(caller, address(123));
   }
 
-  function _createPayload(address target) internal returns (uint40) {
+  function _createPayload(address caller, address target) internal returns (uint40) {
     IPayloadsControllerCore.ExecutionAction[]
       memory actions = new IPayloadsControllerCore.ExecutionAction[](1);
     actions[0].target = target;
@@ -138,6 +181,9 @@ contract PermissionedPayloadsControllerTest is Test {
     actions[0].withDelegateCall = true;
     actions[0].accessLevel = PayloadsControllerUtils.AccessControl.Level_1;
 
-    return permissionedPayloadPortal.createPayload(actions);
+    vm.startPrank(caller);
+    uint40 payloadId = permissionedPayloadPortal.createPayload(actions);
+    vm.stopPrank();
+    return payloadId;
   }
 }
