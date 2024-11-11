@@ -83,15 +83,9 @@ contract PermissionedPayloadsController is
     public
     override(PayloadsControllerCore, IPayloadsControllerCore)
     onlyPayloadsManager
-    returns (uint40)
+    returns (uint40 payloadId)
   {
-    return super.createPayload(actions);
-  }
-
-  function queuePayload(
-    uint40 payloadId,
-    PayloadsControllerUtils.AccessControl accessLevel
-  ) external onlyPayloadsManager {
-    _queuePayload(payloadId, accessLevel, type(uint40).max);
+    payloadId = super.createPayload(actions);
+    _queuePayload(payloadId, PayloadsControllerUtils.AccessControl.Level_1, type(uint40).max);
   }
 }

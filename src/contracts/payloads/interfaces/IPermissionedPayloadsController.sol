@@ -24,6 +24,4 @@ interface IPermissionedPayloadsController is IPayloadsControllerCore, IWithPaylo
     address initialPayloadsManager,
     UpdateExecutorInput[] calldata executors
   ) external;
-
-  function queuePayload(uint40 payloadId, PayloadsControllerUtils.AccessControl accessLevel) external;
 }

@@ -76,37 +76,9 @@ contract PermissionedPayloadsControllerTest is Test {
     _createPayload();
   }
 
-  function testPayloadQueuingWithInvalidCaller(address user) external {
-    vm.assume(user != PAYLOADS_MANAGER);
-    vm.assume(user != ADMIN);
-    hoax(PAYLOADS_MANAGER);
-    uint40 payloadId = _createPayload();
-
-    vm.expectRevert('ONLY_BY_PAYLOADS_MANAGER');
-    vm.prank(user);
-    permissionedPayloadPortal.queuePayload(
-      payloadId,
-      PayloadsControllerUtils.AccessControl.Level_1
-    );
-  }
-
-  function testPayloadQueuing() external {
-    vm.startPrank(PAYLOADS_MANAGER);
-    uint40 payloadId = _createPayload();
-
-    permissionedPayloadPortal.queuePayload(
-      payloadId,
-      PayloadsControllerUtils.AccessControl.Level_1
-    );
-  }
-
   function testPayloadTimeLockNotExceeded(uint256 warpTime) external {
-    vm.startPrank(PAYLOADS_MANAGER);
+    vm.prank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload();
-    permissionedPayloadPortal.queuePayload(
-      payloadId,
-      PayloadsControllerUtils.AccessControl.Level_1
-    );
 
     uint256 invalidWarpTime = warpTime % 1 days;
     vm.warp(invalidWarpTime);
@@ -117,13 +89,8 @@ contract PermissionedPayloadsControllerTest is Test {
   function testPayloadExecution() external {
     // create and queue payload
     PayloadTest helper = new PayloadTest();
-    vm.startPrank(PAYLOADS_MANAGER);
+    vm.prank(PAYLOADS_MANAGER);
     uint40 payloadId = _createPayload(address(helper));
-    permissionedPayloadPortal.queuePayload(
-      payloadId,
-      PayloadsControllerUtils.AccessControl.Level_1
-    );
-    vm.stopPrank();
 
     // solium-disable-next-line
     vm.warp(block.timestamp + 1 days + 1);
