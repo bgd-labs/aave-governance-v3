@@ -6,11 +6,12 @@ import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/Ownab
 
 
 /**
+ * @title WithPayloadsManager
+ * @author BGD Labs
  * @dev Contract module which provides a basic access control mechanism, where
- * there are accounts(owner, guardian and payloads manager) which can be granted
+ * there are accounts (owner, guardian, and payloads manager) which can be granted
  * exclusive access to specific functions.
- *
- * By default, all the roles will be assigned to the one that deploys the contract. This
+ * @notice By default, all the roles will be assigned to the one that deploys the contract. This
  * can later be changed with appropriate functions.
  */
 contract WithPayloadsManager is OwnableWithGuardian, IWithPayloadsManager {
