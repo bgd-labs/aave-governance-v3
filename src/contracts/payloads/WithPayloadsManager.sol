@@ -46,6 +46,10 @@ contract WithPayloadsManager is OwnableWithGuardian, IWithPayloadsManager {
     _updatePayloadsManager(newPayloadsManager);
   }
 
+  /**
+   * @dev pdates the address of the payloads manager
+   * @param newPayloadsManager the new address of the payloads manager.
+   */
   function _updatePayloadsManager(address newPayloadsManager) internal {
     _payloadsManager = newPayloadsManager;
     emit PayloadsManagerUpdated(newPayloadsManager);
