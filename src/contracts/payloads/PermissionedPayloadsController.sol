@@ -26,7 +26,7 @@ contract PermissionedPayloadsController is
     address guardian,
     address initialPayloadsManager,
     UpdateExecutorInput[] calldata executors
-  ) external {
+  ) external initializer {
     initialize(owner, guardian, executors);
     _updatePayloadsManager(initialPayloadsManager);
   }
