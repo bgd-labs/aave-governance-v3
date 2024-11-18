@@ -21,6 +21,7 @@ contract PermissionedPayloadsController is
   WithPayloadsManager,
   IPermissionedPayloadsController
 {
+  /// @inheritdoc IPermissionedPayloadsController
   function initialize(
     address owner,
     address guardian,
@@ -31,6 +32,7 @@ contract PermissionedPayloadsController is
     _updatePayloadsManager(initialPayloadsManager);
   }
 
+  /// @inheritdoc IPayloadsControllerCore
   function EXPIRATION_DELAY()
     public
     pure
@@ -40,6 +42,7 @@ contract PermissionedPayloadsController is
     return 10 days;
   }
 
+  /// @inheritdoc IPayloadsControllerCore
   function GRACE_PERIOD()
     public
     pure
@@ -49,6 +52,7 @@ contract PermissionedPayloadsController is
     return 5 days;
   }
 
+  /// @inheritdoc IPayloadsControllerCore
   function MIN_EXECUTION_DELAY()
     public
     pure
@@ -58,6 +62,7 @@ contract PermissionedPayloadsController is
     return 0;
   }
 
+  /// @inheritdoc IPayloadsControllerCore
   function MAX_EXECUTION_DELAY()
     public
     pure
@@ -67,6 +72,7 @@ contract PermissionedPayloadsController is
     return 2 days;
   }
 
+  /// @inheritdoc IPayloadsControllerCore
   function cancelPayload(
     uint40 payloadId
   )
@@ -77,6 +83,7 @@ contract PermissionedPayloadsController is
     _cancelPayload(payloadId);
   }
 
+  /// @inheritdoc IPayloadsControllerCore
   function createPayload(
     ExecutionAction[] calldata actions
   )
