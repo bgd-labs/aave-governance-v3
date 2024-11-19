@@ -152,10 +152,6 @@ If any change in logic is needed, the Executor/s should be migrated to a new one
 <br>
 
 - [PermissionedPayloadsController](../src/contracts/payloads/PermissionedPayloadsController.sol): permissioned version of the payloads controller.
-  
-  Motivation:
-
-  The main goal of this contract is to allow ACI to configure LM in a safe and convenient way. Without this contract, ACI had all the permissions to configure LM unhindered. This left a vulnerability in our protocol: if ACI were compromised, it could change the LM settings to invalid or potentially dangerous ones. This contract is designed to solve this problem with a timelock. ACI can still create proposals to change LM, but now there is a delay before they take effect. This gives time to react and cancel these changes in case of an attack.
 
   The execution stage works as follows:
   - A trusted entity creates any kind of payload and submits it to the permissioned payloads manager.
@@ -164,7 +160,8 @@ If any change in logic is needed, the Executor/s should be migrated to a new one
 
   Important notes:
   
-  Only the payloads manager can create payloads. Payload creation and queuing is an atomic operation for this contract. Once a payload is created, it is automatically queued.
+  - Only the payloads manager can create payloads.
+  - Payload creation and queuing is an atomic operation for this contract. Once a payload is created, it is automatically queued.
 
 <br>
 

@@ -48,7 +48,6 @@ contract PermissionedPayloadsControllerTest is Test {
         admin,
         abi.encodeWithSelector(
           IPermissionedPayloadsController.initialize.selector,
-          address(this),
           guardian,
           payloadsManager,
           executors

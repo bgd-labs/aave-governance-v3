@@ -13,15 +13,15 @@ import {PayloadsControllerUtils} from "../PayloadsControllerUtils.sol";
 interface IPermissionedPayloadsController is IPayloadsControllerCore, IWithPayloadsManager {  
   /**
    * @notice method to initialize the contract with starter params. Only callable by proxy
-   * @param owner address of the owner of the contract. with permissions to call certain methods
    * @param guardian address of the guardian. With permissions to call certain methods
    * @param initialPayloadsManager address of the initial payload manager
    * @param executors array of executor configurations
    */
   function initialize(
-    address owner,
     address guardian,
     address initialPayloadsManager,
     UpdateExecutorInput[] calldata executors
   ) external;
+
+  function setExecutionDelay(uint40 delay) external;
 }

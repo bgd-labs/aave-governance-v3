@@ -6,6 +6,7 @@ import {PayloadsControllerCore} from './PayloadsControllerCore.sol';
 import {PayloadsControllerUtils} from './PayloadsControllerUtils.sol';
 import {WithPayloadsManager} from './WithPayloadsManager.sol';
 import {IPermissionedPayloadsController} from './interfaces/IPermissionedPayloadsController.sol';
+import {Errors} from '../libraries/Errors.sol';
 
 /**
  * @title PermissionedPayloadsController
@@ -23,33 +24,16 @@ contract PermissionedPayloadsController is
 {
   /// @inheritdoc IPermissionedPayloadsController
   function initialize(
-    address owner,
     address guardian,
     address initialPayloadsManager,
     UpdateExecutorInput[] calldata executors
-  ) external initializer {
-    initialize(owner, guardian, executors);
+  )
+    public
+    override(PayloadsControllerCore, IPermissionedPayloadsController)
+    initializer
+  {
+    PayloadsControllerCore.initialize(guardian, guardian, executors);
     _updatePayloadsManager(initialPayloadsManager);
-  }
-
-  /// @inheritdoc IPayloadsControllerCore
-  function EXPIRATION_DELAY()
-    public
-    pure
-    override(PayloadsControllerCore, IPayloadsControllerCore)
-    returns (uint40)
-  {
-    return 10 days;
-  }
-
-  /// @inheritdoc IPayloadsControllerCore
-  function GRACE_PERIOD()
-    public
-    pure
-    override(PayloadsControllerCore, IPayloadsControllerCore)
-    returns (uint40)
-  {
-    return 5 days;
   }
 
   /// @inheritdoc IPayloadsControllerCore
@@ -69,7 +53,7 @@ contract PermissionedPayloadsController is
     override(PayloadsControllerCore, IPayloadsControllerCore)
     returns (uint40)
   {
-    return 2 days;
+    return 7 days;
   }
 
   /// @inheritdoc IPayloadsControllerCore
@@ -93,7 +77,36 @@ contract PermissionedPayloadsController is
     returns (uint40)
   {
     uint40 payloadId = super.createPayload(actions);
-    _queuePayload(payloadId, PayloadsControllerUtils.AccessControl.Level_1, type(uint40).max);
+    _queuePayload(
+      payloadId,
+      PayloadsControllerUtils.AccessControl.Level_1,
+      type(uint40).max
+    );
     return payloadId;
+  }
+
+  /// @inheritdoc IPayloadsControllerCore
+  function updateExecutors(
+    UpdateExecutorInput[] calldata
+  )
+    external
+    view
+    override(PayloadsControllerCore, IPayloadsControllerCore)
+    onlyOwner
+  {
+    revert(Errors.FUNCTION_NOT_SUPPORTED);
+  }
+
+  /**
+   * @notice Sets the execution delay
+   * @param delay The new execution delay to be set
+   */
+  function setExecutionDelay(uint40 delay) external onlyGuardian {
+    require(
+      delay >= MIN_EXECUTION_DELAY() && delay <= MAX_EXECUTION_DELAY(),
+      Errors.INVALID_EXECUTOR_DELAY
+    );
+    _accessLevelToExecutorConfig[PayloadsControllerUtils.AccessControl.Level_1]
+      .delay = delay;
   }
 }

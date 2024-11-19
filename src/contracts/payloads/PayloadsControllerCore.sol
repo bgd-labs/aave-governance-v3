@@ -68,7 +68,7 @@ abstract contract PayloadsControllerCore is
     address owner,
     address guardian,
     UpdateExecutorInput[] calldata executors
-  ) public initializer {
+  ) public virtual initializer {
     require(executors.length != 0, Errors.SHOULD_BE_AT_LEAST_ONE_EXECUTOR);
 
     _updateExecutors(executors);
@@ -171,7 +171,7 @@ abstract contract PayloadsControllerCore is
   /// @inheritdoc IPayloadsControllerCore
   function updateExecutors(
     UpdateExecutorInput[] calldata executors
-  ) external onlyOwner {
+  ) external virtual onlyOwner {
     _updateExecutors(executors);
   }
 
