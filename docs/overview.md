@@ -153,7 +153,18 @@ If any change in logic is needed, the Executor/s should be migrated to a new one
 
 - [PermissionedPayloadsController](../src/contracts/payloads/PermissionedPayloadsController.sol): permissioned version of the payloads controller.
   
-  Only the payloads manager can create payloads. Payload creation and queuing is an atomic operation for this contract. Once a payload is created, it's automatically queued. This contract is needed to let trusted entities submit protocol changes without a governance cycle, but with a timelock. The timelock leaves a gap to react in case an invalid or malicious payload is submitted.
+  Motivation:
+
+  The main goal of this contract is to allow ACI to configure LM in a safe and convenient way. Without this contract, ACI had all the permissions to configure LM unhindered. This left a vulnerability in our protocol: if ACI were compromised, it could change the LM settings to invalid or potentially dangerous ones. This contract is designed to solve this problem with a timelock. ACI can still create proposals to change LM, but now there is a delay before they take effect. This gives time to react and cancel these changes in case of an attack.
+
+  The execution stage works as follows:
+  - A trusted entity creates any kind of payload and submits it to the permissioned payloads manager.
+  - The payload gets a timelock. During this timelock, the guardian can verify the validity of this payload. The guardian can cancel it if the payload is unrecognized. The payloads manager also has permission to cancel it.
+  - After the time passes and the payload becomes unlocked, anyone can execute it.
+
+  Important notes:
+  
+  Only the payloads manager can create payloads. Payload creation and queuing is an atomic operation for this contract. Once a payload is created, it is automatically queued.
 
 <br>
 
