@@ -108,5 +108,5 @@ library Errors {
   string public constant ALL_DELEGATION_ACTIONS_FAILED = '98'; // all meta delegation actions failed on MetaDelegateHelper
   string public constant ONLY_BY_PAYLOADS_MANAGER = '99'; // only payloads manager can call this function
   string public constant ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN = '100'; // only payloads manager or guardian can call this function
-  string public constant FUNCTION_NOT_SUPPORTED = '101'; // only payloads manager or guardian can call this function
+  string public constant FUNCTION_NOT_SUPPORTED = '101'; // function not supported
 }

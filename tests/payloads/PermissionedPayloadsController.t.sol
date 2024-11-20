@@ -13,8 +13,6 @@ import {Test} from 'forge-std/Test.sol';
 contract PermissionedPayloadsControllerTest is Test {
   IPermissionedPayloadsController permissionedPayloadPortal;
 
-  IExecutor internal executor;
-
   modifier initializeTest(
     address admin,
     address guardian,
@@ -23,19 +21,19 @@ contract PermissionedPayloadsControllerTest is Test {
   ) {
     vm.startPrank(origin);
 
-    executor = new Executor();
+    IExecutor executor = new Executor();
     TransparentProxyFactory proxyFactory = new TransparentProxyFactory();
 
     permissionedPayloadPortal = new PermissionedPayloadsController();
 
-    IPayloadsControllerCore.UpdateExecutorInput memory executorInput = IPayloadsControllerCore
-        .UpdateExecutorInput({
-          accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
-          executorConfig: IPayloadsControllerCore.ExecutorConfig({
-            delay: 1 days,
-            executor: address(0)
-          })
-        });
+    IPayloadsControllerCore.UpdateExecutorInput
+      memory executorInput = IPayloadsControllerCore.UpdateExecutorInput({
+        accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
+        executorConfig: IPayloadsControllerCore.ExecutorConfig({
+          delay: 1 days,
+          executor: address(0)
+        })
+      });
 
     executorInput.executorConfig.executor = address(executor);
     IPayloadsControllerCore.UpdateExecutorInput[]
@@ -166,11 +164,69 @@ contract PermissionedPayloadsControllerTest is Test {
     vm.stopPrank();
   }
 
+  function testUpdateExecutorsNotAvailable(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    IExecutor newExecutor = new Executor();
+    IPayloadsControllerCore.UpdateExecutorInput[]
+      memory newExecutors = new IPayloadsControllerCore.UpdateExecutorInput[](
+        1
+      );
+    newExecutors[0] = IPayloadsControllerCore.UpdateExecutorInput({
+      accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
+      executorConfig: IPayloadsControllerCore.ExecutorConfig({
+        delay: uint40(2 days),
+        executor: address(newExecutor)
+      })
+    });
+
+    vm.expectRevert(bytes(Errors.FUNCTION_NOT_SUPPORTED));
+    permissionedPayloadPortal.updateExecutors(newExecutors);
+  }
+
+  function testSetExecutionDelayWithGuardian(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    uint40 newDelay = 500;
+
+    vm.startPrank(guardian);
+    permissionedPayloadPortal.setExecutionDelay(newDelay);
+    vm.stopPrank();
+
+    uint40 executionDelay = permissionedPayloadPortal
+      .getExecutorSettingsByAccessControl(
+        PayloadsControllerUtils.AccessControl.Level_1
+      )
+      .delay;
+    assertEq(executionDelay, newDelay, 'Execution delay was not set correctly');
+  }
+
+  function testSetExecutionDelayWithInvalidCaller(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    uint40 newDelay = 500;
+
+    vm.expectRevert('ONLY_BY_GUARDIAN');
+    permissionedPayloadPortal.setExecutionDelay(newDelay);
+  }
+
   function _createPayload(address caller) internal returns (uint40) {
     return _createPayload(caller, address(123));
   }
 
-  function _createPayload(address caller, address target) internal returns (uint40) {
+  function _createPayload(
+    address caller,
+    address target
+  ) internal returns (uint40) {
     IPayloadsControllerCore.ExecutionAction[]
       memory actions = new IPayloadsControllerCore.ExecutionAction[](1);
     actions[0].target = target;

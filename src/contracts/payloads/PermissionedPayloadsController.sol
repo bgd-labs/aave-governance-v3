@@ -90,9 +90,8 @@ contract PermissionedPayloadsController is
     UpdateExecutorInput[] calldata
   )
     external
-    view
+    pure
     override(PayloadsControllerCore, IPayloadsControllerCore)
-    onlyOwner
   {
     revert(Errors.FUNCTION_NOT_SUPPORTED);
   }
