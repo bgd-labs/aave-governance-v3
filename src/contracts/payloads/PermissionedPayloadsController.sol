@@ -16,6 +16,7 @@ import {Errors} from '../libraries/Errors.sol';
  * @dev this contract is permissioned, only the payloads manager can create
  * and queue payloads. Also, not only guardian but also the payloads manager can cancel payloads.
  * @dev constants were adjusted as the governance cycle is no longer needed.
+ * @dev owner and guardian are the same entity here.
  */
 contract PermissionedPayloadsController is
   PayloadsControllerCore,
