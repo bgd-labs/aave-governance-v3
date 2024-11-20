@@ -138,7 +138,7 @@ abstract contract PayloadsControllerCore is
     );
 
     uint256 executionTime = payload.queuedAt + payload.delay;
-    require(block.timestamp > executionTime, Errors.TIMELOCK_NOT_FINISHED);
+    require(block.timestamp >= executionTime, Errors.TIMELOCK_NOT_FINISHED);
 
     payload.state = PayloadState.Executed;
     payload.executedAt = uint40(block.timestamp);

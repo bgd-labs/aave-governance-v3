@@ -19,6 +19,13 @@ contract PermissionedPayloadsControllerTest is Test {
     address payloadsManager,
     address origin
   ) {
+    vm.assume(admin != address(0));
+    vm.assume(guardian != address(0));
+    vm.assume(payloadsManager != address(0));
+    vm.assume(origin != address(0));
+    vm.assume(origin != admin);
+    vm.assume(payloadsManager != admin);
+    vm.assume(guardian != admin);
     vm.startPrank(origin);
 
     IExecutor executor = new Executor();
@@ -105,6 +112,7 @@ contract PermissionedPayloadsControllerTest is Test {
     uint256 invalidWarpTime = warpTime % 1 days;
     vm.warp(invalidWarpTime);
     vm.expectRevert(bytes(Errors.TIMELOCK_NOT_FINISHED));
+    vm.startPrank(origin);
     permissionedPayloadPortal.executePayload(payloadId);
   }
 
@@ -120,6 +128,7 @@ contract PermissionedPayloadsControllerTest is Test {
 
     // solium-disable-next-line
     vm.warp(block.timestamp + 1 days + 1);
+    vm.startPrank(origin);
     vm.expectEmit(false, false, false, false);
     emit SimpleExecute('simple');
     permissionedPayloadPortal.executePayload(payloadId);
@@ -137,6 +146,7 @@ contract PermissionedPayloadsControllerTest is Test {
     vm.assume(user != admin);
     uint40 payloadId = _createPayload(payloadsManager);
     vm.expectRevert(bytes(Errors.ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN));
+    vm.startPrank(user);
     permissionedPayloadPortal.cancelPayload(payloadId);
   }
 
@@ -217,6 +227,23 @@ contract PermissionedPayloadsControllerTest is Test {
 
     vm.expectRevert('ONLY_BY_GUARDIAN');
     permissionedPayloadPortal.setExecutionDelay(newDelay);
+  }
+
+  function testDelayZero(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    uint40 newDelay = 0;
+
+    vm.startPrank(guardian);
+    permissionedPayloadPortal.setExecutionDelay(newDelay);
+    vm.stopPrank();
+
+    uint40 payloadId = _createPayload(payloadsManager);
+    vm.startPrank(payloadsManager);
+    permissionedPayloadPortal.executePayload(payloadId);
   }
 
   function _createPayload(address caller) internal returns (uint40) {
