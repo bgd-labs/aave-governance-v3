@@ -54,9 +54,9 @@ contract VotingMachineMock is VotingMachine {
 }
 
 contract VotingMachineTest is Test {
-  address public constant CROSS_CHAIN_CONTROLLER = address(123);
-  address public constant L1_VOTING_PORTAL = address(1234);
-  address public constant GOVERNANCE = address(12345);
+  address public constant CROSS_CHAIN_CONTROLLER = address(65536+123);
+  address public constant L1_VOTING_PORTAL = address(65536+1234);
+  address public constant GOVERNANCE = address(65536+12345);
   uint256 L1_VOTING_PORTAL_CHAIN_ID;
   uint256 public constant GAS_LIMIT = 600000;
 

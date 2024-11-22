@@ -10,9 +10,9 @@ import {ICrossChainReceiver} from 'aave-delivery-infrastructure/contracts/interf
 import {Errors} from '../src/contracts/libraries/Errors.sol';
 
 contract VotingPortalTest is Test {
-  address public constant CROSS_CHAIN_CONTROLLER = address(123);
-  address public constant GOVERNANCE = address(1234);
-  address public constant VOTING_MACHINE = address(12345);
+  address public constant CROSS_CHAIN_CONTROLLER = address(65536+123);
+  address public constant GOVERNANCE = address(65536+1234);
+  address public constant VOTING_MACHINE = address(65536+12345);
   uint128 public constant GAS_LIMIT = 600000;
 
   uint256 public VOTING_MACHINE_CHAIN_ID;

@@ -8,7 +8,7 @@ import {PayloadTest} from './utils/PayloadTest.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
 
 contract ExecutorTest is Test {
-  address public constant TARGET = address(12345);
+  address public constant TARGET = address(65536+12345);
   uint256 public constant VALUE = 0;
   string public constant SIGNATURE = 'execute()';
   bytes public constant DATA = bytes('');

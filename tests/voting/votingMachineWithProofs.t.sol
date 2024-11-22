@@ -69,7 +69,7 @@ contract VotingMachineWithProofsTest is Test {
   bytes32 BLOCK_HASH =
     0xf656a10e5d825e287890cc430cf1bac2364b756e09e19b6fa3a72ec844ba2f44;
   address VOTER = 0x6D603081563784dB3f83ef1F65Cc389D94365Ac9;
-  address public constant GOVERNANCE = address(12345);
+  address public constant GOVERNANCE = address(65536+12345);
 
   IDataWarehouse dataWarehouse;
   IVotingStrategy votingStrategy;
@@ -1559,7 +1559,7 @@ contract VotingMachineWithProofsTest is Test {
         abi.encode(
           votingMachine.VOTE_SUBMITTED_BY_REPRESENTATIVE_TYPEHASH(),
           2,
-          address(1234),
+          address(65536+1234),
           signer,
           true,
           _getVotingAssetsWithSlotHash(votingAssetsWithSlot)

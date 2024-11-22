@@ -8,9 +8,9 @@ import '../src/contracts/voting/interfaces/IVotingMachineWithProofs.sol';
 import {PayloadsControllerUtils} from '../src/contracts/payloads/PayloadsControllerUtils.sol';
 
 contract MessageSizesTest is Test {
-  address public constant ORIGIN = address(123);
-  address public constant DESTINATION = address(1234);
-  address public constant VOTER = address(12345);
+  address public constant ORIGIN = address(65536+123);
+  address public constant DESTINATION = address(65536+1234);
+  address public constant VOTER = address(65536+12345);
   address public constant PAYLOADS_CONTROLLER = address(123456);
   uint256 public constant ORIGIN_CHAIN_ID = ChainIds.ETHEREUM;
   uint256 public constant DESTINATION_CHAIN_ID = ChainIds.POLYGON;
