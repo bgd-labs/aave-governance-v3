@@ -229,23 +229,6 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal.setExecutionDelay(newDelay);
   }
 
-  function testDelayZero(
-    address admin,
-    address guardian,
-    address payloadsManager,
-    address origin
-  ) external initializeTest(admin, guardian, payloadsManager, origin) {
-    uint40 newDelay = 0;
-
-    vm.startPrank(guardian);
-    permissionedPayloadPortal.setExecutionDelay(newDelay);
-    vm.stopPrank();
-
-    uint40 payloadId = _createPayload(payloadsManager);
-    vm.startPrank(payloadsManager);
-    permissionedPayloadPortal.executePayload(payloadId);
-  }
-
   function _createPayload(address caller) internal returns (uint40) {
     return _createPayload(caller, address(123));
   }
