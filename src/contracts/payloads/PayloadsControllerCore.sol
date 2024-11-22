@@ -30,17 +30,6 @@ abstract contract PayloadsControllerCore is
   using SafeCast for uint256;
   using SafeERC20 for IERC20;
 
-  // should be always set with respect to the proposal flow duration
-  // for example: voting takes 5 days + 2 days for bridging + 3 days for cooldown + 2 days of safety gap
-  // then expirationDelay should be not less then 12 days.
-  // As expiration delay of proposal is 30 days, payload needs to be able to live longer as its created before and
-  // will be executed after.
-  // so nobody should be able to set expiration delay less then that
-  uint40 public constant EXPIRATION_DELAY = 35 days;
-
-  /// @inheritdoc IPayloadsControllerCore
-  uint40 public constant GRACE_PERIOD = 7 days;
-
   uint40 internal _payloadsCount;
 
   // stores the executor configuration for every lvl of access control
@@ -48,6 +37,22 @@ abstract contract PayloadsControllerCore is
     internal _accessLevelToExecutorConfig;
 
   mapping(uint40 => Payload) internal _payloads;
+
+  // should be always set with respect to the proposal flow duration
+  // for example: voting takes 5 days + 2 days for bridging + 3 days for cooldown + 2 days of safety gap
+  // then expirationDelay should be not less then 12 days.
+  // As expiration delay of proposal is 30 days, payload needs to be able to live longer as its created before and
+  // will be executed after.
+  // so nobody should be able to set expiration delay less then that
+  /// @inheritdoc IPayloadsControllerCore
+  function EXPIRATION_DELAY() public pure virtual returns (uint40) {
+    return 35 days;
+  }
+
+  /// @inheritdoc IPayloadsControllerCore
+  function GRACE_PERIOD() public pure virtual returns (uint40) {
+    return 7 days;
+  }
 
   /// @inheritdoc IPayloadsControllerCore
   function MIN_EXECUTION_DELAY() public view virtual returns (uint40) {
@@ -63,7 +68,7 @@ abstract contract PayloadsControllerCore is
     address owner,
     address guardian,
     UpdateExecutorInput[] calldata executors
-  ) external initializer {
+  ) public virtual initializer {
     require(executors.length != 0, Errors.SHOULD_BE_AT_LEAST_ONE_EXECUTOR);
 
     _updateExecutors(executors);
@@ -75,7 +80,7 @@ abstract contract PayloadsControllerCore is
   /// @inheritdoc IPayloadsControllerCore
   function createPayload(
     ExecutionAction[] calldata actions
-  ) external returns (uint40) {
+  ) public virtual returns (uint40) {
     require(actions.length != 0, Errors.INVALID_EMPTY_TARGETS);
 
     uint40 payloadId = _payloadsCount++;
@@ -84,8 +89,8 @@ abstract contract PayloadsControllerCore is
     newPayload.creator = msg.sender;
     newPayload.state = PayloadState.Created;
     newPayload.createdAt = creationTime;
-    newPayload.expirationTime = creationTime + EXPIRATION_DELAY;
-    newPayload.gracePeriod = GRACE_PERIOD;
+    newPayload.expirationTime = creationTime + EXPIRATION_DELAY();
+    newPayload.gracePeriod = GRACE_PERIOD();
 
     PayloadsControllerUtils.AccessControl maximumAccessLevelRequired;
     for (uint256 i = 0; i < actions.length; i++) {
@@ -157,25 +162,16 @@ abstract contract PayloadsControllerCore is
   }
 
   /// @inheritdoc IPayloadsControllerCore
-  function cancelPayload(uint40 payloadId) external onlyGuardian {
-    Payload storage payload = _payloads[payloadId];
-
-    PayloadState payloadState = _getPayloadState(payload);
-    require(
-      payloadState < PayloadState.Executed &&
-        payloadState >= PayloadState.Created,
-      Errors.PAYLOAD_NOT_IN_THE_CORRECT_STATE
-    );
-    payload.state = PayloadState.Cancelled;
-    payload.cancelledAt = uint40(block.timestamp);
-
-    emit PayloadCancelled(payloadId);
+  function cancelPayload(
+    uint40 payloadId
+  ) external virtual onlyGuardian {
+    _cancelPayload(payloadId);
   }
 
   /// @inheritdoc IPayloadsControllerCore
   function updateExecutors(
     UpdateExecutorInput[] calldata executors
-  ) external onlyOwner {
+  ) external virtual onlyOwner {
     _updateExecutors(executors);
   }
 
@@ -218,6 +214,25 @@ abstract contract PayloadsControllerCore is
   }
 
   receive() external payable {}
+
+  /**
+   * @notice method to cancel a payload
+   * @param payloadId id of the payload that needs to be canceled
+   */
+  function _cancelPayload(uint40 payloadId) internal {
+    Payload storage payload = _payloads[payloadId];
+
+    PayloadState payloadState = _getPayloadState(payload);
+    require(
+      payloadState < PayloadState.Executed &&
+        payloadState >= PayloadState.Created,
+      Errors.PAYLOAD_NOT_IN_THE_CORRECT_STATE
+    );
+    payload.state = PayloadState.Cancelled;
+    payload.cancelledAt = uint40(block.timestamp);
+
+    emit PayloadCancelled(payloadId);
+  }
 
   /**
    * @notice method to get the current state of a payload

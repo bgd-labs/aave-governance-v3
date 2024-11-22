@@ -47,3 +47,12 @@ Only one Governance must exist on the system (Ethereum mainnet), while multiple 
 - The Guardian can cancel a Payload if it has not been executed
 - Payload State can’t decrease
 - No further state transitions are possible if `proposal.state > 3`
+
+## PermissionedPayloadsController
+- Extension of PayloadsController
+- Supports payloads only with Level_1 access level.
+- Once executor config is created, it can't be changed except the delay configuration of the Level_1 executor.
+- Only payloads manager is permitted to create a Payload.
+- Payload creation is combined with queuing: once created, a Payload is automatically queued.
+- Payloads manager can cancel a Payload as well as guardian.
+
