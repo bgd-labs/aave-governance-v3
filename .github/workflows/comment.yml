@@ -1,0 +1,20 @@
+name: PR Comment
+
+on:
+  workflow_run:
+    workflows: [Test]
+    types:
+      - completed
+
+permissions:
+  actions: read
+  issues: write
+  checks: read
+  statuses: read
+  pull-requests: write
+
+jobs:
+  comment:
+    uses: bgd-labs/github-workflows/.github/workflows/comment.yml@main
+    secrets:
+      READ_ONLY_PAT: ${{ secrets.READ_ONLY_PAT }}
