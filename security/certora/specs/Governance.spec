@@ -538,7 +538,9 @@ rule guardian_can_cancel()
 // Only a guardian, an owner can cancel any proposal, a creator can cancel his own proposal 
 rule only_guardian_can_cancel(method f)filtered 
 { f -> !f.isView  && 
-  !initializeSig(f)  && !initializeWithRevisionSig(f)
+    !initializeSig(f)
+    && !initializeWithRevisionSig(f) // this function can change the _votingConfigs[proposal.accessLevel].minPropositionPower
+                                     // thus invalidates the _isPropositionPowerEnough(...)
   }
 {
   env e1;
