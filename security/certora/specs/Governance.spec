@@ -101,6 +101,9 @@ definition state_changing_function(method f) returns bool =
 definition initializeSig(method f) returns bool = 
             f.selector == sig:initialize(address,address,address, IGovernanceCore.SetVotingConfigInput[],address[],uint256,uint256).selector;
 
+definition initializeWithRevisionSig(method f) returns bool = 
+            f.selector == sig:initializeWithRevision(uint256).selector;
+
 definition isTerminalState(IGovernanceCore.State state) returns bool = 
             state == IGovernanceCore.State.Executed ||      // 4
             state == IGovernanceCore.State.Failed ||        // 5
@@ -404,7 +407,7 @@ rule single_state_transition_per_block_non_creator_witness
 //An unauthorized user (not an owner) cannot change voting parameters
 rule only_owner_can_set_voting_config(method f) filtered {
    f -> !f.isView &&
-   !initializeSig(f) }
+     !initializeSig(f) && !initializeWithRevisionSig(f)}
 {
   env e;
   calldataarg args;
@@ -481,7 +484,9 @@ rule guardian_can_cancel()
 // Property  : Only a guardian or an owner can cancel any proposal, a creator can cancel his own proposal 
 rule only_guardian_can_cancel(method f)filtered 
 { f -> !f.isView  && 
-  !initializeSig(f)
+    !initializeSig(f)
+    && !initializeWithRevisionSig(f) // this function can change the _votingConfigs[proposal.accessLevel].minPropositionPower
+                                     // thus invalidates the _isPropositionPowerEnough(...)
   }
 {
   env e1;
