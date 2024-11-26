@@ -12,23 +12,19 @@ abstract contract BaseContractHelpers is GovBaseScript {
     GovDeployerHelpers.Addresses memory addresses
   ) internal override {
     if (addresses.governance != address(0)) {
-      addresses.governanceDataHelper = address(
-        new GovernanceDataHelper{salt: Constants.GOV_DATA_HELPER_SALT}()
-      );
-      addresses.metaDelegateHelper = address(
-        new MetaDelegateHelper{salt: Constants.MD_DATA_HELPER_SALT}()
-      );
+      addresses.governanceDataHelper = address(new GovernanceDataHelper());
+      addresses.metaDelegateHelper = address(new MetaDelegateHelper());
     }
 
     if (addresses.votingMachine != address(0)) {
       addresses.votingMachineDataHelper = address(
-        new VotingMachineDataHelper{salt: Constants.VM_DATA_HELPER_SALT}()
+        new VotingMachineDataHelper()
       );
     }
 
     if (addresses.payloadsController != address(0)) {
       addresses.payloadsControllerDataHelper = address(
-        new PayloadsControllerDataHelper{salt: Constants.PC_DATA_HELPER_SALT}()
+        new PayloadsControllerDataHelper()
       );
     }
   }
@@ -88,6 +84,24 @@ contract Gnosis is BaseContractHelpers {
   }
 }
 
+contract Zkevm is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.POLYGON_ZK_EVM;
+  }
+}
+
+contract Scroll is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SCROLL;
+  }
+}
+
+contract Zksync is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ZK_SYNC;
+  }
+}
+
 contract Ethereum_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
@@ -127,5 +141,11 @@ contract Metis_testnet is BaseContractHelpers {
 contract Binance_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.BNB_TESTNET;
+  }
+}
+
+contract Zksync_testnet is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ZK_SYNC_SEPOLIA;
   }
 }

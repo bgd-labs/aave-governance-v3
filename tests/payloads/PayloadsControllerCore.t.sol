@@ -25,8 +25,8 @@ contract PayloadsControllerMock is PayloadsControllerCore {
 }
 
 contract PayloadsControllerCoreTest is Test {
-  address public constant ADMIN = address(123);
-  address public constant GUARDIAN = address(1234);
+  address public constant ADMIN = address(65536+123);
+  address public constant GUARDIAN = address(65536+1234);
   address public constant ORIGIN_FORWARDER = address(123456);
   address public constant PAYLOAD_PORTAL = address(987312);
   uint256 public constant YES_THRESHOLD = 1;

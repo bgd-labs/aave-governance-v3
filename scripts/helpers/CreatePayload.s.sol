@@ -65,6 +65,12 @@ contract Binance is BaseCreatePayload {
   }
 }
 
+contract Zksync is BaseCreatePayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ZK_SYNC;
+  }
+}
+
 contract Ethereum_testnet is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
@@ -104,5 +110,11 @@ contract Metis_testnet is BaseCreatePayload {
 contract Binance_testnet is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.BNB_TESTNET;
+  }
+}
+
+contract Zksync_testnet is BaseCreatePayload {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.ZK_SYNC_SEPOLIA;
   }
 }
