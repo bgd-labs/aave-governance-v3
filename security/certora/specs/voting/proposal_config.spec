@@ -56,12 +56,18 @@ function is_proposalHasRoots(uint256 proposalId) returns bool {
  * `VotingMachineWithProofs.sol:412`) it will not revert the original call.
  */
 invariant startedProposalHasConfig(uint256 proposalId)
-    is_proposalStarted(proposalId) => is_proposalConfigCreated(proposalId);
+    is_proposalStarted(proposalId) => is_proposalConfigCreated(proposalId)
+    filtered {
+        f -> filteredMethods(f)
+    }
 
 
 /// @title Once a proposal vote is started the required roots exist
 invariant createdProposalHasRoots(uint256 proposalId)
     is_proposalStarted(proposalId) => is_proposalHasRoots(proposalId)
+    filtered {
+        f -> filteredMethods(f)
+    }
     {
         preserved {
             // Without this one can create a proposal with `l1ProposalBlockHash` zero
@@ -72,7 +78,10 @@ invariant createdProposalHasRoots(uint256 proposalId)
 
 /// @title Existing proposal config has non-zero duration
 invariant proposalHasNonzeroDuration(uint256 proposalId)
-    is_proposalConfigCreated(proposalId) <=> (getProposalVotingDuration(proposalId) != 0);
+    is_proposalConfigCreated(proposalId) <=> (getProposalVotingDuration(proposalId) != 0)
+    filtered {
+        f -> filteredMethods(f)
+    }
 
 
 /// @title New proposal must have unused ID
@@ -102,7 +111,9 @@ rule newProposalUnusedId(uint256 proposalId, bytes32 blockHash, uint24 votingDur
 
 
 /// @title A proposal's configuration is immutable once set
-rule configIsImmutable(method f, uint256 proposalId) {
+rule configIsImmutable(method f, uint256 proposalId) filtered {
+    f -> filteredMethods(f)
+} {
     IVotingMachineWithProofs.ProposalVoteConfiguration preConf = (
         getProposalVoteConfiguration(proposalId)
     );
@@ -120,6 +131,16 @@ rule configIsImmutable(method f, uint256 proposalId) {
         (preConf.l1ProposalBlockHash == postConf.l1ProposalBlockHash) &&
         (preConf.votingDuration == postConf.votingDuration)
     );
+}
+
+
+/// @title The function `getProposalsVoteConfigurationIds` must not revert
+rule getProposalsConfigsDoesntRevert(uint256 skip, uint256 size) {
+    require size < 2^64;
+    require size + skip < 2^256;  // Avoid overflow
+
+    getProposalsVoteConfigurationIds@withrevert(skip, size);
+    assert !lastReverted, "getProposalsConfigsDoesntRevert must not revert";
 }
 
 

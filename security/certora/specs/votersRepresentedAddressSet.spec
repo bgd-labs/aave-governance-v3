@@ -1,5 +1,10 @@
 //
 // Specification for Openzeppelin AddressSet used by GovernanceCore._votersRepresented 
+
+/* ND - we have a much better spec for this: 
+ https://github.com/Certora/Examples/blob/master/CVLByExample/QuantifierExamples/EnumerableSet/certora/spec/set.spec
+lets switch to that on new projects and then the requireinvaraint is much easier 
+*/
 // 
 
 methods{
@@ -161,11 +166,7 @@ hook Sload uint256 len _votersRepresented  [KEY address rep] [KEY uint256 chain]
  * main Set general invariant
  **/
 invariant setInvariant(env e1, address representative, uint256 chainId)
-    SET_INVARIANT(representative, chainId)
-    {
-        preserved with (env e2)
-        {require e1.msg.sender == e2.msg.sender;}
-    }
+    SET_INVARIANT(representative, chainId);
 
 
 /**

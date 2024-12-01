@@ -21,6 +21,10 @@ methods
 
     function getIdOfProposal(uint256) external returns (uint256) envfree;
 
+    function getProposalsVoteConfigurationIds(
+        uint256, uint256
+    ) external returns (uint256[] memory) envfree;
+
     // `VotingStrategy` ========================================================
     function VotingStrategyHarness.is_hasRequiredRoots(
         bytes32
@@ -47,9 +51,10 @@ methods
 
     // `CrossChainController` ==================================================
     // NOTE: Not clear why this call is not resolved, we summarize it as `NONDET`
-    function CrossChainController.forwardMessage(
-        uint256, address, uint256, bytes
-    ) external returns (bytes32,bytes32) => NONDET;
+    // NOTE: Not a view method - not a safe summary! 20231120 Trying without
+    //function CrossChainController.forwardMessage(
+    //    uint256, address, uint256, bytes
+    //) external returns (bytes32,bytes32) => NONDET;
 
     // `SlotUtils` =============================================================
     // Summarized for speed-up
@@ -67,3 +72,30 @@ rule method_reachability {
   satisfy true;
 }
 
+
+// Defines methods that usually must be filtered out from invariants and parametric rules
+definition filteredMethods(method f) returns bool = (
+    // Filtered due to unresolved call from `Address.sol` Line 136:
+    // `target.call{value: value}(data)`
+    f.selector != sig:CrossChainController.emergencyTokenTransfer(
+        address, address, uint256
+    ).selector &&
+
+    // Filtered due to unresolved call from `CrossChainReceiver.sol` Line 231:
+    // `IBaseReceiverPortal(envelope.destination).receiveCrossChainMessage(`
+    // `   envelope.origin,envelope.originChainId,envelope.message`
+    // `)`
+    f.selector != sig:receiveCrossChainMessage(address,uint256,bytes).selector &&
+
+    // Filtered due to unresolved call from `CrossChainReceiver.sol` Line 231: see above
+    f.selector != sig:CrossChainController.deliverEnvelope(
+        //uint256,address,address,uint256,uint256,bytes
+        CrossChainController.Envelope
+    ).selector &&
+
+    // Filtered due to unresolved call from `Rescuable.sol` Line 3:
+    // to.call{value: amount}(new bytes(0))
+    f.selector != sig:CrossChainController.emergencyEtherTransfer(
+        address,uint256
+    ).selector
+);
