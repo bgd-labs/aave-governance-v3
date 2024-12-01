@@ -47,6 +47,9 @@ invariant startsBeforeEnds(uint256 proposalId)
             proposalStartTime(proposalId) < proposalEndTime(proposalId)
         ))
     )
+    filtered {
+        f -> filteredMethods(f)
+    }
     {
         preserved {
             // Without this one can create a proposal with `l1ProposalBlockHash` zero
@@ -64,6 +67,9 @@ invariant startsStrictlyBeforeEnds(uint256 proposalId)
         to_mathint(proposalEndTime(proposalId)) ==
         proposalStartTime(proposalId) + proposalVotingDuration(proposalId)
     )
+    filtered {
+        f -> filteredMethods(f)
+    }
     {
         preserved {
             // Without this one can create a proposal with `l1ProposalBlockHash` zero
@@ -117,7 +123,9 @@ rule proposalLegalStates(uint256 proposalId) {
 
 
 /// @title A proposal's valid state transitions by method call
-rule proposalMethodStateTransitionCompliance(method f, uint256 proposalId) {
+rule proposalMethodStateTransitionCompliance(method f, uint256 proposalId) filtered {
+    f -> filteredMethods(f)
+} {
     env e;
 
     IVotingMachineWithProofs.ProposalState before = getProposalState(e, proposalId);
@@ -216,7 +224,9 @@ rule proposalTimeStateTransitionCompliance(uint256 proposalId) {
  * Verifies that certain fields of the proposal are immutable (once the proposal is
  * created of course).
  */
-rule proposalImmutability(method f, uint256 proposalId) {
+rule proposalImmutability(method f, uint256 proposalId) filtered {
+    f -> filteredMethods(f)
+} {
     IVotingMachineWithProofs.ProposalWithoutVotes pre = getProposalById(proposalId);
 
     env e;
@@ -240,7 +250,10 @@ rule proposalImmutability(method f, uint256 proposalId) {
 
 /// @title A created proposal vote's ID is never changed
 invariant proposalIdIsImmutable(uint256 proposalId)
-    isProposalStarted(proposalId) => (getIdOfProposal(proposalId) == proposalId);
+    isProposalStarted(proposalId) => (getIdOfProposal(proposalId) == proposalId)
+    filtered {
+        f -> filteredMethods(f)
+    }
 
 
 use rule method_reachability;

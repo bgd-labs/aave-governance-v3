@@ -99,7 +99,8 @@ definition state_changing_function(method f) returns bool =
             f.selector == sig:cancelProposal(uint256).selector; 
 
 definition initializeSig(method f) returns bool = 
-            f.selector == sig:initialize(address,address,address, IGovernanceCore.SetVotingConfigInput[],address[],uint256,uint256).selector;
+            f.selector == sig:initialize(address,address,address, IGovernanceCore.SetVotingConfigInput[],address[],uint256,uint256).selector
+            || f.selector == sig:initializeWithRevision(uint256).selector;
 
 definition initializeWithRevisionSig(method f) returns bool = 
             f.selector == sig:initializeWithRevision(uint256).selector;
