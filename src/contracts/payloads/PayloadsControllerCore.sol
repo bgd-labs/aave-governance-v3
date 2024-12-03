@@ -214,16 +214,15 @@ abstract contract PayloadsControllerCore is
   }
 
   receive() external payable {}
-  uint256 ___pos;
+
   /**
    * @notice method to cancel a payload
    * @param payloadId id of the payload that needs to be canceled
    */
   function _cancelPayload(uint40 payloadId) internal {
     Payload storage payload = _payloads[payloadId];
-    ___pos = 0;
+
     PayloadState payloadState = _getPayloadState(payload);
-    ___pos = 1;
     require(
       payloadState < PayloadState.Executed &&
         payloadState >= PayloadState.Created,
