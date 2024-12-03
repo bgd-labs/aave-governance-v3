@@ -62,20 +62,20 @@ methods {
   function isRepresentativeOfVoter(address,address,uint256) external returns (bool) envfree;
 }
 
-ghost mapping(uint256 => mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256))) user_type_power;
+persistent ghost mapping(uint256 => mapping(address => mapping(IGovernancePowerDelegationToken.GovernancePowerType => uint256))) user_type_power;
 
 function get_fixed_user_and_type_power(env e, address user, IGovernancePowerDelegationToken.GovernancePowerType type) returns uint256{
   return user_type_power[e.block.timestamp][user][type];
 }
 
 
-ghost mathint totalCancellationFee{
+persistent ghost mathint totalCancellationFee{
     init_state axiom totalCancellationFee == 0;
 }
-ghost bool isCancellationChanged;
+persistent ghost bool isCancellationChanged;
 
 hook Sstore _proposals[KEY uint256 proposalId].cancellationFee uint256 newFee
-    (uint256 oldFee) STORAGE
+    (uint256 oldFee) 
 {
     if (newFee != oldFee){
         isCancellationChanged = true;
@@ -1260,10 +1260,11 @@ filtered { f -> !state_changing_function(f)}
 
 
 // self-check - all external functions are reachability
-rule method_reachability {
+rule method_reachability(method f)
+filtered {f -> f.contract == currentContract}
+{
   env e;
   calldataarg arg;
-  method f;
 
   f(e, arg);
   satisfy true;
