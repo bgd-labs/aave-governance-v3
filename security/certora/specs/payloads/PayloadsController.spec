@@ -541,21 +541,6 @@ rule executed_when_in_queued_state{
 
 // @title property #7: The Guardian can cancel a Payload if it has not been executed
 // A payload cannot execute after a guardian cancelled it
-rule guardian_can_cancel_state_variable{
-
-	env e;
-	calldataarg args;
-	uint40 payloadId;
-	IPayloadsControllerCore.PayloadState state_before = getPayloadStateVariable(payloadId);
-	cancelPayload@withrevert(e, payloadId);
-	assert 
-		e.msg.sender == guardian() && 
-		(state_before ==  IPayloadsControllerCore.PayloadState.Created ||
-		state_before ==  IPayloadsControllerCore.PayloadState.Queued) => !lastReverted ;
-
-
-}
-
 rule guardian_can_cancel{
 
 	env e;
@@ -563,10 +548,11 @@ rule guardian_can_cancel{
 	uint40 payloadId;
 	IPayloadsControllerCore.PayloadState state_before = getPayloadState(e, payloadId);
 	cancelPayload@withrevert(e, payloadId);
+        bool call_reverted = lastReverted;
 	assert 
 		e.msg.sender == guardian() && 
 		(state_before ==  IPayloadsControllerCore.PayloadState.Created ||
-		state_before ==  IPayloadsControllerCore.PayloadState.Queued) => !lastReverted ;
+		state_before ==  IPayloadsControllerCore.PayloadState.Queued) => !call_reverted ;
 
 
 }
@@ -727,29 +713,31 @@ invariant executor_isnt_used_twice(PayloadsControllerUtils.AccessControl levelA,
 invariant executor_of_level_null_is_zero()
 	get_executor(PayloadsControllerUtils.AccessControl.Level_null) == 0;
 
-rule checkUpdateExecutors
-{
-    env e;
-	IPayloadsControllerCore.UpdateExecutorInput[] executors;
-	updateExecutors(e, executors);
 
-	PayloadsControllerUtils.AccessControl levelA;
-	PayloadsControllerUtils.AccessControl levelB;
-	address executorA;
-	address executorB;
+rule checkUpdateExecutors {
+  env e;
+  IPayloadsControllerCore.UpdateExecutorInput[] executors;
+  require executors.length == 2;
+  updateExecutors(e, executors);
+
+  PayloadsControllerUtils.AccessControl levelA;
+  PayloadsControllerUtils.AccessControl levelB;
+  address executorA;
+  address executorB;
 	
-	bool no_duplicate_access_level = executors[0].accessLevel != executors[1].accessLevel && executors.length <= 2;
+  bool no_duplicate_access_level = executors[0].accessLevel != executors[1].accessLevel;
 
-	assert (executors[0].accessLevel == levelA && executors[0].executorConfig.executor == executorA && no_duplicate_access_level)
-				=> get_executor(levelA) == executorA;
-	assert (executors[1].accessLevel == levelA && executors[1].executorConfig.executor == executorA && no_duplicate_access_level)
-				=> get_executor(levelA) == executorA;
-	assert (executors[0].accessLevel == levelB && executors[0].executorConfig.executor == executorB && no_duplicate_access_level) 
-				=> get_executor(levelB) == executorB;
-	assert (executors[1].accessLevel == levelB && executors[1].executorConfig.executor == executorB && no_duplicate_access_level)
-				=> get_executor(levelB) == executorB;
+  assert (executors[0].accessLevel == levelA && executors[0].executorConfig.executor == executorA && no_duplicate_access_level)
+    => get_executor(levelA) == executorA;
+  assert (executors[1].accessLevel == levelA && executors[1].executorConfig.executor == executorA && no_duplicate_access_level)
+    => get_executor(levelA) == executorA;
+  assert (executors[0].accessLevel == levelB && executors[0].executorConfig.executor == executorB && no_duplicate_access_level) 
+    => get_executor(levelB) == executorB;
+  assert (executors[1].accessLevel == levelB && executors[1].executorConfig.executor == executorB && no_duplicate_access_level)
+    => get_executor(levelB) == executorB;
 
 }
+
 
 rule checkUpdateExecutors_witness_1
 {

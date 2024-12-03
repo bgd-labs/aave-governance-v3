@@ -42,6 +42,13 @@ methods
         bytes32 blockHash
     ) external =>
     _getVotingPower(asset, baseStorageSlot, power, blockHash) expect (uint256);
+    function _.getVotingPower(
+        address asset,
+        uint128 baseStorageSlot,
+        uint256 power,
+        bytes32 blockHash
+    ) internal =>
+    _getVotingPower(asset, baseStorageSlot, power, blockHash) expect (uint256);
   
     // `DataWarehouse` =========================================================
     // Summarized since it retrieves data from slots
@@ -75,7 +82,7 @@ methods
  * @param storageProof
  * @return raw voting power for the given asset
  */
-ghost mapping(address => mapping(bytes => uint256)) _slotValues;
+persistent ghost mapping(address => mapping(bytes => uint256)) _slotValues;
 
 
 /// @title Summary of `DataWarehouse.getStorage` - slot always exists
@@ -107,7 +114,7 @@ function _getStorage(
  * @param baseStorageSlot
  * @return voter's voting power for the given asset
  */
-ghost mapping(uint256 => mapping(address => mapping(uint128 => uint256))) _votingAssetPower;
+persistent ghost mapping(uint256 => mapping(address => mapping(uint128 => uint256))) _votingAssetPower;
 
 
 /** @title Mock voting power

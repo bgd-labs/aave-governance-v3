@@ -1,4 +1,4 @@
-CMN="--compilation_steps_only"
+#CMN="--compilation_steps_only"
 
 
 
@@ -38,7 +38,7 @@ certoraRun $CMN security/certora/confs/voting/verifyMisc.conf \
 #TODO: uncomment with certora-cli version 6.0 or higher
 echo "******** Running:  voting:7  ***************"
 certoraRun $CMN security/certora/confs/voting/verifyPower_summary.conf \
-    --rule onlyThreeTokens \ 
+           --rule onlyThreeTokens \
            --msg "voting 7: "
 
 echo "******** Running:  voting:8  ***************"
@@ -207,6 +207,3 @@ certoraRun $CMN security/certora/confs/voting/verifyVoting_and_tally.conf \
            --rule method_reachability \
            --msg "voting 35: "
 
-
-
-          

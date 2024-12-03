@@ -67,7 +67,7 @@ ghost mapping(uint256 => mathint) votesSum {
  */
 hook Sstore 
     _proposals[KEY uint256 proposalId].votes[KEY address voter].votingPower
-    uint248 newPower (uint248 oldPower) STORAGE
+    uint248 newPower (uint248 oldPower)
     {
         // Update `is_someoneVoting` - only the new
         havoc is_someoneVoting assuming (
@@ -262,7 +262,7 @@ function dispatchVote(method f, env e, address voter) {
     ) {
         submitVoteFromVoter(e, voter, aProposalId, support, votingBalanceProofs);
     } else {
-        if isSenderVoterFunction(f) {
+        if (isSenderVoterFunction(f)) {
             // The sender is the voter
             require voter == e.msg.sender;
         }
