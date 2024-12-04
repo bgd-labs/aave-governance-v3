@@ -35,14 +35,6 @@ constructor(
     return _payloads[payloadId].expirationTime;
   }
 
-  function getPayloadQueuedAtById(uint40 payloadId) external view returns (uint40){
-    return _payloads[payloadId].queuedAt;
-  }
-
-  function getPayloadExpirationTimeById(uint40 payloadId) external view returns (uint40){
-    return _payloads[payloadId].expirationTime;
-  }
-
   function getPayloadGracePeriod(uint40 payloadId) external view returns (uint40){
     return _payloads[payloadId].gracePeriod;
   }

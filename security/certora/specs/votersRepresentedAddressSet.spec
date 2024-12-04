@@ -1,5 +1,10 @@
 //
 // Specification for Openzeppelin AddressSet used by GovernanceCore._votersRepresented 
+
+/* ND - we have a much better spec for this: 
+ https://github.com/Certora/Examples/blob/master/CVLByExample/QuantifierExamples/EnumerableSet/certora/spec/set.spec
+lets switch to that on new projects and then the requireinvaraint is much easier 
+*/
 // 
 
 methods{
@@ -85,7 +90,7 @@ definition ARRAY_OUT_OF_BOUND_ZERO() returns bool = forall address rep. forall u
 /**
  * ghost mirror map, mimics Set map
  **/
-ghost mapping(address => mapping(uint256 => mapping(bytes32 => uint256))) mirrorMap{ 
+persistent ghost mapping(address => mapping(uint256 => mapping(bytes32 => uint256))) mirrorMap{ 
     init_state axiom forall address rep. forall uint256 chain. forall bytes32 a. mirrorMap[rep][chain][a] == 0;
     
 }
@@ -93,7 +98,7 @@ ghost mapping(address => mapping(uint256 => mapping(bytes32 => uint256))) mirror
 /**
  * ghost mirror array, mimics Set array
  **/
-ghost mapping(address => mapping(uint256 => mapping(uint256 => bytes32))) mirrorArray{
+persistent ghost mapping(address => mapping(uint256 => mapping(uint256 => bytes32))) mirrorArray{
     init_state axiom forall address rep. forall uint256 chain. forall uint256 i. mirrorArray[rep][chain][i] == to_bytes32(0);
 }
 
@@ -104,7 +109,7 @@ ghost mapping(address => mapping(uint256 => mapping(uint256 => bytes32))) mirror
   * The assumption holds: breaking the assumptions would violate the invariant condition 'map(array(index)) == index + 1'. Set map uses 0 as a sentinel value, so the array cannot contain MAX_INT different values.  
   * The assumption is necessary: if a value is added when length==MAX_INT then length overflows and becomes zero.
  **/
-ghost mapping(address => mapping(uint256 => uint256)) mirrorArrayLen{
+persistent ghost mapping(address => mapping(uint256 => uint256)) mirrorArrayLen{
     init_state axiom forall address rep. forall uint256 chain. mirrorArrayLen[rep][chain] == 0;
     axiom forall address rep. forall uint256 chain. mirrorArrayLen[rep][chain] < max_uint256;
 }
@@ -114,7 +119,7 @@ ghost mapping(address => mapping(uint256 => uint256)) mirrorArrayLen{
  * hook for Set array stores
  * @dev user of this spec must replace _list with the instance name of the Set.
  **/
-hook Sstore _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 0)[INDEX uint256 index] bytes32 newValue (bytes32 oldValue) STORAGE {
+hook Sstore _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 0)[INDEX uint256 index] bytes32 newValue (bytes32 oldValue) {
     mirrorArray[rep][chain][index] = newValue;
 }
 
@@ -122,14 +127,14 @@ hook Sstore _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 0)
  * hook for Set array loads
  * @dev user of this spec must replace _list with the instance name of the Set.
  **/
-hook Sload bytes32 value _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 0)[INDEX uint256 index] STORAGE {
+hook Sload bytes32 value _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 0)[INDEX uint256 index] {
     require(mirrorArray[rep][chain][index] == value);
 }
 /**
  * hook for Set map stores
  * @dev user of this spec must replace _list with the instance name of the Set.
  **/
-hook Sstore _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 32)[KEY bytes32 key] uint256 newIndex (uint256 oldIndex) STORAGE {
+hook Sstore _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 32)[KEY bytes32 key] uint256 newIndex (uint256 oldIndex) {
       mirrorMap[rep][chain][key] = newIndex;
 }
 
@@ -137,7 +142,7 @@ hook Sstore _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 32
  * hook for Set map loads
  * @dev user of this spec must replace _list with the instance name of the Set.
  **/
-hook Sload uint256 index _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 32)[KEY bytes32 key] STORAGE {
+hook Sload uint256 index _votersRepresented [KEY address rep] [KEY uint256 chain] .(offset 32)[KEY bytes32 key] {
     require(mirrorMap[rep][chain][key] == index);
 }
 
@@ -145,7 +150,7 @@ hook Sload uint256 index _votersRepresented [KEY address rep] [KEY uint256 chain
  * hook for Set array length stores
  * @dev user of this spec must replace _list with the instance name of the Set.
  **/
-hook Sstore _votersRepresented  [KEY address rep] [KEY uint256 chain] .(offset 0).(offset 0) uint256 newLen (uint256 oldLen) STORAGE {
+hook Sstore _votersRepresented  [KEY address rep] [KEY uint256 chain] .(offset 0).(offset 0) uint256 newLen (uint256 oldLen) {
         mirrorArrayLen[rep][chain] = newLen;
 }
 
@@ -153,7 +158,7 @@ hook Sstore _votersRepresented  [KEY address rep] [KEY uint256 chain] .(offset 0
  * hook for Set array length load
  * @dev user of this spec must replace _votersRepresented with the instance name of the Set.
  **/
-hook Sload uint256 len _votersRepresented  [KEY address rep] [KEY uint256 chain] .(offset 0).(offset 0) STORAGE {
+hook Sload uint256 len _votersRepresented  [KEY address rep] [KEY uint256 chain] .(offset 0).(offset 0) {
     require mirrorArrayLen[rep][chain] == len;
 }
 
@@ -161,11 +166,7 @@ hook Sload uint256 len _votersRepresented  [KEY address rep] [KEY uint256 chain]
  * main Set general invariant
  **/
 invariant setInvariant(env e1, address representative, uint256 chainId)
-    SET_INVARIANT(representative, chainId)
-    {
-        preserved with (env e2)
-        {require e1.msg.sender == e2.msg.sender;}
-    }
+    SET_INVARIANT(representative, chainId);
 
 
 /**

@@ -190,10 +190,11 @@ rule wrongAssetYieldsZeroPower(
 }
 
 // setup self check - reachability of currentContract external functions
-rule method_reachability {
+rule method_reachability(method f)
+filtered {f -> f.contract == currentContract}
+{
   env e;
   calldataarg arg;
-  method f;
   f(e, arg);
   satisfy true;
 }
