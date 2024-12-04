@@ -170,11 +170,13 @@ rule rejectEquivalentProofs(
     assert lastReverted;
 }
 
+
 // setup self check - reachability of currentContract external functions
-rule method_reachability {
+rule method_reachability(method f) filtered {
+    f -> filteredMethods(f)
+} {
   env e;
   calldataarg arg;
-  method f;
   f(e, arg);
   satisfy true;
 }

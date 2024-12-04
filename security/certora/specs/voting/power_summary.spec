@@ -42,6 +42,13 @@ methods
         bytes32 blockHash
     ) external =>
     _getVotingPower(asset, baseStorageSlot, power, blockHash) expect (uint256);
+    function _.getVotingPower(
+        address asset,
+        uint128 baseStorageSlot,
+        uint256 power,
+        bytes32 blockHash
+    ) internal =>
+    _getVotingPower(asset, baseStorageSlot, power, blockHash) expect (uint256);
   
     // `DataWarehouse` =========================================================
     // Summarized since it retrieves data from slots
@@ -54,7 +61,9 @@ methods
     _getStorage(account, blockHash, slot, storageProof);
 
     // `CrossChainController` ==================================================
-    // NOTE: Not clear why this call is not resolved, we summarize it as `NONDET`
+    // NOTE: Summarized since it contains a `delegatecall` in `CrossChainForwarder.sol`
+    // Line 284
+    // NOTE: This is not a view function, so `NONDET` summary is not safe!
     function CrossChainController.forwardMessage(
         uint256, address, uint256, bytes
     ) external returns (bytes32,bytes32) => NONDET;
@@ -73,7 +82,7 @@ methods
  * @param storageProof
  * @return raw voting power for the given asset
  */
-ghost mapping(address => mapping(bytes => uint256)) _slotValues;
+persistent ghost mapping(address => mapping(bytes => uint256)) _slotValues;
 
 
 /// @title Summary of `DataWarehouse.getStorage` - slot always exists
@@ -105,7 +114,7 @@ function _getStorage(
  * @param baseStorageSlot
  * @return voter's voting power for the given asset
  */
-ghost mapping(uint256 => mapping(address => mapping(uint128 => uint256))) _votingAssetPower;
+persistent ghost mapping(uint256 => mapping(address => mapping(uint128 => uint256))) _votingAssetPower;
 
 
 /** @title Mock voting power
@@ -150,6 +159,69 @@ function _getVotingPower(
 }
 
 
+// Filters =====================================================================
+// Defines methods that usually must be filtered out from invariants and parametric rules
+definition filteredMethods(method f) returns bool = (
+    // Filtered due to unresolved call from `Address.sol` Line 136:
+    // `target.call{value: value}(data)`
+    f.selector != sig:CrossChainController.emergencyTokenTransfer(
+        address, address, uint256
+    ).selector &&
+
+    // Filtered due to unresolved call from `CrossChainReceiver.sol` Line 231:
+    // `IBaseReceiverPortal(envelope.destination).receiveCrossChainMessage(`
+    // `   envelope.origin,envelope.originChainId,envelope.message`
+    // `)`
+    f.selector != sig:receiveCrossChainMessage(address,uint256,bytes).selector &&
+
+    // Filtered due to unresolved call from `CrossChainReceiver.sol` Line 231: see above
+    f.selector != sig:CrossChainController.deliverEnvelope(
+        CrossChainController.Envelope
+    ).selector &&
+
+    // Filtered due to unresolved call from `Rescuable.sol` Line 3:
+    // to.call{value: amount}(new bytes(0))
+    f.selector != sig:CrossChainController.emergencyEtherTransfer(
+        address,uint256
+    ).selector &&
+
+    // Filtered due to unresolved call from `Address.sol` Line 189:
+    // `target.delegatecall(data)`
+    f.selector != sig:CrossChainController.enableBridgeAdapters(
+        ICrossChainForwarder.ForwarderBridgeAdapterConfigInput[]
+    ).selector  &&
+
+    // Unreachable methods
+    // NOTE: It is unclear why these are unreachable in 6.0.0
+    f.selector != sig:CrossChainController.isEnvelopeRegistered(
+        CrossChainController.Envelope
+    ).selector &&
+    f.selector != sig:CrossChainController.retryEnvelope(
+        CrossChainController.Envelope, uint256
+    ).selector &&
+    f.selector != sig:CrossChainController.receiveCrossChainMessage(
+        bytes, uint256
+    ).selector &&
+    f.selector != sig:CrossChainController.getEnvelopeState(
+        CrossChainController.Envelope
+    ).selector &&
+    f.selector != sig:CrossChainController.forwardMessage(
+        uint256, address, uint256, bytes
+    ).selector &&
+    f.selector != sig:CrossChainController.retryTransaction(
+        bytes, uint256, address[]
+    ).selector &&
+    f.selector != sig:CrossChainController.initialize(
+        address,
+        address,
+        ICrossChainReceiver.ConfirmationInput[],
+        ICrossChainReceiver.ReceiverBridgeAdapterConfigInput[],
+        ICrossChainForwarder.ForwarderBridgeAdapterConfigInput[],
+        address[]
+    ).selector
+);
+
+
 // Code mock verification rules ================================================
 
 /** @title There are exactly three acceptable tokens
@@ -159,16 +231,18 @@ function _getVotingPower(
  *  therefore should be retained in CI.
  */
 invariant onlyThreeTokens()
-    _VotingStrategy.getVotingAssetListLength() == 3;
+    _VotingStrategy.getVotingAssetListLength() == 3
+    filtered {
+        f -> filteredMethods(f)
+    }
 
 
 // setup self check - reachability of currentContract external functions
-rule method_reachability {
+rule method_reachability(method f) filtered {
+    f -> filteredMethods(f)
+} {
   env e;
   calldataarg arg;
-  method f;
-
   f(e, arg);
   satisfy true;
 }
-

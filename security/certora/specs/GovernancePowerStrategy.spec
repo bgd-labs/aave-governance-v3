@@ -22,6 +22,10 @@ methods
     function getFullVotingPower(address) external returns (uint256) envfree;
     function getFullPropositionPower(address) external returns (uint256) envfree;
 
+    // GovernancePowerStrategyHarness ==========================================
+    function getVotingAsset(uint256) external returns (address) envfree;
+    function getVotingAssetsNumber() external returns (uint256) envfree;
+    
     // AaveTokenV3 =============================================================
     function AaveTokenV3_DummyA.getPowerCurrent(
         address,
@@ -81,17 +85,17 @@ function _getPower(
 
 // Rules =======================================================================
 
-/// @title Invalid token or slot is refused - a unittest
-rule invalidTokenRefused(address token, uint128 slot) {
-    require (
-        (token != AAVE() || slot != BASE_BALANCE_SLOT()) &&
-        (token != STK_AAVE() || slot != BASE_BALANCE_SLOT()) &&
+/// @title Token and slot pair acceptance - a unittest
+rule onlyValidTokensAccepted(address token, uint128 slot) {
+    bool isValidTokenSlot = (
+        (token == AAVE() && slot == BASE_BALANCE_SLOT()) ||
+        (token == STK_AAVE() && slot == BASE_BALANCE_SLOT()) ||
         (
-            token != A_AAVE() ||
-            (slot != A_AAVE_BASE_BALANCE_SLOT() && slot != A_AAVE_DELEGATED_STATE_SLOT())
+            token == A_AAVE() &&
+            (slot == A_AAVE_BASE_BALANCE_SLOT() || slot == A_AAVE_DELEGATED_STATE_SLOT())
         )
     );
-    assert !isTokenSlotAccepted(token, slot);
+    assert isTokenSlotAccepted(token, slot) <=> isValidTokenSlot;
 }
 
 
@@ -148,6 +152,42 @@ rule transferPowerCompliance(
 }
 
 
+/** @title Sufficient increase in balance will increase voting power
+ *  @notice The dummy tokens used here will increase power for any amount greater than
+ *  zero. However, this may not be true for the real tokens, and that is why we use
+ *  `satisfy` here - to indicate only that for a certain amount the power must grow.
+ */
+rule balanceIncreaseRaisesVotingPower(
+    address from,
+    address receiver,
+    uint256 amountA,
+    uint256 amountB,
+    uint256 amountC
+) {
+    eachDummyIsUniqueToken();
+    IGovernancePowerDelegationToken.GovernancePowerType govType = (
+        IGovernancePowerDelegationToken.GovernancePowerType.VOTING
+    );
+
+    env e;
+    require e.msg.sender == from;
+    require amountA > 0 && amountB > 0 && amountC > 0;
+
+    uint256 prePowerA = _getPower(receiver, govType);
+    _DummyTokenA.transfer(e, receiver, amountA);
+
+    uint256 prePowerB = _getPower(receiver, govType);
+    _DummyTokenB.transfer(e, receiver, amountB);
+
+    uint256 prePowerC = _getPower(receiver, govType);
+    _DummyTokenC.transfer(e, receiver, amountC);
+
+    uint256 postPower = _getPower(receiver, govType);
+
+    satisfy prePowerA < prePowerB && prePowerB < prePowerC && prePowerC < postPower;
+}
+
+
 /** @title Delegating does not increase the power of the delegator, nor reduce the
  *  power of the new delegatee.
  *
@@ -194,6 +234,17 @@ rule delegatePowerCompliance(
         postPowerCurDelegatee <= prePowerCurDelegatee
     );
 }
+
+
+/// @title Voting assets integrity
+invariant votingAssetsIntegrity(uint256 i, uint256 j)
+    (i != j) => (getVotingAsset(i) != getVotingAsset(j));
+
+
+/// @title The number of tokens must be 3 (affects the `loop_iter`)
+invariant numberOfVotingAssets()
+    getVotingAssetsNumber() == 3;
+
 
 // setup self check - reachability of currentContract external functions
 rule method_reachability {
