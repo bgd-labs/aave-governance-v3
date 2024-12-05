@@ -161,6 +161,18 @@ library GovDeployerHelpers {
         persistedJson.parseRaw('.payloadsControllerImpl'),
         (address)
       ),
+      permissionedExecutor: abi.decode(
+        persistedJson.parseRaw('.permissionedExecutor'),
+        (address)
+      ),
+      permissionedPayloadsController: abi.decode(
+        persistedJson.parseRaw('.permissionedPayloadsController'),
+        (address)
+      ),
+      permissionedPayloadsControllerImpl: abi.decode(
+        persistedJson.parseRaw('.permissionedPayloadsControllerImpl'),
+        (address)
+      ),
       votingMachine: abi.decode(
         persistedJson.parseRaw('.votingMachine'),
         (address)
@@ -222,6 +234,18 @@ library GovDeployerHelpers {
       addresses.payloadsControllerDataHelper
     );
     json.serialize('payloadsControllerImpl', addresses.payloadsControllerImpl);
+    json.serialize(
+      'permissionedExecutor',
+      addresses.permissionedExecutor
+    );
+    json.serialize(
+      'permissionedPayloadsController',
+      addresses.permissionedPayloadsController
+    );
+    json.serialize(
+      'permissionedPayloadsControllerImpl',
+      addresses.permissionedPayloadsControllerImpl
+    );
     json.serialize('votingMachine', addresses.votingMachine);
     json.serialize(
       'votingMachineDataHelper',
@@ -270,6 +294,8 @@ library Constants {
     keccak256(bytes('Aave Voting portal eth-bnb'));
   bytes32 public constant PAYLOADS_CONTROLLER_SALT =
     keccak256(bytes('Aave Payloads Controller'));
+  bytes32 public constant PERMISSIONED_PAYLOADS_CONTROLLER_SALT = 
+    keccak256(bytes('Aave Permissioned Payloads Controller'));
   bytes32 public constant EXECUTOR_LVL1_SALT =
     keccak256(bytes('Aave Executor Lvl 1'));
   bytes32 public constant EXECUTOR_LVL2_SALT =
