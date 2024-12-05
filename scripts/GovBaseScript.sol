@@ -34,6 +34,9 @@ library GovDeployerHelpers {
     address payloadsController;
     address payloadsControllerDataHelper;
     address payloadsControllerImpl;
+    address permissionedPayloadsController;
+    address permissionedPayloadsControllerImpl;
+    address permissionedExecutor;
     address votingMachine;
     address votingMachineDataHelper;
     address votingPortal_Eth_Avax;
