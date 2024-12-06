@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {PermissionedPayloadsController, PayloadsControllerUtils, IPayloadsControllerCore} from '../../src/contracts/payloads/PermissionedPayloadsController.sol';
+import {PermissionedPayloadsController, PayloadsControllerUtils, IPayloadsControllerCore, IPermissionedPayloadsController} from '../../src/contracts/payloads/PermissionedPayloadsController.sol';
 import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
 import '../GovBaseScript.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
@@ -39,9 +39,9 @@ abstract contract BaseDeployermissionedPayloadsController is GovBaseScript {
         addresses.permissionedPayloadsControllerImpl,
         ccAddresses.proxyAdmin,
         abi.encodeWithSelector(
-          IPayloadsControllerCore.initialize.selector,
-          msg.sender,
+          PermissionedPayloadsController.initialize.selector,
           addresses.guardian,
+          msg.sender,
           executors
         ),
         Constants.PERMISSIONED_PAYLOADS_CONTROLLER_SALT
