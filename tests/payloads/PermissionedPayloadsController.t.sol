@@ -225,6 +225,7 @@ contract PermissionedPayloadsControllerTest is Test {
   ) external initializeTest(admin, guardian, payloadsManager, origin) {
     uint40 newDelay = 500;
 
+    vm.assume(origin != guardian);
     vm.expectRevert('ONLY_BY_GUARDIAN');
     permissionedPayloadPortal.setExecutionDelay(newDelay);
   }
