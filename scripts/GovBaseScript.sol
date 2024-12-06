@@ -234,10 +234,7 @@ library GovDeployerHelpers {
       addresses.payloadsControllerDataHelper
     );
     json.serialize('payloadsControllerImpl', addresses.payloadsControllerImpl);
-    json.serialize(
-      'permissionedExecutor',
-      addresses.permissionedExecutor
-    );
+    json.serialize('permissionedExecutor', addresses.permissionedExecutor);
     json.serialize(
       'permissionedPayloadsController',
       addresses.permissionedPayloadsController
@@ -294,7 +291,7 @@ library Constants {
     keccak256(bytes('Aave Voting portal eth-bnb'));
   bytes32 public constant PAYLOADS_CONTROLLER_SALT =
     keccak256(bytes('Aave Payloads Controller'));
-  bytes32 public constant PERMISSIONED_PAYLOADS_CONTROLLER_SALT = 
+  bytes32 public constant PERMISSIONED_PAYLOADS_CONTROLLER_SALT =
     keccak256(bytes('Aave Permissioned Payloads Controller'));
   bytes32 public constant EXECUTOR_LVL1_SALT =
     keccak256(bytes('Aave Executor Lvl 1'));
