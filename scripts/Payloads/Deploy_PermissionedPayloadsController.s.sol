@@ -6,8 +6,13 @@ import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
 import '../GovBaseScript.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
 import {TransparentUpgradeableProxy} from 'solidity-utils/contracts/transparent-proxy/TransparentUpgradeableProxy.sol';
+import {MiscEthereum, MiscAvalanche, MiscPolygon, MiscOptimism, MiscArbitrum, MiscMetis, MiscBNB, MiscBase, MiscGnosis, MiscScroll} from 'aave-address-book/AaveAddressBook.sol';
 
 abstract contract BaseDeployermissionedPayloadsController is GovBaseScript {
+  function GUARDIAN() public view virtual returns (address) {
+    return msg.sender;
+  }
+
   function DELAY() public view virtual returns (uint40) {
     return uint40(1 days);
   }
@@ -40,7 +45,7 @@ abstract contract BaseDeployermissionedPayloadsController is GovBaseScript {
         ccAddresses.proxyAdmin,
         abi.encodeWithSelector(
           PermissionedPayloadsController.initialize.selector,
-          addresses.guardian,
+          GUARDIAN(),
           msg.sender,
           executors
         ),
@@ -54,72 +59,118 @@ abstract contract BaseDeployermissionedPayloadsController is GovBaseScript {
 }
 
 contract Ethereum is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscEthereum.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
   }
 }
 
 contract Avalanche is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscAvalanche.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.AVALANCHE;
   }
 }
 
 contract Polygon is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscPolygon.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.POLYGON;
   }
 }
 
 contract Optimism is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscOptimism.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.OPTIMISM;
   }
 }
 
 contract Arbitrum is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscArbitrum.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ARBITRUM;
   }
 }
 
 contract Metis is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscMetis.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.METIS;
   }
 }
 
 contract Binance is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscBNB.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.BNB;
   }
 }
 
 contract Base is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscBase.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.BASE;
   }
 }
 
 contract Gnosis is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscGnosis.PROTOCOL_GUARDIAN;
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.GNOSIS;
   }
 }
 
 contract Zkevm is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscPolygon.PROTOCOL_GUARDIAN; // Assuming the same guardian as Polygon
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.POLYGON_ZK_EVM;
   }
 }
 
 contract Scroll is BaseDeployermissionedPayloadsController {
+  // guardian is not defined in the address book
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.SCROLL;
   }
 }
 
 contract Zksync is BaseDeployermissionedPayloadsController {
+  function GUARDIAN() public pure override returns (address) {
+    return MiscEthereum.PROTOCOL_GUARDIAN; // Assuming the same guardian as Ethereum
+  }
+
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ZK_SYNC;
   }
