@@ -1,21 +1,10 @@
-[submodule "lib/forge-std"]
-	path = lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
-[submodule "lib/solidity-utils"]
-	path = lib/solidity-utils
-	url = https://github.com/bgd-labs/solidity-utils
-	branch = feat/zksync
 [submodule "lib/aave-token-v3"]
 	path = lib/aave-token-v3
 	url = https://github.com/bgd-labs/aave-token-v3
-[submodule "lib/openzeppelin-contracts"]
-	path = lib/openzeppelin-contracts
-	url = https://github.com/OpenZeppelin/openzeppelin-contracts
-	branch = release-v4.9
-[submodule "lib/aave-address-book"]
-	path = lib/aave-address-book
-	url = https://github.com/bgd-labs/aave-address-book
 [submodule "lib/aave-delivery-infrastructure"]
 	path = lib/aave-delivery-infrastructure
 	url = https://github.com/bgd-labs/aave-delivery-infrastructure
-	branch = feat/zksync
+[submodule "lib/aave-helpers"]
+	path = lib/aave-helpers
+	url = https://github.com/bgd-labs/aave-helpers
+
