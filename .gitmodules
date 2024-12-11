@@ -1,10 +1,6 @@
 [submodule "lib/aave-token-v3"]
 	path = lib/aave-token-v3
 	url = https://github.com/bgd-labs/aave-token-v3
-[submodule "lib/aave-delivery-infrastructure"]
-	path = lib/aave-delivery-infrastructure
-	url = https://github.com/bgd-labs/aave-delivery-infrastructure
-[submodule "lib/aave-helpers"]
-	path = lib/aave-helpers
-	url = https://github.com/bgd-labs/aave-helpers
-
+[submodule "lib/adi-deploy"]
+	path = lib/adi-deploy
+	url = https://github.com/bgd-labs/adi-deploy

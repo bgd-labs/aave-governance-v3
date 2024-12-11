@@ -1,8 +1,9 @@
-solidity-utils/=lib/solidity-utils/src/
-aave-token-v3/=lib/aave-token-v3/src/
-aave-address-book/=lib/aave-address-book/src/
-aave-delivery-infrastructure/=lib/aave-delivery-infrastructure/src/
-aave-delivery-infrastructure-scripts/=lib/aave-delivery-infrastructure/scripts/
-ds-test/=lib/forge-std/lib/ds-test/src/
-forge-std/=lib/forge-std/src/
-openzeppelin-contracts/=lib/openzeppelin-contracts/
+aave-delivery-infrastructure/=lib/adi-deploy/lib/aave-delivery-infrastructure/src/
+aave-delivery-infrastructure-scripts/=lib/adi-deploy/lib/aave-delivery-infrastructure/scripts/
+solidity-utils/=lib/adi-deploy/lib/aave-delivery-infrastructure/lib/solidity-utils/src/
+forge-std/=lib/adi-deploy/lib/aave-helpers/lib/forge-std/src/
+openzeppelin-contracts/=lib/adi-deploy/lib/aave-delivery-infrastructure/lib/solidity-utils/lib/openzeppelin-contracts-upgradeable/lib/openzeppelin-contracts/
+aave-helpers/=lib/adi-deploy/lib/aave-helpers/src/
+aave-address-book/=lib/adi-deploy/lib/aave-helpers/lib/aave-address-book/src/
+aave-v3-origin/=lib/adi-deploy/lib/aave-helpers/lib/aave-address-book/lib/aave-v3-origin/src/
+adi-deploy/=lib/adi-deploy/

@@ -8,7 +8,7 @@ import {IDataWarehouse} from '../../src/contracts/voting/interfaces/IDataWarehou
 import {VotingMachine, IVotingMachineWithProofs} from '../../src/contracts/voting/VotingMachine.sol';
 import {VotingStrategy, IBaseVotingStrategy} from '../../src/contracts/voting/VotingStrategy.sol';
 import {IVotingPortal} from '../../src/interfaces/IVotingPortal.sol';
-import {ChainIds} from 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol';
+import {ChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
 
 // Mocked so we can make it revert
@@ -54,9 +54,9 @@ contract VotingMachineMock is VotingMachine {
 }
 
 contract VotingMachineTest is Test {
-  address public constant CROSS_CHAIN_CONTROLLER = address(65536+123);
-  address public constant L1_VOTING_PORTAL = address(65536+1234);
-  address public constant GOVERNANCE = address(65536+12345);
+  address public constant CROSS_CHAIN_CONTROLLER = address(65536 + 123);
+  address public constant L1_VOTING_PORTAL = address(65536 + 1234);
+  address public constant GOVERNANCE = address(65536 + 12345);
   uint256 L1_VOTING_PORTAL_CHAIN_ID;
   uint256 public constant GAS_LIMIT = 600000;
 

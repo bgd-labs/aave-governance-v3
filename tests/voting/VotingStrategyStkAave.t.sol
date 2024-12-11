@@ -2,14 +2,13 @@
 pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
-import {DelegationMode} from 'aave-token-v3/DelegationAwareBalance.sol';
 
 import {IDataWarehouse} from '../../src/contracts/voting/DataWarehouse.sol';
-import {VotingStrategy, IVotingStrategy, IBaseVotingStrategy} from '../../src/contracts/voting/VotingStrategy.sol';
+import {VotingStrategy, IVotingStrategy, IBaseVotingStrategy, DelegationMode} from '../../src/contracts/voting/VotingStrategy.sol';
 import {SlotUtils} from '../../src/contracts/libraries/SlotUtils.sol';
 
 contract VotingStrategyStkAaveTest is Test {
-  address DATA_WAREHOUSE = address(65536+123);
+  address DATA_WAREHOUSE = address(65536 + 123);
   bytes32 constant BLOCK_HASH =
     0x0a7c36db26203276b9430a46faaba9ce76732c5b7c11ef07b39e81a2690591b7;
   address constant VOTER = 0x6D603081563784dB3f83ef1F65Cc389D94365Ac9;

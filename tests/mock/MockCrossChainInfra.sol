@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {CrossChainController} from 'aave-delivery-infrastructure/contracts/CrossChainController.sol';
-import {ChainIds} from 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol';
+import {ChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {LayerZeroAdapter} from 'aave-delivery-infrastructure/contracts/adapters/layerZero/LayerZeroAdapter.sol';
 import {PayloadsController} from '../../src/contracts/payloads/PayloadsController.sol';
 import {Executor} from '../../src/contracts/payloads/Executor.sol';
