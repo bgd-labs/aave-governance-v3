@@ -224,12 +224,6 @@ contract Binance_testnet is BaseDeployermissionedPayloadsController {
   }
 }
 
-contract Base_testnet is BaseDeployermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BASE_GOERLI;
-  }
-}
-
 contract Zksync_testnet is BaseDeployermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ZK_SYNC_SEPOLIA;
