@@ -12,6 +12,8 @@ fs_permissions = [{ access = "read-write", path = "./"}]
 # Whether or not to enable `vm.ffi`
 ffi = true
 
+evm_version = 'london'
+
 #https://github.com/foundry-rs/foundry/issues/4060
 
 [profile.default.zksync]
@@ -46,6 +48,8 @@ scroll="${RPC_SCROLL}"
 scroll-testnet="${RPC_SCROLL_TESTNET}"
 zksync="${RPC_ZK_SYNC}"
 zksync-testnet="${RPC_ZK_SYNC_TESTNET}"
+linea="${RPC_LINEA}"
+linea-testnet="${RPC_LINEA_SEPOLIA}"
 
 [etherscan]
 ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
@@ -72,6 +76,8 @@ scroll={key="${ETHERSCAN_API_KEY_SCROLL}", chain=534352, utl='https://api.scroll
 scroll-testnet={key="${ETHERSCAN_API_KEY_SCROLL}", chain=534351, url='https://api-sepolia.scrollscan.com/api/'}
 zksync={key="${ETHERSCAN_API_KEY_ZK_SYNC}", chain=324}
 zksync-testnet={key="${ETHERSCAN_API_KEY_ZK_SYNC}", chain=300, url='https://api-sepolia-era.zksync.network/api'}
+linea={key="${ETHERSCAN_API_KEY_LINEA}", chain=59144 }
+linea-testnet={key="${ETHERSCAN_API_KEY_LINEA}",chain=59141}
 
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config
