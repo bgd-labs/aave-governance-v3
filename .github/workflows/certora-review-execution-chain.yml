@@ -32,9 +32,9 @@ jobs:
 
       - name: Install solc
         run: |
-          wget https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.20/solc-static-linux
           chmod +x solc-static-linux
-          sudo mv solc-static-linux /usr/local/bin/solc8.19
+          sudo mv solc-static-linux /usr/local/bin/solc8.20
 
       - name: Verify rule ${{ matrix.rule }}
         run: |
@@ -69,5 +69,5 @@ jobs:
           - verifyPayloadsController.conf --rule queuedAt_is_zero_before_queued_state_variable executedAt_is_zero_before_executed_state_variable null_state_equivalence
           - verifyPayloadsController.conf --rule executedAt_is_zero_before_executed
           - verifyPayloadsController.conf --rule executed_when_in_queued_state executed_when_in_queued_state_variable guardian_can_cancel no_late_cancel state_variable_cant_decrease
-          - verifyPayloadsController.conf --rule checkUpdateExecutors checkUpdateExecutors_witness_1 checkUpdateExecutors_witness_2 checkUpdateExecutors_witness_3 checkUpdateExecutors_witness_4 
+          - verifyPayloadsController.conf --rule checkUpdateExecutors checkUpdateExecutors_witness_1 checkUpdateExecutors_witness_2 checkUpdateExecutors_witness_3 checkUpdateExecutors_witness_4
           - verifyPayloadsController.conf --rule payload_state_transition_post_state payload_state_transition_pre_state
