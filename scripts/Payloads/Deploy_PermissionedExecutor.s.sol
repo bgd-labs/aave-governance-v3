@@ -102,6 +102,12 @@ contract Polygon_testnet is BaseDeployPermissionedExecutor {
   }
 }
 
+contract Base_testnet is BaseDeployPermissionedExecutor {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.BASE_SEPOLIA;
+  }
+}
+
 contract Optimism_testnet is BaseDeployPermissionedExecutor {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.OPTIMISM_GOERLI;

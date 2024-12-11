@@ -194,6 +194,12 @@ contract Polygon_testnet is BaseDeployermissionedPayloadsController {
   }
 }
 
+contract Base_testnet is BaseDeployermissionedPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return TestNetChainIds.BASE_SEPOLIA;
+  }
+}
+
 contract Optimism_testnet is BaseDeployermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.OPTIMISM_GOERLI;
