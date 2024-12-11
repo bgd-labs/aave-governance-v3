@@ -6,3 +6,4 @@ aave-helpers/=lib/adi-deploy/lib/aave-helpers/src/
 aave-address-book/=lib/adi-deploy/lib/aave-helpers/lib/aave-address-book/src/
 aave-v3-origin/=lib/adi-deploy/lib/aave-helpers/lib/aave-address-book/lib/aave-v3-origin/src/
 adi-deploy/=lib/adi-deploy/
+aave-token-v3/=lib/aave-token-v3/
