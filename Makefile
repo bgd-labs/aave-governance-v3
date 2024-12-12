@@ -100,7 +100,7 @@ write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedA
 
 
 deploy-initial-test:
-	$(call deploy_fn,InitialDeployments,zksync)
+	$(call deploy_fn,InitialDeployments,linea)
 
 # Deploy Governance contracts
 deploy-governance-test:
@@ -131,7 +131,7 @@ deploy-executor-lvl2-test:
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain-test:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,zksync)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,linea)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals-test:
