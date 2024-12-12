@@ -148,7 +148,7 @@ set-vp-as_ccf-senders-test:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts-test:
-	$(call deploy_fn,Deploy_ContractHelpers,zksync)
+	$(call deploy_fn,Deploy_ContractHelpers,linea)
 
 deploy-full-key-test:
 		make deploy-initial-test
