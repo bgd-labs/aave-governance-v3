@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {DelegationMode} from './../../../src/contracts/voting/VotingStrategy.sol';
+import {DelegationMode} from '../../../../src/contracts/voting/VotingStrategy.sol';
 
 /**
  * @title Hack to use DelegationMode in spec

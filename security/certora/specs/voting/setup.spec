@@ -122,7 +122,8 @@ definition filteredMethods(method f) returns bool = (
         ICrossChainReceiver.ConfirmationInput[],
         ICrossChainReceiver.ReceiverBridgeAdapterConfigInput[],
         ICrossChainForwarder.ForwarderBridgeAdapterConfigInput[],
-        address[]
+        address[],
+        ICrossChainForwarder.OptimalBandwidthByChain[]
     ).selector
 );
 
