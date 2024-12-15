@@ -38,9 +38,9 @@ contract Ethereum_testnet is BaseCreateProposal {
     PayloadsControllerUtils.Payload[]
       memory payloads = new PayloadsControllerUtils.Payload[](1);
     payloads[0] = PayloadsControllerUtils.Payload({
-      chain: TestNetChainIds.POLYGON_MUMBAI,
+      chain: TestNetChainIds.POLYGON_AMOY,
       accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
-      payloadsController: _getAddresses(TestNetChainIds.POLYGON_MUMBAI)
+      payloadsController: _getAddresses(TestNetChainIds.POLYGON_AMOY)
         .payloadsController,
       payloadId: 7
     });

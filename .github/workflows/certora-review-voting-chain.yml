@@ -34,9 +34,9 @@ jobs:
 
       - name: Install solc
         run: |
-          wget https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.20/solc-static-linux
           chmod +x solc-static-linux
-          sudo mv solc-static-linux /usr/local/bin/solc8.19
+          sudo mv solc-static-linux /usr/local/bin/solc8.20
 
       - name: Verify rule ${{ matrix.rule }}
         run: |
@@ -58,4 +58,4 @@ jobs:
           - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative 
           - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote 
           - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
-          
+        
