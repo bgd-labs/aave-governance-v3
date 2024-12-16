@@ -70,6 +70,8 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/zkevm.json';
     } else if (chainId == ChainIds.ZK_SYNC) {
       return './deployments/gov/mainnet/zksync.json';
+    } else if (chainId == ChainIds.LINEA) {
+      return './deployments/gov/mainnet/linea.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
