@@ -9,6 +9,9 @@ solc='0.8.19'
 
 fs_permissions = [{ access = "read-write", path = "./"}]
 
+evm_version = "london"
+
+
 # Whether or not to enable `vm.ffi`
 ffi = true
 
