@@ -4,9 +4,15 @@ pragma solidity ^0.8.0;
 import {BaseVotingStrategy, IBaseVotingStrategy} from '../BaseVotingStrategy.sol';
 import {StateProofVerifier} from './libs/StateProofVerifier.sol';
 import {IVotingStrategy, IDataWarehouse} from './interfaces/IVotingStrategy.sol';
-import {DelegationMode} from 'aave-token-v3/DelegationAwareBalance.sol';
 import {Errors} from '../libraries/Errors.sol';
 import {SlotUtils} from '../libraries/SlotUtils.sol';
+
+enum DelegationMode {
+  NO_DELEGATION,
+  VOTING_DELEGATED,
+  PROPOSITION_DELEGATED,
+  FULL_POWER_DELEGATED
+}
 
 /**
  * @title VotingStrategy

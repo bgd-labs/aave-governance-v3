@@ -22,7 +22,7 @@ abstract contract BaseRegisterPayload is GovBaseScript {
 
 contract Zksync is BaseRegisterPayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.ZK_SYNC;
+    return ChainIds.ZKSYNC;
   }
 
   function getPayloadActions()
@@ -49,7 +49,7 @@ contract Zksync is BaseRegisterPayload {
 
 contract Polygon_testnet is BaseRegisterPayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 
   function getPayloadActions()
@@ -76,7 +76,7 @@ contract Polygon_testnet is BaseRegisterPayload {
 
 contract Zksync_testnet is BaseRegisterPayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZK_SYNC_SEPOLIA;
+    return TestNetChainIds.ZKSYNC_SEPOLIA;
   }
 
   function getPayloadActions()

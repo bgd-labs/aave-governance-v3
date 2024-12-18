@@ -68,7 +68,7 @@ contract Avalanche_testnet is BaseDeployVotingStrategy {
 
 contract Polygon_testnet is BaseDeployVotingStrategy {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 }
 

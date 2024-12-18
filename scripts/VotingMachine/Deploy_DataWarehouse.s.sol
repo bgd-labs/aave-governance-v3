@@ -50,7 +50,7 @@ contract Avalanche_testnet is BaseDeployDataWarehouse {
 
 contract Polygon_testnet is BaseDeployDataWarehouse {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 }
 

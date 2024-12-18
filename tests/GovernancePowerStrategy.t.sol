@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import 'forge-std/Test.sol';
 import {GovernancePowerStrategy} from '../src/contracts/GovernancePowerStrategy.sol';
 import {IBaseVotingStrategy} from '../src/interfaces/IBaseVotingStrategy.sol';
-import {IGovernancePowerDelegationToken} from 'aave-token-v3/interfaces/IGovernancePowerDelegationToken.sol';
+import {IGovernancePowerDelegationToken} from '../src/contracts/dataHelpers/interfaces/IGovernancePowerDelegationToken.sol';
 
 contract GovernancePowerStrategyTest is Test {
   address public AAVE;

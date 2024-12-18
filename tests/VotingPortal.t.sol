@@ -3,16 +3,16 @@ pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
 import {IVotingPortal} from '../src/interfaces/IVotingPortal.sol';
-import {ChainIds} from 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol';
+import {ChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {VotingPortal, IGovernanceCore, IVotingMachineWithProofs} from '../src/contracts/VotingPortal.sol';
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {ICrossChainReceiver} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainReceiver.sol';
 import {Errors} from '../src/contracts/libraries/Errors.sol';
 
 contract VotingPortalTest is Test {
-  address public constant CROSS_CHAIN_CONTROLLER = address(65536+123);
-  address public constant GOVERNANCE = address(65536+1234);
-  address public constant VOTING_MACHINE = address(65536+12345);
+  address public constant CROSS_CHAIN_CONTROLLER = address(65536 + 123);
+  address public constant GOVERNANCE = address(65536 + 1234);
+  address public constant VOTING_MACHINE = address(65536 + 12345);
   uint128 public constant GAS_LIMIT = 600000;
 
   uint256 public VOTING_MACHINE_CHAIN_ID;

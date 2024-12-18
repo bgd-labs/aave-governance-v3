@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
 import 'forge-std/StdStorage.sol';
-import {ECDSA} from 'openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol';
+import {MessageHashUtils} from 'openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol';
 import {IVotingMachineWithProofs} from '../../src/contracts/voting/interfaces/IVotingMachineWithProofs.sol';
 import {IDataWarehouse} from '../../src/contracts/voting/interfaces/IDataWarehouse.sol';
 import {IVotingStrategy} from '../../src/contracts/voting/interfaces/IVotingStrategy.sol';
@@ -69,7 +69,7 @@ contract VotingMachineWithProofsTest is Test {
   bytes32 BLOCK_HASH =
     0xf656a10e5d825e287890cc430cf1bac2364b756e09e19b6fa3a72ec844ba2f44;
   address VOTER = 0x6D603081563784dB3f83ef1F65Cc389D94365Ac9;
-  address public constant GOVERNANCE = address(65536+12345);
+  address public constant GOVERNANCE = address(65536 + 12345);
 
   IDataWarehouse dataWarehouse;
   IVotingStrategy votingStrategy;
@@ -1214,7 +1214,7 @@ contract VotingMachineWithProofsTest is Test {
     });
 
     address signer = vm.addr(1);
-    bytes32 digest = ECDSA.toTypedDataHash(
+    bytes32 digest = MessageHashUtils.toTypedDataHash(
       votingMachine.DOMAIN_SEPARATOR(),
       keccak256(
         abi.encode(
@@ -1309,7 +1309,7 @@ contract VotingMachineWithProofsTest is Test {
 
     address signer = vm.addr(1);
 
-    bytes32 digest = ECDSA.toTypedDataHash(
+    bytes32 digest = MessageHashUtils.toTypedDataHash(
       votingMachine.DOMAIN_SEPARATOR(),
       keccak256(
         abi.encode(
@@ -1363,7 +1363,7 @@ contract VotingMachineWithProofsTest is Test {
     });
 
     address signer = vm.addr(1);
-    bytes32 digest = ECDSA.toTypedDataHash(
+    bytes32 digest = MessageHashUtils.toTypedDataHash(
       votingMachine.DOMAIN_SEPARATOR(),
       keccak256(
         abi.encode(
@@ -1396,9 +1396,7 @@ contract VotingMachineWithProofsTest is Test {
 
     _createVote(proposalId, 600);
 
-    vm.expectRevert(
-      bytes("ECDSA: invalid signature")
-    );
+    vm.expectRevert(abi.encodeWithSignature('ECDSAInvalidSignature()'));
     votingMachine.submitVoteBySignature(
       proposalId,
       address(0),
@@ -1436,7 +1434,7 @@ contract VotingMachineWithProofsTest is Test {
     });
 
     address signer = vm.addr(1);
-    bytes32 digest = ECDSA.toTypedDataHash(
+    bytes32 digest = MessageHashUtils.toTypedDataHash(
       votingMachine.DOMAIN_SEPARATOR(),
       keccak256(
         abi.encode(
@@ -1553,13 +1551,13 @@ contract VotingMachineWithProofsTest is Test {
     });
 
     address signer = vm.addr(1);
-    bytes32 digest = ECDSA.toTypedDataHash(
+    bytes32 digest = MessageHashUtils.toTypedDataHash(
       votingMachine.DOMAIN_SEPARATOR(),
       keccak256(
         abi.encode(
           votingMachine.VOTE_SUBMITTED_BY_REPRESENTATIVE_TYPEHASH(),
           2,
-          address(65536+1234),
+          address(65536 + 1234),
           signer,
           true,
           _getVotingAssetsWithSlotHash(votingAssetsWithSlot)

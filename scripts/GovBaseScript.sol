@@ -4,9 +4,8 @@ pragma solidity ^0.8.0;
 import 'forge-std/Script.sol';
 import 'forge-std/Vm.sol';
 import 'forge-std/StdJson.sol';
-import {TestNetChainIds} from 'aave-delivery-infrastructure-scripts/contract_extensions/TestNetChainIds.sol';
-import {ChainIds} from 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol';
-import {DeployerHelpers} from 'aave-delivery-infrastructure-scripts/BaseScript.sol';
+import {ChainIds, TestNetChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
+import {DeployerHelpers, Addresses as CCCAddresses} from 'adi-deploy/scripts/BaseDeployerScript.sol';
 import {Create3Factory, Create3, ICreate3Factory} from 'solidity-utils/contracts/create3/Create3Factory.sol';
 
 struct Network {
@@ -68,34 +67,30 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/zkevm.json';
     } else if (chainId == ChainIds.SCROLL) {
       return './deployments/gov/mainnet/zkevm.json';
-    } else if (chainId == ChainIds.ZK_SYNC) {
+    } else if (chainId == ChainIds.ZKSYNC) {
       return './deployments/gov/mainnet/zksync.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
-    } else if (chainId == TestNetChainIds.ETHEREUM_GOERLI) {
-      return './deployments/gov/testnet/goerli.json';
-    } else if (chainId == TestNetChainIds.POLYGON_MUMBAI) {
-      return './deployments/gov/testnet/mum.json';
+    } else if (chainId == TestNetChainIds.POLYGON_AMOY) {
+      return './deployments/gov/testnet/amoy.json';
     } else if (chainId == TestNetChainIds.AVALANCHE_FUJI) {
       return './deployments/gov/testnet/fuji.json';
-    } else if (chainId == TestNetChainIds.ARBITRUM_GOERLI) {
-      return './deployments/gov/testnet/arb_go.json';
-    } else if (chainId == TestNetChainIds.OPTIMISM_GOERLI) {
-      return './deployments/gov/testnet/op_go.json';
+    } else if (chainId == TestNetChainIds.ARBITRUM_SEPOLIA) {
+      return './deployments/gov/testnet/arb_sep.json';
+    } else if (chainId == TestNetChainIds.OPTIMISM_SEPOLIA) {
+      return './deployments/gov/testnet/op_sep.json';
     } else if (chainId == TestNetChainIds.METIS_TESTNET) {
       return './deployments/gov/testnet/met_test.json';
     } else if (chainId == TestNetChainIds.BNB_TESTNET) {
       return './deployments/gov/testnet/bnb_test.json';
-    } else if (chainId == TestNetChainIds.BASE_GOERLI) {
-      return './deployments/gov/testnet/base_go.json';
+    } else if (chainId == TestNetChainIds.BASE_SEPOLIA) {
+      return './deployments/gov/testnet/base_sep.json';
     } else if (chainId == TestNetChainIds.GNOSIS_CHIADO) {
       return './deployments/gov/testnet/gnosis_chiado.json';
-    } else if (chainId == TestNetChainIds.POLYGON_ZK_EVM_GOERLI) {
-      return './deployments/gov/testnet/zkevm_go.json';
     } else if (chainId == TestNetChainIds.SCROLL_SEPOLIA) {
       return './deployments/gov/testnet/scroll_sepolia.json';
-    } else if (chainId == TestNetChainIds.ZK_SYNC_SEPOLIA) {
+    } else if (chainId == TestNetChainIds.ZKSYNC_SEPOLIA) {
       return './deployments/gov/testnet/zksync_sep.json';
     } else {
       revert('chain id is not supported');
@@ -296,7 +291,7 @@ abstract contract GovBaseScript is Script {
 
   function _getCCAddresses(
     uint256 networkId
-  ) internal view returns (DeployerHelpers.Addresses memory) {
+  ) internal view returns (CCCAddresses memory) {
     return
       DeployerHelpers.decodeJson(
         DeployerHelpers.getPathByChainId(networkId),

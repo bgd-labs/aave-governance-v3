@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IGovernancePowerDelegationToken} from 'aave-token-v3/interfaces/IGovernancePowerDelegationToken.sol';
+import {IGovernancePowerDelegationToken} from './interfaces/IGovernancePowerDelegationToken.sol';
 import {IMetaDelegateHelper} from './interfaces/IMetaDelegateHelper.sol';
 import {Errors} from '../libraries/Errors.sol';
 

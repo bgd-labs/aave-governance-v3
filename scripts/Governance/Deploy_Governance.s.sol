@@ -41,9 +41,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
     IGovernanceCore.SetVotingConfigInput[]
       memory votingConfigs = getVotingConfigurations();
 
-    DeployerHelpers.Addresses memory ccAddresses = _getCCAddresses(
-      TRANSACTION_NETWORK()
-    );
+    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
 
     // deploy governance.
     IGovernance governanceImpl;

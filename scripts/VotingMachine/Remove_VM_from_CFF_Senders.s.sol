@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import {BaseRemoveCCFApprovedSenders} from 'aave-delivery-infrastructure-scripts/CCC/Remove_CCF_Approved_Senders.s.sol';
+import {BaseRemoveCCFApprovedSenders} from 'adi-deploy/scripts/ccc/Remove_CCF_Approved_Senders.s.sol';
 import '../GovBaseScript.sol';
 
 abstract contract BaseRemoveVMAsCCFSender is BaseRemoveCCFApprovedSenders {
@@ -22,25 +22,25 @@ abstract contract BaseRemoveVMAsCCFSender is BaseRemoveCCFApprovedSenders {
 }
 
 contract Ethereum is BaseRemoveVMAsCCFSender {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return ChainIds.ETHEREUM;
   }
 }
 
 contract Ethereum_testnet is BaseRemoveVMAsCCFSender {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
   }
 }
 
 contract Avalanche is BaseRemoveVMAsCCFSender {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return ChainIds.AVALANCHE;
   }
 }
 
 contract Avalanche_testnet is BaseRemoveVMAsCCFSender {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return TestNetChainIds.AVALANCHE_FUJI;
   }
 }

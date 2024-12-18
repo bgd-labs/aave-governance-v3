@@ -3,14 +3,14 @@ pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
 import 'aave-delivery-infrastructure/contracts/libs/EncodingUtils.sol';
-import 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol';
+import {ChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import '../src/contracts/voting/interfaces/IVotingMachineWithProofs.sol';
 import {PayloadsControllerUtils} from '../src/contracts/payloads/PayloadsControllerUtils.sol';
 
 contract MessageSizesTest is Test {
-  address public constant ORIGIN = address(65536+123);
-  address public constant DESTINATION = address(65536+1234);
-  address public constant VOTER = address(65536+12345);
+  address public constant ORIGIN = address(65536 + 123);
+  address public constant DESTINATION = address(65536 + 1234);
+  address public constant VOTER = address(65536 + 12345);
   address public constant PAYLOADS_CONTROLLER = address(123456);
   uint256 public constant ORIGIN_CHAIN_ID = ChainIds.ETHEREUM;
   uint256 public constant DESTINATION_CHAIN_ID = ChainIds.POLYGON;

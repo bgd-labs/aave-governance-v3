@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import {BaseSetCCFApprovedSenders} from 'aave-delivery-infrastructure-scripts/CCC/Set_CCF_Approved_Senders.s.sol';
+import {BaseSetCCFApprovedSenders} from 'adi-deploy/scripts/ccc/Set_CCF_Approved_Senders.s.sol';
 import '../GovBaseScript.sol';
 
 contract Ethereum is BaseSetCCFApprovedSenders {
@@ -20,7 +20,7 @@ contract Ethereum is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return ChainIds.ETHEREUM;
   }
 }
@@ -40,7 +40,7 @@ contract Avalanche is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return ChainIds.AVALANCHE;
   }
 }
@@ -60,7 +60,7 @@ contract Polygon is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return ChainIds.POLYGON;
   }
 }
@@ -80,7 +80,7 @@ contract Binance is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return ChainIds.BNB;
   }
 }
@@ -101,7 +101,7 @@ contract Ethereum_testnet is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
   }
 }
@@ -121,7 +121,7 @@ contract Avalanche_testnet is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return TestNetChainIds.AVALANCHE_FUJI;
   }
 }
@@ -141,8 +141,8 @@ contract Polygon_testnet is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
+    return TestNetChainIds.POLYGON_AMOY;
   }
 }
 
@@ -161,7 +161,7 @@ contract Binance_testnet is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
     return TestNetChainIds.BNB_TESTNET;
   }
 }

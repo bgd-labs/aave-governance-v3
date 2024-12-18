@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IGovernancePowerDelegationToken} from 'aave-token-v3/interfaces/IGovernancePowerDelegationToken.sol';
+import {IGovernancePowerDelegationToken} from '../interfaces/IGovernancePowerDelegationToken.sol';
 
 /**
  * @title IMetaDelegateHelper
@@ -42,6 +42,7 @@ interface IMetaDelegateHelper {
    * @notice method for the batch upgrade governance power delegation across multiple voting assets with signatures
    * @param delegateParams an array with signatures with the user and assets to interact with
    */
-  function batchMetaDelegate(MetaDelegateParams[] calldata delegateParams)
-    external;
+  function batchMetaDelegate(
+    MetaDelegateParams[] calldata delegateParams
+  ) external;
 }

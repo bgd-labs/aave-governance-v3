@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
-import {BaseDelegation} from 'aave-token-v3/BaseDelegation.sol';
+import {IGovernancePowerDelegationToken} from '../../src/contracts/dataHelpers/interfaces/IGovernancePowerDelegationToken.sol';
 
 contract TokenDelegationTest is Test {
   address public constant AAVE_HOLDER =
@@ -25,39 +25,59 @@ contract TokenDelegationTest is Test {
   }
 
   function test_DelegateAave() public {
-    (uint256 powerBeforeV, uint256 powerBeforeP) = BaseDelegation(AAVE)
-      .getPowersCurrent(AAVE_HOLDER);
+    (
+      uint256 powerBeforeV,
+      uint256 powerBeforeP
+    ) = IGovernancePowerDelegationToken(AAVE).getPowersCurrent(AAVE_HOLDER);
     hoax(AAVE_HOLDER);
-    BaseDelegation(AAVE).delegate(DELEGATION_RECEIVER);
+    IGovernancePowerDelegationToken(AAVE).delegate(DELEGATION_RECEIVER);
 
-    (uint256 receiverPowerV, uint256 receiverPowerP) = BaseDelegation(AAVE)
-      .getPowersCurrent(DELEGATION_RECEIVER);
+    (
+      uint256 receiverPowerV,
+      uint256 receiverPowerP
+    ) = IGovernancePowerDelegationToken(AAVE).getPowersCurrent(
+        DELEGATION_RECEIVER
+      );
 
     assertEq(powerBeforeV, receiverPowerV);
     assertEq(powerBeforeP, receiverPowerP);
   }
 
   function test_DelegateStkAave() public {
-    (uint256 powerBeforeV, uint256 powerBeforeP) = BaseDelegation(STK_AAVE)
-      .getPowersCurrent(STK_AAVE_HOLDER);
+    (
+      uint256 powerBeforeV,
+      uint256 powerBeforeP
+    ) = IGovernancePowerDelegationToken(STK_AAVE).getPowersCurrent(
+        STK_AAVE_HOLDER
+      );
     hoax(STK_AAVE_HOLDER);
-    BaseDelegation(STK_AAVE).delegate(DELEGATION_RECEIVER);
+    IGovernancePowerDelegationToken(STK_AAVE).delegate(DELEGATION_RECEIVER);
 
-    (uint256 receiverPowerV, uint256 receiverPowerP) = BaseDelegation(STK_AAVE)
-      .getPowersCurrent(DELEGATION_RECEIVER);
+    (
+      uint256 receiverPowerV,
+      uint256 receiverPowerP
+    ) = IGovernancePowerDelegationToken(STK_AAVE).getPowersCurrent(
+        DELEGATION_RECEIVER
+      );
 
     assertEq(powerBeforeV, receiverPowerV);
     assertEq(powerBeforeP, receiverPowerP);
   }
 
   function test_DelegateAAave() public {
-    (uint256 powerBeforeV, uint256 powerBeforeP) = BaseDelegation(A_AAVE)
-      .getPowersCurrent(A_AAVE_HOLDER);
+    (
+      uint256 powerBeforeV,
+      uint256 powerBeforeP
+    ) = IGovernancePowerDelegationToken(A_AAVE).getPowersCurrent(A_AAVE_HOLDER);
     hoax(A_AAVE_HOLDER);
-    BaseDelegation(A_AAVE).delegate(DELEGATION_RECEIVER);
+    IGovernancePowerDelegationToken(A_AAVE).delegate(DELEGATION_RECEIVER);
 
-    (uint256 receiverPowerV, uint256 receiverPowerP) = BaseDelegation(A_AAVE)
-      .getPowersCurrent(DELEGATION_RECEIVER);
+    (
+      uint256 receiverPowerV,
+      uint256 receiverPowerP
+    ) = IGovernancePowerDelegationToken(A_AAVE).getPowersCurrent(
+        DELEGATION_RECEIVER
+      );
 
     assertEq(
       (powerBeforeV / POWER_SCALE_FACTOR) * POWER_SCALE_FACTOR,
