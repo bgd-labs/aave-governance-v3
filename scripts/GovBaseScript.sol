@@ -71,6 +71,8 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/zksync.json';
     } else if (chainId == ChainIds.LINEA) {
       return './deployments/gov/mainnet/linea.json';
+    } else if (chainId == ChainIds.CELO) {
+      return './deployments/gov/mainnet/celo.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
