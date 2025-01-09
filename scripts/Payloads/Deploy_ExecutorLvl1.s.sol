@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import '../GovBaseScript.sol';
 import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
 import {Executor} from '../../src/contracts/payloads/Executor.sol';
-import {AaveGovernanceV2} from 'aave-address-book/AaveAddressBook.sol';
+import {AaveGovernanceV2} from 'aave-address-book/AaveGovernanceV2.sol';
 
 abstract contract BaseDeployExecutorLvl1 is GovBaseScript {
   function getExecutorOwner() public view virtual returns (address) {
@@ -62,7 +62,7 @@ contract Metis is BaseDeployExecutorLvl1 {
   }
 
   function getExecutorOwner() public pure override returns (address) {
-    return AaveGovernanceV2.METIS_BRIDGE_EXECUTOR;
+    return AaveGovernanceV2.SHORT_EXECUTOR;
   }
 }
 
@@ -72,7 +72,7 @@ contract Base is BaseDeployExecutorLvl1 {
   }
 
   function getExecutorOwner() public pure override returns (address) {
-    return AaveGovernanceV2.BASE_BRIDGE_EXECUTOR;
+    return AaveGovernanceV2.SHORT_EXECUTOR;
   }
 }
 
