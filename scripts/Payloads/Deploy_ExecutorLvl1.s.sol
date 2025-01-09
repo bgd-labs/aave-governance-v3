@@ -62,7 +62,7 @@ contract Metis is BaseDeployExecutorLvl1 {
   }
 
   function getExecutorOwner() public pure override returns (address) {
-    return AaveGovernanceV2.METIS_BRIDGE_EXECUTOR;
+    return AaveGovernanceV2.SHORT_EXECUTOR;
   }
 }
 
@@ -72,7 +72,7 @@ contract Base is BaseDeployExecutorLvl1 {
   }
 
   function getExecutorOwner() public pure override returns (address) {
-    return AaveGovernanceV2.BASE_BRIDGE_EXECUTOR;
+    return AaveGovernanceV2.SHORT_EXECUTOR;
   }
 }
 

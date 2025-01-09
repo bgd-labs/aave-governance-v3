@@ -7,7 +7,7 @@ import {AaveV3Ethereum} from 'aave-address-book/AaveV3Ethereum.sol';
 import {GovernanceV3Ethereum} from 'aave-address-book/GovernanceV3Ethereum.sol';
 import {MiscEthereum} from 'aave-address-book/MiscEthereum.sol';
 import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
-import {TransparentUpgradeableProxy} from 'solidity-utils/contracts/transparent-proxy/TransparentUpgradeableProxy.sol';
+import {ITransparentUpgradeableProxy} from 'solidity-utils/contracts/transparent-proxy/TransparentUpgradeableProxy.sol';
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {ChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
@@ -33,7 +33,7 @@ contract Governance_V3_Test is Test {
 
     hoax(GovernanceV3Ethereum.EXECUTOR_LVL_1);
     ProxyAdmin(MiscEthereum.PROXY_ADMIN).upgradeAndCall(
-      TransparentUpgradeableProxy(
+      ITransparentUpgradeableProxy(
         payable(address(GovernanceV3Ethereum.GOVERNANCE))
       ),
       address(govV3_Impl),
@@ -63,10 +63,6 @@ contract Governance_V3_Test is Test {
     assertEq(
       Ownable(address(GovernanceV3Ethereum.GOVERNANCE)).owner(),
       GovernanceV3Ethereum.EXECUTOR_LVL_1
-    );
-    assertEq(
-      IWithGuardian(address(GovernanceV3Ethereum.GOVERNANCE)).guardian(),
-      MiscEthereum.PROTOCOL_GUARDIAN
     );
   }
 

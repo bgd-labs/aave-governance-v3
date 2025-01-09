@@ -9,6 +9,7 @@ import {Errors} from '../../src/contracts/libraries/Errors.sol';
 import {Executor, IExecutor, Ownable} from '../../src/contracts/payloads/Executor.sol';
 import {PayloadTest} from './utils/PayloadTest.sol';
 import {Test} from 'forge-std/Test.sol';
+import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract PermissionedPayloadsControllerTest is Test {
   IPermissionedPayloadsController permissionedPayloadPortal;
@@ -50,7 +51,7 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal = IPermissionedPayloadsController(
       proxyFactory.create(
         address(permissionedPayloadPortal),
-        admin,
+        ProxyAdmin(admin),
         abi.encodeWithSelector(
           IPermissionedPayloadsController.initialize.selector,
           guardian,
@@ -201,7 +202,8 @@ contract PermissionedPayloadsControllerTest is Test {
     address admin,
     address guardian,
     address payloadsManager,
-    address origin
+    address origin,
+    address user
   ) external initializeTest(admin, guardian, payloadsManager, origin) {
     uint40 newDelay = 500;
 
@@ -209,11 +211,13 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal.setExecutionDelay(newDelay);
     vm.stopPrank();
 
+    hoax(user);
     uint40 executionDelay = permissionedPayloadPortal
       .getExecutorSettingsByAccessControl(
         PayloadsControllerUtils.AccessControl.Level_1
       )
       .delay;
+
     assertEq(executionDelay, newDelay, 'Execution delay was not set correctly');
   }
 

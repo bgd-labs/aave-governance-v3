@@ -8,10 +8,11 @@ import {IPayloadsControllerCore} from '../../src/contracts/payloads/interfaces/I
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
+import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract PayloadsControllerTest is Test {
-  address constant ADMIN = address(65536+123);
-  address constant GUARDIAN = address(65536+1234);
+  address constant ADMIN = address(65536 + 123);
+  address constant GUARDIAN = address(65536 + 1234);
   address public constant MESSAGE_ORIGINATOR = address(1234190812);
   address public constant CROSS_CHAIN_CONTROLLER = address(123456);
 
@@ -53,7 +54,7 @@ contract PayloadsControllerTest is Test {
     payloadPortal = IPayloadsController(
       proxyFactory.create(
         address(payloadPortalImpl),
-        ADMIN,
+        ProxyAdmin(ADMIN),
         abi.encodeWithSelector(
           IPayloadsControllerCore.initialize.selector,
           address(this),
