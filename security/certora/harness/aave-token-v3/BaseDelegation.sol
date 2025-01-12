@@ -7,6 +7,7 @@ import {SafeCast72} from './utils/SafeCast72.sol';
 //import {IGovernancePowerDelegationToken} from './interfaces/IGovernancePowerDelegationToken.sol';
 import {IGovernancePowerDelegationToken} from 'src/contracts/dataHelpers/interfaces/IGovernancePowerDelegationToken.sol';
 import {DelegationMode} from './DelegationAwareBalance.sol';
+import {MessageHashUtils} from 'openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol';
 
 /**
  * @notice The contract implements generic delegation functionality for the upcoming governance v3
@@ -152,7 +153,7 @@ abstract contract BaseDelegation is IGovernancePowerDelegationToken {
     require(delegator != address(0), 'INVALID_OWNER');
     //solium-disable-next-line
     require(block.timestamp <= deadline, 'INVALID_EXPIRATION');
-    bytes32 digest = ECDSA.toTypedDataHash(
+    bytes32 digest = MessageHashUtils.toTypedDataHash(
       _getDomainSeparator(),
       keccak256(
         abi.encode(
@@ -182,7 +183,7 @@ abstract contract BaseDelegation is IGovernancePowerDelegationToken {
     require(delegator != address(0), 'INVALID_OWNER');
     //solium-disable-next-line
     require(block.timestamp <= deadline, 'INVALID_EXPIRATION');
-    bytes32 digest = ECDSA.toTypedDataHash(
+    bytes32 digest = MessageHashUtils.toTypedDataHash(
       _getDomainSeparator(),
       keccak256(
         abi.encode(DELEGATE_TYPEHASH, delegator, delegatee, _incrementNonces(delegator), deadline)
