@@ -8,6 +8,7 @@ pragma solidity ^0.8.10;
 import {ECDSA} from 'openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol';
 import {ShortStrings, ShortString} from 'openzeppelin-contracts/contracts/utils/ShortStrings.sol';
 import {IERC5267} from 'openzeppelin-contracts/contracts/interfaces/IERC5267.sol';
+import {MessageHashUtils} from 'openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol';
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-712[EIP 712] is a standard for hashing and signing of typed structured data.
@@ -109,7 +110,7 @@ abstract contract EIP712 is IERC5267 {
    * ```
    */
   function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
-    return ECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
+    return MessageHashUtils.toTypedDataHash(_domainSeparatorV4(), structHash);
   }
 
   /**
