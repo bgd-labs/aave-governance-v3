@@ -9,7 +9,7 @@ solc='0.8.20'
 
 fs_permissions = [{ access = "read-write", path = "./"}]
 
-evm_version = "london"
+evm_version = "paris"
 
 
 # Whether or not to enable `vm.ffi`
@@ -51,6 +51,8 @@ zksync="${RPC_ZK_SYNC}"
 zksync-testnet="${RPC_ZK_SYNC_TESTNET}"
 linea="${RPC_LINEA}"
 linea-testnet="${RPC_LINEA_SEPOLIA}"
+celo="${RPC_CELO}"
+celo-testnet="${RPC_CELO_ALFAJORES}"
 
 [etherscan]
 ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
@@ -79,6 +81,8 @@ zksync={key="${ETHERSCAN_API_KEY_ZK_SYNC}", chain=324}
 zksync-testnet={key="${ETHERSCAN_API_KEY_ZK_SYNC}", chain=300, url='https://api-sepolia-era.zksync.network/api'}
 linea={key="${ETHERSCAN_API_KEY_LINEA}", chain=59144 }
 linea-testnet={key="${ETHERSCAN_API_KEY_LINEA}",chain=59141}
+celo={key="${ETHERSCAN_API_KEY_CELO}", chain=42220, utl='https://api.celoscan.io/api'}
+celo-testnet={key="${ETHERSCAN_API_KEY_CELO}", chain=44787, url='https://api-alfajores.celoscan.io/api'}
 
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config

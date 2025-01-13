@@ -14,6 +14,7 @@ import {IVotingMachineWithProofs} from '../src/contracts/voting/interfaces/IVoti
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {Errors} from '../src/contracts/libraries/Errors.sol';
 import {IBaseVotingStrategy} from '../src/interfaces/IBaseVotingStrategy.sol';
+import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract GovernanceCoreTest is Test {
   address public constant OWNER = address(65536 + 123);
@@ -149,7 +150,7 @@ contract GovernanceCoreTest is Test {
     governance = IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ADMIN,
+        ProxyAdmin(ADMIN),
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
@@ -182,7 +183,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.MISSING_VOTING_CONFIGURATIONS));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ADMIN,
+      ProxyAdmin(ADMIN),
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -215,7 +216,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.INVALID_INITIAL_VOTING_CONFIGS));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ADMIN,
+      ProxyAdmin(ADMIN),
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -248,7 +249,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.MISSING_VOTING_CONFIGURATIONS));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ADMIN,
+      ProxyAdmin(ADMIN),
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -281,7 +282,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.INVALID_VOTING_CONFIG_ACCESS_LEVEL));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ADMIN,
+      ProxyAdmin(ADMIN),
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -312,7 +313,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.MISSING_VOTING_CONFIGURATIONS));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ADMIN,
+      ProxyAdmin(ADMIN),
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,

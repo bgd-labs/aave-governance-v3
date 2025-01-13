@@ -13,6 +13,7 @@ import {IERC20} from 'solidity-utils/contracts/oz-common/interfaces/IERC20.sol';
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
 import {PayloadTest} from './utils/PayloadTest.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
+import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract PayloadsControllerMock is PayloadsControllerCore {
   function queue(
@@ -25,8 +26,8 @@ contract PayloadsControllerMock is PayloadsControllerCore {
 }
 
 contract PayloadsControllerCoreTest is Test {
-  address public constant ADMIN = address(65536+123);
-  address public constant GUARDIAN = address(65536+1234);
+  address public constant ADMIN = address(65536 + 123);
+  address public constant GUARDIAN = address(65536 + 1234);
   address public constant ORIGIN_FORWARDER = address(123456);
   address public constant PAYLOAD_PORTAL = address(987312);
   uint256 public constant YES_THRESHOLD = 1;
@@ -130,7 +131,7 @@ contract PayloadsControllerCoreTest is Test {
 
     address payloadsControllerProxy = proxyFactory.create(
       address(payloadsControllerImpl),
-      ADMIN,
+      ProxyAdmin(ADMIN),
       abi.encodeWithSelector(
         payloadsControllerImpl.initialize.selector,
         address(this),
@@ -830,7 +831,7 @@ contract PayloadsControllerCoreTest is Test {
 
     address newPayloadsControllerProxy = proxyFactory.create(
       address(payloadsControllerImpl),
-      ADMIN,
+      ProxyAdmin(ADMIN),
       abi.encodeWithSelector(
         payloadsControllerImpl.initialize.selector,
         address(this),

@@ -13,11 +13,12 @@ import {IVotingMachineWithProofs} from '../src/contracts/voting/interfaces/IVoti
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {Errors} from '../src/contracts/libraries/Errors.sol';
 import {IBaseVotingStrategy} from '../src/interfaces/IBaseVotingStrategy.sol';
+import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract GCore_VotingConfigsTest is Test {
-  address public constant OWNER = address(65536+123);
-  address public constant GUARDIAN = address(65536+1234);
-  address public constant ADMIN = address(65536+12345);
+  address public constant OWNER = address(65536 + 123);
+  address public constant GUARDIAN = address(65536 + 1234);
+  address public constant ADMIN = address(65536 + 12345);
   address public constant CROSS_CHAIN_CONTROLLER = address(123456);
   address public constant SAME_CHAIN_VOTING_MACHINE = address(1234567);
   address public constant EXECUTION_PORTAL = address(12345678);
@@ -109,7 +110,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore governance = IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ADMIN,
+        ProxyAdmin(ADMIN),
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
@@ -152,7 +153,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ADMIN,
+        ProxyAdmin(ADMIN),
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
@@ -668,7 +669,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore governance = IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ADMIN,
+        ProxyAdmin(ADMIN),
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
