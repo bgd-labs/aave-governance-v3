@@ -344,7 +344,7 @@ contract GovernanceCoreTest is Test {
 
   function testUpdateGasLimitWhenNotOwner() public {
     uint256 newGasLimit = 500000;
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     IGovernance(address(governance)).updateGasLimit(newGasLimit);
   }
 
@@ -453,7 +453,7 @@ contract GovernanceCoreTest is Test {
   function testSetPowerStrategyWhenNotOwner() public {
     address newPowerStrategy = address(101);
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.setPowerStrategy(IGovernancePowerStrategy(newPowerStrategy));
     assertEq(address(governance.getPowerStrategy()), VOTING_STRATEGY);
   }
@@ -630,7 +630,7 @@ contract GovernanceCoreTest is Test {
 
     newVotingConfigs[0] = newVotingConfigLvl1;
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.setVotingConfigs(newVotingConfigs);
   }
 
@@ -689,7 +689,7 @@ contract GovernanceCoreTest is Test {
     address[] memory newVotingPortals = new address[](1);
     newVotingPortals[0] = newVotingPortal;
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.addVotingPortals(newVotingPortals);
     assertEq(governance.getVotingPortalsCount(), 1);
   }
@@ -711,7 +711,7 @@ contract GovernanceCoreTest is Test {
     address[] memory newVotingPortals = new address[](1);
     newVotingPortals[0] = VOTING_PORTAL;
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.removeVotingPortals(newVotingPortals);
     assertEq(governance.getVotingPortalsCount(), 1);
   }
@@ -753,7 +753,7 @@ contract GovernanceCoreTest is Test {
     governance.removeVotingPortals(votingPortals);
 
     address rescueVotingPortal = address(90123478);
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.rescueVotingPortal(rescueVotingPortal);
 
     assertEq(governance.getVotingPortalsCount(), 0);
@@ -1911,7 +1911,7 @@ contract GovernanceCoreTest is Test {
   function testUpdateCancellationFeeWhenNotOwner() public {
     uint256 newCancellationFee = 1 ether;
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.updateCancellationFee(newCancellationFee);
   }
 

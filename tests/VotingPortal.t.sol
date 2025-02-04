@@ -8,6 +8,7 @@ import {VotingPortal, IGovernanceCore, IVotingMachineWithProofs} from '../src/co
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {ICrossChainReceiver} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainReceiver.sol';
 import {Errors} from '../src/contracts/libraries/Errors.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 
 contract VotingPortalTest is Test {
   address public constant CROSS_CHAIN_CONTROLLER = address(65536 + 123);
@@ -57,7 +58,7 @@ contract VotingPortalTest is Test {
   }
 
   function testContractCreationWhenInvalidOwner() public {
-    vm.expectRevert(bytes(Errors.INVALID_VOTING_PORTAL_OWNER));
+    vm.expectRevert(bytes((abi.encodeWithSelector(Ownable.OwnableInvalidOwner.selector, address(0)))));
     votingPortal = new VotingPortal(
       CROSS_CHAIN_CONTROLLER,
       GOVERNANCE,
@@ -129,7 +130,7 @@ contract VotingPortalTest is Test {
     vm.assume(randomDude != votingPortal.owner());
     vm.startPrank(randomDude);
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, randomDude)));
     votingPortal.setStartVotingGasLimit(newGasLimit);
     vm.stopPrank();
   }

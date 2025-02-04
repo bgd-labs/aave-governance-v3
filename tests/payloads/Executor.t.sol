@@ -6,6 +6,7 @@ import 'forge-std/Test.sol';
 import {Executor} from '../../src/contracts/payloads/Executor.sol';
 import {PayloadTest} from './utils/PayloadTest.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 
 contract ExecutorTest is Test {
   address public constant TARGET = address(65536+12345);
@@ -181,10 +182,11 @@ contract ExecutorTest is Test {
     );
   }
 
-  function testExecuteTransactionWhenNotOwner() public {
-    hoax(address(1234121));
+  function testExecuteTransactionWhenNotOwner(address randomOwner) public {
+    vm.assume(randomOwner != address(this));
+    hoax(randomOwner);
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, randomOwner)));
     executor.executeTransaction(
       TARGET,
       VALUE,

@@ -376,7 +376,7 @@ contract PayloadsControllerCoreTest is Test {
 
     hoax(address(shortExecutor));
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, shortExecutor)));
     payloadsController.updateExecutors(newExecutors);
   }
 

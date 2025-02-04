@@ -10,6 +10,7 @@ import {VotingStrategy, IBaseVotingStrategy} from '../../src/contracts/voting/Vo
 import {IVotingPortal} from '../../src/interfaces/IVotingPortal.sol';
 import {ChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 
 // Mocked so we can make it revert
 contract MockVotingStrategy {
@@ -167,10 +168,12 @@ contract VotingMachineTest is Test {
     assertEq(votingMachine.getGasLimit(), newGasLimit);
   }
 
-  function testUpdateGasLimitWhenNotOwner() public {
+  function testUpdateGasLimitWhenNotOwner(address randomOwner) public {
     uint256 newGasLimit = 500_000;
-    hoax(address(2332));
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.assume(randomOwner != address(this));
+    hoax(randomOwner);
+
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, randomOwner)));
     votingMachine.updateGasLimit(newGasLimit);
   }
 
