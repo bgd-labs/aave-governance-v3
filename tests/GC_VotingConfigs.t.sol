@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
-import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
+import {OwnableWithGuardian} from 'aave-delivery-infrastructure/contracts/old-oz/OwnableWithGuardian.sol';
 import {GovernanceCore} from '../src/contracts/GovernanceCore.sol';
 import {Governance, IGovernance, IGovernanceCore, PayloadsControllerUtils} from '../src/contracts/Governance.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
@@ -13,7 +13,6 @@ import {IVotingMachineWithProofs} from '../src/contracts/voting/interfaces/IVoti
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {Errors} from '../src/contracts/libraries/Errors.sol';
 import {IBaseVotingStrategy} from '../src/interfaces/IBaseVotingStrategy.sol';
-import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract GCore_VotingConfigsTest is Test {
   address public constant OWNER = address(65536 + 123);
@@ -110,7 +109,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore governance = IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ProxyAdmin(ADMIN),
+        OWNER,
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
@@ -153,7 +152,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ProxyAdmin(ADMIN),
+        OWNER,
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
@@ -669,7 +668,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore governance = IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ProxyAdmin(ADMIN),
+        OWNER,
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,

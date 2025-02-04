@@ -9,7 +9,6 @@ import {Errors} from '../../src/contracts/libraries/Errors.sol';
 import {Executor, IExecutor, Ownable} from '../../src/contracts/payloads/Executor.sol';
 import {PayloadTest} from './utils/PayloadTest.sol';
 import {Test} from 'forge-std/Test.sol';
-import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract PermissionedPayloadsControllerTest is Test {
   IPermissionedPayloadsController permissionedPayloadPortal;
@@ -51,7 +50,7 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal = IPermissionedPayloadsController(
       proxyFactory.create(
         address(permissionedPayloadPortal),
-        ProxyAdmin(admin),
+        address(this),
         abi.encodeWithSelector(
           IPermissionedPayloadsController.initialize.selector,
           guardian,

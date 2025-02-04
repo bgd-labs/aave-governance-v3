@@ -33,6 +33,8 @@ library GovDeployerHelpers {
     address payloadsController;
     address payloadsControllerDataHelper;
     address payloadsControllerImpl;
+    address proxyAdminGovernance;
+    address proxyAdminPayloadsController;
     address votingMachine;
     address votingMachineDataHelper;
     address votingPortal_Eth_Avax;
@@ -157,6 +159,14 @@ library GovDeployerHelpers {
         persistedJson.parseRaw('.payloadsControllerImpl'),
         (address)
       ),
+      proxyAdminGovernance: abi.decode(
+        persistedJson.parseRaw('.proxyAdminGovernance'),
+        (address)
+      ),
+      proxyAdminPayloadsController: abi.decode(
+        persistedJson.parseRaw('.proxyAdminPayloadsController'),
+        (address)
+      ),
       votingMachine: abi.decode(
         persistedJson.parseRaw('.votingMachine'),
         (address)
@@ -218,6 +228,8 @@ library GovDeployerHelpers {
       addresses.payloadsControllerDataHelper
     );
     json.serialize('payloadsControllerImpl', addresses.payloadsControllerImpl);
+    json.serialize('proxyAdminGovernance', addresses.proxyAdminGovernance);
+    json.serialize('proxyAdminPayloadsController', addresses.proxyAdminPayloadsController);
     json.serialize('votingMachine', addresses.votingMachine);
     json.serialize(
       'votingMachineDataHelper',

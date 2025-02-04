@@ -8,7 +8,6 @@ import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-prox
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
 import {AaveV3Ethereum} from 'aave-address-book/AaveV3Ethereum.sol';
 import {AaveV3Sepolia} from 'aave-address-book/AaveV3Sepolia.sol';
-import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 import {GovernanceExtended} from '../extendedContracts/Governance.sol';
 
@@ -64,7 +63,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
     addresses.governance = TransparentProxyFactory(ccAddresses.proxyFactory)
       .createDeterministic(
         address(governanceImpl),
-        ProxyAdmin(ccAddresses.proxyAdmin),
+        addresses.executorLvl1, // owner of proxy admin that will be deployed
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           addresses.owner,
@@ -78,6 +77,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
         Constants.GOVERNANCE_SALT
       );
 
+    addresses.proxyAdminGovernance = TransparentProxyFactory(ccAddresses.proxyFactory).getProxyAdmin(addresses.governance);
     addresses.governanceImpl = address(governanceImpl);
   }
 }
