@@ -106,6 +106,12 @@ contract Scroll is BaseDeployExecutorLvl1 {
   }
 }
 
+contract Sonic is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONIC;
+  }
+}
+
 contract Ethereum_testnet is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;

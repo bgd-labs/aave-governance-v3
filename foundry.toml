@@ -53,6 +53,8 @@ linea="${RPC_LINEA}"
 linea-testnet="${RPC_LINEA_SEPOLIA}"
 celo="${RPC_CELO}"
 celo-testnet="${RPC_CELO_ALFAJORES}"
+sonic="${RPC_SONIC}"
+sonic-testnet="${RPC_SONIC_TESTNET}"
 
 [etherscan]
 ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
@@ -83,6 +85,8 @@ linea={key="${ETHERSCAN_API_KEY_LINEA}", chain=59144 }
 linea-testnet={key="${ETHERSCAN_API_KEY_LINEA}",chain=59141}
 celo={key="${ETHERSCAN_API_KEY_CELO}", chain=42220, utl='https://api.celoscan.io/api'}
 celo-testnet={key="${ETHERSCAN_API_KEY_CELO}", chain=44787, url='https://api-alfajores.celoscan.io/api'}
+sonic={key="${ETHERSCAN_API_KEY_SONIC}", chain=146, url='https://api.sonicscan.org/api'}
+sonic-testnet={key="${ETHERSCAN_API_KEY_SONIC}", chain=57054, url='https://api-testnet.sonicscan.org/api'}
 
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config

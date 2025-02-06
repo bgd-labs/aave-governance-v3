@@ -100,7 +100,7 @@ write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedA
 
 
 deploy-initial-test:
-	$(call deploy_fn,InitialDeployments,celo)
+	$(call deploy_fn,InitialDeployments,sonic)
 
 # Deploy Governance contracts
 deploy-governance-test:
@@ -124,7 +124,7 @@ set-vm-as-ccf-sender-test:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon binance)
 
 deploy-executor-lvl1-test:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,zksync)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,sonic)
 
 deploy-executor-lvl2-test:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
