@@ -9,7 +9,7 @@ solc='0.8.22'
 
 fs_permissions = [{ access = "read-write", path = "./"}]
 
-evm_version = "paris"
+evm_version = "cancun"
 
 
 # Whether or not to enable `vm.ffi`
