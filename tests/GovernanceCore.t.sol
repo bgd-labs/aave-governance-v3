@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
-import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
+import {OwnableWithGuardian} from 'aave-delivery-infrastructure/contracts/old-oz/OwnableWithGuardian.sol';
 import {ChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {GovernanceCore} from '../src/contracts/GovernanceCore.sol';
 import {Governance, IGovernance, IGovernanceCore, PayloadsControllerUtils} from '../src/contracts/Governance.sol';
@@ -14,7 +14,6 @@ import {IVotingMachineWithProofs} from '../src/contracts/voting/interfaces/IVoti
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {Errors} from '../src/contracts/libraries/Errors.sol';
 import {IBaseVotingStrategy} from '../src/interfaces/IBaseVotingStrategy.sol';
-import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract GovernanceCoreTest is Test {
   address public constant OWNER = address(65536 + 123);
@@ -150,7 +149,7 @@ contract GovernanceCoreTest is Test {
     governance = IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ProxyAdmin(ADMIN),
+        OWNER,
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
@@ -183,7 +182,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.MISSING_VOTING_CONFIGURATIONS));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ProxyAdmin(ADMIN),
+      OWNER,
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -216,7 +215,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.INVALID_INITIAL_VOTING_CONFIGS));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ProxyAdmin(ADMIN),
+      OWNER,
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -249,7 +248,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.MISSING_VOTING_CONFIGURATIONS));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ProxyAdmin(ADMIN),
+      OWNER,
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -282,7 +281,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.INVALID_VOTING_CONFIG_ACCESS_LEVEL));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ProxyAdmin(ADMIN),
+      OWNER,
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -313,7 +312,7 @@ contract GovernanceCoreTest is Test {
     vm.expectRevert(bytes(Errors.MISSING_VOTING_CONFIGURATIONS));
     proxyFactory.createDeterministic(
       address(governanceImpl),
-      ProxyAdmin(ADMIN),
+      OWNER,
       abi.encodeWithSelector(
         IGovernance.initialize.selector,
         OWNER,
@@ -345,7 +344,7 @@ contract GovernanceCoreTest is Test {
 
   function testUpdateGasLimitWhenNotOwner() public {
     uint256 newGasLimit = 500000;
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     IGovernance(address(governance)).updateGasLimit(newGasLimit);
   }
 
@@ -454,7 +453,7 @@ contract GovernanceCoreTest is Test {
   function testSetPowerStrategyWhenNotOwner() public {
     address newPowerStrategy = address(101);
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.setPowerStrategy(IGovernancePowerStrategy(newPowerStrategy));
     assertEq(address(governance.getPowerStrategy()), VOTING_STRATEGY);
   }
@@ -631,7 +630,7 @@ contract GovernanceCoreTest is Test {
 
     newVotingConfigs[0] = newVotingConfigLvl1;
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.setVotingConfigs(newVotingConfigs);
   }
 
@@ -690,7 +689,7 @@ contract GovernanceCoreTest is Test {
     address[] memory newVotingPortals = new address[](1);
     newVotingPortals[0] = newVotingPortal;
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.addVotingPortals(newVotingPortals);
     assertEq(governance.getVotingPortalsCount(), 1);
   }
@@ -712,7 +711,7 @@ contract GovernanceCoreTest is Test {
     address[] memory newVotingPortals = new address[](1);
     newVotingPortals[0] = VOTING_PORTAL;
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.removeVotingPortals(newVotingPortals);
     assertEq(governance.getVotingPortalsCount(), 1);
   }
@@ -754,7 +753,7 @@ contract GovernanceCoreTest is Test {
     governance.removeVotingPortals(votingPortals);
 
     address rescueVotingPortal = address(90123478);
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.rescueVotingPortal(rescueVotingPortal);
 
     assertEq(governance.getVotingPortalsCount(), 0);
@@ -1912,7 +1911,7 @@ contract GovernanceCoreTest is Test {
   function testUpdateCancellationFeeWhenNotOwner() public {
     uint256 newCancellationFee = 1 ether;
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this))));
     governance.updateCancellationFee(newCancellationFee);
   }
 

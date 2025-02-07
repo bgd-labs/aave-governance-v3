@@ -2,14 +2,12 @@
 pragma solidity ^0.8.0;
 
 import '../GovBaseScript.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 import {PayloadsController, IPayloadsController} from '../../src/contracts/payloads/PayloadsController.sol';
 import {IPayloadsControllerCore} from '../../src/contracts/payloads/PayloadsControllerCore.sol';
-import {TransparentUpgradeableProxy} from 'solidity-utils/contracts/transparent-proxy/TransparentUpgradeableProxy.sol';
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
 import {PayloadsControllerExtended} from '../extendedContracts/PayloadsController.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
-import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 abstract contract BaseDeployPayloadsController is GovBaseScript {
   function GOVERNANCE_NETWORK() public view virtual returns (uint256);
@@ -106,7 +104,7 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
       ccAddresses.proxyFactory
     ).createDeterministic(
         addresses.payloadsControllerImpl,
-        ProxyAdmin(ccAddresses.proxyAdmin),
+        addresses.executorLvl1, // owner of proxy that will be deployed
         abi.encodeWithSelector(
           IPayloadsControllerCore.initialize.selector,
           OWNER(),
@@ -122,6 +120,8 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
     //          .transferOwnership(addresses.payloadsController);
     //      }
     //    }
+
+    addresses.proxyAdminPayloadsController = TransparentProxyFactory(ccAddresses.proxyFactory).getProxyAdmin(addresses.payloadsController);
   }
 }
 

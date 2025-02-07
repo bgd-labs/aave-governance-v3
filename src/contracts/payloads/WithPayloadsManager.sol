@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {IWithPayloadsManager} from './interfaces/IWithPayloadsManager.sol';
-import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
+import {OwnableWithGuardian} from 'aave-delivery-infrastructure/contracts/old-oz/OwnableWithGuardian.sol';
 import {Errors} from '../libraries/Errors.sol';
 
 /**

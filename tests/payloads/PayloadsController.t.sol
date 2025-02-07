@@ -8,7 +8,6 @@ import {IPayloadsControllerCore} from '../../src/contracts/payloads/interfaces/I
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
-import {ProxyAdmin} from 'solidity-utils/contracts/transparent-proxy/ProxyAdmin.sol';
 
 contract PayloadsControllerTest is Test {
   address constant ADMIN = address(65536 + 123);
@@ -54,7 +53,7 @@ contract PayloadsControllerTest is Test {
     payloadPortal = IPayloadsController(
       proxyFactory.create(
         address(payloadPortalImpl),
-        ProxyAdmin(ADMIN),
+        address(this),
         abi.encodeWithSelector(
           IPayloadsControllerCore.initialize.selector,
           address(this),
