@@ -248,6 +248,16 @@ contract Scroll is BaseDeployPayloadsController {
   }
 }
 
+contract Mantle is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.MANTLE;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
 contract Zksync is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ZKSYNC;
