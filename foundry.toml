@@ -9,7 +9,10 @@ solc='0.8.22'
 
 fs_permissions = [{ access = "read-write", path = "./"}]
 
-evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+evm_version = 'shanghai'
+bytecode_hash = 'none'
 
 
 # Whether or not to enable `vm.ffi`
