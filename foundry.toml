@@ -9,7 +9,7 @@ solc='0.8.22'
 
 fs_permissions = [{ access = "read-write", path = "./"}]
 
-evm_version = "paris"
+evm_version = "cancun"
 
 
 # Whether or not to enable `vm.ffi`
@@ -53,6 +53,8 @@ linea="${RPC_LINEA}"
 linea-testnet="${RPC_LINEA_SEPOLIA}"
 celo="${RPC_CELO}"
 celo-testnet="${RPC_CELO_ALFAJORES}"
+mantle="${RPC_MANTLE}"
+mantle-testnet="${RPC_MANTLE_TESTNET}"
 
 [etherscan]
 ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
@@ -83,6 +85,9 @@ linea={key="${ETHERSCAN_API_KEY_LINEA}", chain=59144 }
 linea-testnet={key="${ETHERSCAN_API_KEY_LINEA}",chain=59141}
 celo={key="${ETHERSCAN_API_KEY_CELO}", chain=42220, utl='https://api.celoscan.io/api'}
 celo-testnet={key="${ETHERSCAN_API_KEY_CELO}", chain=44787, url='https://api-alfajores.celoscan.io/api'}
+mantle={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5000, url='https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan'}
+mantle-testnet={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5003, url='https://explorer.testnet.mantle.xyz/api'}
+
 
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config
