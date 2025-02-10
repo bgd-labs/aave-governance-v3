@@ -75,8 +75,10 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/linea.json';
     } else if (chainId == ChainIds.CELO) {
       return './deployments/gov/mainnet/celo.json';
-    }else if (chainId == ChainIds.SONIC) {
+    } else if (chainId == ChainIds.SONIC) {
       return './deployments/gov/mainnet/sonic.json';
+    } else if (chainId == ChainIds.MANTLE) {
+      return './deployments/gov/mainnet/mantle.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
@@ -102,6 +104,8 @@ library GovDeployerHelpers {
       return './deployments/gov/testnet/zksync_sep.json';
     } else if (chainId == TestNetChainIds.SONIC_BLAZE) {
       return './deployments/gov/testnet/sonic_blaze.json';
+    } else if (chainId == TestNetChainIds.MANTLE_SEPOLIA) {
+      return './deployments/gov/testnet/mantle_sepolia.json';
     } else {
       revert('chain id is not supported');
     }

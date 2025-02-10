@@ -15,6 +15,8 @@
   "payloadsController": "0xdAbad81aF85554E9ae636395611C58F7eC1aAEc5",
   "payloadsControllerDataHelper": "0xE3B770Dc4ae3f8bECaB3Ed12dE692c741603e16A",
   "payloadsControllerImpl": "0x7222182cB9c5320587b5148BF03eeE107AD64578",
+  "proxyAdminGovernance": "0xD3cF979e676265e4f6379749DECe4708B9A22476",
+  "proxyAdminPayloadsController": "0xD3cF979e676265e4f6379749DECe4708B9A22476",
   "votingMachine": "0x617332a777780F546261247F621051d0b98975Eb",
   "votingMachineDataHelper": "0x77976B51569896523EE215962Ee91ff236Fa50E8",
   "votingPortal_Eth_Avax": "0x33aCEf7365809218485873B7d0d67FeE411B5D79",

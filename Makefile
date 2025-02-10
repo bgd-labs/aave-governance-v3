@@ -131,7 +131,7 @@ deploy-executor-lvl2-test:
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain-test:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,celo)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,mantle)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals-test:
@@ -148,7 +148,7 @@ set-vp-as_ccf-senders-test:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts-test:
-	$(call deploy_fn,Deploy_ContractHelpers,celo)
+	$(call deploy_fn,Deploy_ContractHelpers,mantle)
 
 deploy-full-key-test:
 		make deploy-initial-test
