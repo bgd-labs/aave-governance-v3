@@ -100,7 +100,7 @@ write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedA
 
 
 deploy-initial-test:
-	$(call deploy_fn,InitialDeployments,mantle)
+	$(call deploy_fn,InitialDeployments,sonic)
 
 # Deploy Governance contracts
 deploy-governance-test:
@@ -124,14 +124,14 @@ set-vm-as-ccf-sender-test:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon binance)
 
 deploy-executor-lvl1-test:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,mantle)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,sonic)
 
 deploy-executor-lvl2-test:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain-test:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,mantle)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,sonic)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals-test:
@@ -148,7 +148,7 @@ set-vp-as_ccf-senders-test:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts-test:
-	$(call deploy_fn,Deploy_ContractHelpers,mantle)
+	$(call deploy_fn,Deploy_ContractHelpers,sonic)
 
 deploy-full-key-test:
 		make deploy-initial-test
@@ -230,4 +230,7 @@ deploy-gov-v2_5:
 	$(call deploy_fn,Governance/Deploy_Governance_V2_5,ethereum)
 
 update-pc-permissions:
-	$(call deploy_fn,helpers/UpdatePCPermissions,celo)
+	$(call deploy_fn,helpers/UpdatePCPermissions,sonic)
+
+update-executor-owner:
+	$(call deploy_fn,helpers/UpdateExecutorOwner,sonic)

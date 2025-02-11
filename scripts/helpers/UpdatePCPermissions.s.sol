@@ -39,23 +39,23 @@ abstract contract UpdatePayloadsControllerPermissions {
 }
 
 
-contract UpdatePCPermissionsCelo is UpdatePayloadsControllerPermissions {
+contract UpdatePCPermissionsSonic is UpdatePayloadsControllerPermissions {
   function targetOwner() public pure override returns (address) {
-    return 0x1dF462e2712496373A347f8ad10802a5E95f053D;
+    return 0x7b62461a3570c6AC8a9f8330421576e417B71EE7; // Executor Lvl 1
   }
 
   function targetGovernanceGuardian() public pure override returns (address) {
-    return 0x056E4C4E80D1D14a637ccbD0412CDAAEc5B51F4E;
+    return 0x63C4422D6cc849549daeb600B7EcE52bD18fAd7f;
   }
 
   function govContractsToUpdate() public pure override returns (address[] memory) {
     address[] memory contracts = new address[](1);
-    contracts[0] = address(0xE48E10834C04E394A04BF22a565D063D40b9FA42);
+    contracts[0] = address(0x0846C28Dd54DEA4Fd7Fb31bcc5EB81673D68c695); // PC
     return contracts;
   }
 }
 
-contract Celo is Script, UpdatePCPermissionsCelo {
+contract Sonic is Script, UpdatePCPermissionsSonic {
   function run() external {
     vm.startBroadcast();
     

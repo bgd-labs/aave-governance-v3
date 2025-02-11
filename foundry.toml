@@ -56,6 +56,8 @@ linea="${RPC_LINEA}"
 linea-testnet="${RPC_LINEA_SEPOLIA}"
 celo="${RPC_CELO}"
 celo-testnet="${RPC_CELO_ALFAJORES}"
+sonic="${RPC_SONIC}"
+sonic-testnet="${RPC_SONIC_TESTNET}"
 mantle="${RPC_MANTLE}"
 mantle-testnet="${RPC_MANTLE_TESTNET}"
 
@@ -88,6 +90,8 @@ linea={key="${ETHERSCAN_API_KEY_LINEA}", chain=59144 }
 linea-testnet={key="${ETHERSCAN_API_KEY_LINEA}",chain=59141}
 celo={key="${ETHERSCAN_API_KEY_CELO}", chain=42220, utl='https://api.celoscan.io/api'}
 celo-testnet={key="${ETHERSCAN_API_KEY_CELO}", chain=44787, url='https://api-alfajores.celoscan.io/api'}
+sonic={key="${ETHERSCAN_API_KEY_SONIC}", chain=146, url='https://api.sonicscan.org/api'}
+sonic-testnet={key="${ETHERSCAN_API_KEY_SONIC}", chain=57054, url='https://api-testnet.sonicscan.org/api'}
 mantle={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5000, url='https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan'}
 mantle-testnet={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5003, url='https://explorer.testnet.mantle.xyz/api'}
 

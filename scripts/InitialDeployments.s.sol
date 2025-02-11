@@ -157,6 +157,12 @@ contract Celo is BaseInitialDeployment {
   }
 }
 
+contract Sonic is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONIC;
+  }
+}
+
 contract Mantle is BaseInitialDeployment {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.MANTLE;
