@@ -230,4 +230,7 @@ deploy-gov-v2_5:
 	$(call deploy_fn,Governance/Deploy_Governance_V2_5,ethereum)
 
 update-pc-permissions:
-	$(call deploy_fn,helpers/UpdatePCPermissions,celo)
+	$(call deploy_fn,helpers/UpdatePCPermissions,sonic)
+
+update-executor-owner:
+	$(call deploy_fn,helpers/UpdateExecutorOwner,sonic)
