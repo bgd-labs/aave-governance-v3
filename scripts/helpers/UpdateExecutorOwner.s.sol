@@ -20,18 +20,18 @@ abstract contract UpdateExecutorOwner {
   }
 }
 
-contract UpdateExecutorPermissionsSonic is UpdateExecutorOwner {
+contract UpdateExecutorPermissionsMantle is UpdateExecutorOwner {
   function targetOwner() public pure override returns (address) {
-    return 0x0846C28Dd54DEA4Fd7Fb31bcc5EB81673D68c695; // PC
+    return 0xF089f77173A3009A98c45f49D547BF714A7B1e01; // PC
   }
 
   function executor() public pure override returns (address) {
-    return 0x7b62461a3570c6AC8a9f8330421576e417B71EE7; // Executor Lvl 1
+    return 0x70884634D0098782592111A2A6B8d223be31CB7b; // Executor Lvl 1
   }
 
 }
 
-contract Sonic is Script, UpdateExecutorPermissionsSonic {
+contract Mantle is Script, UpdateExecutorPermissionsMantle {
   function run() external {
     vm.startBroadcast();
     
