@@ -39,23 +39,23 @@ abstract contract UpdatePayloadsControllerPermissions {
 }
 
 
-contract UpdatePCPermissionsSonic is UpdatePayloadsControllerPermissions {
+contract UpdatePCPermissionsMantle is UpdatePayloadsControllerPermissions {
   function targetOwner() public pure override returns (address) {
-    return 0x7b62461a3570c6AC8a9f8330421576e417B71EE7; // Executor Lvl 1
+    return 0x70884634D0098782592111A2A6B8d223be31CB7b; // Executor Lvl 1
   }
 
   function targetGovernanceGuardian() public pure override returns (address) {
-    return 0x63C4422D6cc849549daeb600B7EcE52bD18fAd7f;
+    return 0x14816fC7f443A9C834d30eeA64daD20C4f56fBCD;
   }
 
   function govContractsToUpdate() public pure override returns (address[] memory) {
     address[] memory contracts = new address[](1);
-    contracts[0] = address(0x0846C28Dd54DEA4Fd7Fb31bcc5EB81673D68c695); // PC
+    contracts[0] = address(0xF089f77173A3009A98c45f49D547BF714A7B1e01); // PC
     return contracts;
   }
 }
 
-contract Sonic is Script, UpdatePCPermissionsSonic {
+contract Mantle is Script, UpdatePCPermissionsMantle {
   function run() external {
     vm.startBroadcast();
     
