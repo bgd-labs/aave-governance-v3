@@ -109,4 +109,6 @@ library Errors {
   string public constant ONLY_BY_PAYLOADS_MANAGER = '99'; // only payloads manager can call this function
   string public constant ONLY_BY_PAYLOADS_MANAGER_OR_GUARDIAN = '100'; // only payloads manager or guardian can call this function
   string public constant FUNCTION_NOT_SUPPORTED = '101'; // function not supported
+  string public constant FORBIDDEN_TO_SUBMIT_NON_EXISTENT_ROOTS = '102'; // forbidden to submit non existent account roots
+  string public constant FORBIDDEN_TO_SUBMIT_NON_EXISTENT_SLOTS = '103'; // forbidden to submit non existent storage slots
 }
