@@ -158,7 +158,7 @@ library MerklePatriciaProofVerifier {
 
           // sanity check
           if (i == stack.length - 1) {
-            // need to process the child now
+            // need to process the child now. Last node can not be a branch node
             revert();
           }
         } else {
