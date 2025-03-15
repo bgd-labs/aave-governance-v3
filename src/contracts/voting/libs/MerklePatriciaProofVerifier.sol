@@ -155,6 +155,12 @@ library MerklePatriciaProofVerifier {
           } else {
             nodeHashHash = node[nibble].rlpBytesKeccak256();
           }
+
+          // sanity check
+          if (i == stack.length - 1) {
+            // need to process the child now
+            revert();
+          }
         } else {
           // we have consumed the entire mptKey, so we need to look at what's contained in this node.
 
