@@ -31,14 +31,14 @@ jobs:
         id: test
         uses: bgd-labs/github-workflows/.github/actions/foundry-test@main
 
-      - name: Run Gas report
-        uses: bgd-labs/github-workflows/.github/actions/foundry-gas-report@main
+      # - name: Run Gas report
+      #   uses: bgd-labs/github-workflows/.github/actions/foundry-gas-report@main
 
-      - name: Run Lcov report
-        uses: bgd-labs/github-workflows/.github/actions/foundry-lcov-report@main
+      # - name: Run Lcov report
+      #   uses: bgd-labs/github-workflows/.github/actions/foundry-lcov-report@main
 
-      - name: Run Forge tests
-        uses: bgd-labs/github-workflows/.github/actions/comment-artifact@main
+      # - name: Run Forge tests
+      #   uses: bgd-labs/github-workflows/.github/actions/comment-artifact@main
 
       # we let failing tests pass so we can log them in the comment, still we want the ci to fail
       - name: Post test
