@@ -131,24 +131,6 @@ contract DataWarehouseTest is BaseProofTest {
     assertEq(storageInfo.value, aaveProofs.balanceSlotValue);
   }
 
-  // function testGetStorageTruncated() public initializeProofs {
-    
-  //   dataWarehouse.processStorageRoot(
-  //     AAVE,
-  //     proofBlockHash,
-  //     aaveProofs.blockHeaderRLP,
-  //     aaveProofs.accountStateProofRLPTruncated
-  //   );
-
-  //   uint256 registeredSlot = dataWarehouse.getRegisteredSlot(
-  //     proofBlockHash,
-  //     AAVE,
-  //     SlotUtils.getAccountSlotHash(proofVoter, aaveProofs.baseBalanceSlotRaw)
-  //   );
-
-  //   assertEq(registeredSlot, aaveProofs.balanceSlotValue);
-  // }
-
   // SLOT
   function testGetAccountBalanceSlotHash() public initializeProofs {
     address holder = address(81967235);
