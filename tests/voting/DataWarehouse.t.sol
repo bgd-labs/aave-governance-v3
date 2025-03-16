@@ -48,6 +48,16 @@ contract DataWarehouseTest is BaseProofTest {
     assertEq(result, true);
   }
 
+  function testProcessDataTruncated() public initializeProofs {
+    vm.expectRevert();
+    dataWarehouse.processStorageRoot(
+      AAVE,
+      proofBlockHash,
+      aaveProofs.blockHeaderRLP,
+      aaveProofs.accountStateProofRLPTruncated
+    );
+  }
+
   function testRegisterExchangeRate() public initializeProofs {
     vm.expectEmit(true, true, true, true);
     emit StorageRootProcessed(address(this), STK_AAVE, proofBlockHash);
@@ -83,6 +93,25 @@ contract DataWarehouseTest is BaseProofTest {
     assertEq(exchangeRate, stkAaveProofs.exchangeRate);
   }
 
+  function testRegisterExchangeRateTruncated() public initializeProofs {
+    vm.expectEmit(true, true, true, true);
+    emit StorageRootProcessed(address(this), STK_AAVE, proofBlockHash);
+    dataWarehouse.processStorageRoot(
+      STK_AAVE,
+      proofBlockHash,
+      stkAaveProofs.blockHeaderRLP,
+      stkAaveProofs.accountStateProofRLP
+    );
+
+    vm.expectRevert();
+    dataWarehouse.processStorageSlot(
+      STK_AAVE,
+      proofBlockHash,
+      stkAaveProofs.stkAaveExchangeRateSlot,
+      stkAaveProofs.stkAaveExchangeRateStorageProofRlpTruncated
+    );
+  }
+
   function testGetStorage() public initializeProofs {
     dataWarehouse.processStorageRoot(
       AAVE,
@@ -101,6 +130,24 @@ contract DataWarehouseTest is BaseProofTest {
     assertEq(storageInfo.exists, true);
     assertEq(storageInfo.value, aaveProofs.balanceSlotValue);
   }
+
+  // function testGetStorageTruncated() public initializeProofs {
+    
+  //   dataWarehouse.processStorageRoot(
+  //     AAVE,
+  //     proofBlockHash,
+  //     aaveProofs.blockHeaderRLP,
+  //     aaveProofs.accountStateProofRLPTruncated
+  //   );
+
+  //   uint256 registeredSlot = dataWarehouse.getRegisteredSlot(
+  //     proofBlockHash,
+  //     AAVE,
+  //     SlotUtils.getAccountSlotHash(proofVoter, aaveProofs.baseBalanceSlotRaw)
+  //   );
+
+  //   assertEq(registeredSlot, aaveProofs.balanceSlotValue);
+  // }
 
   // SLOT
   function testGetAccountBalanceSlotHash() public initializeProofs {
