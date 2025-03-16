@@ -89,6 +89,7 @@ contract BaseProofTest is Test {
     bytes blockHeaderRLP;
     uint256 chainId;
     bytes proofOfRepresentative;
+    bytes proofOfRepresentativeTruncated;
     uint256 representative;
     uint256 representativesSlot;
     uint256 representativesSlotHash;
