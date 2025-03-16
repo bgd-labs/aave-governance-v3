@@ -73,10 +73,10 @@ contract SubmitVoteTest is BaseProofTest {
     votingMachine = new VotingMachine(votingStrategy, GOVERNANCE);
 
     // register roots and values
-    _initializeRepresentatives();
-    _initializeAave();
-    _initializeStkAave();
-    _initializeAAave();
+    _initializeRepresentatives(false);
+    _initializeAave(false);
+    _initializeStkAave(false);
+    _initializeAAave(false);
 
     _createVote(PROPOSAL_ID, VOTING_DURATION);
   }

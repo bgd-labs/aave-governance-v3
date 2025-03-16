@@ -22,13 +22,6 @@ contract DataWarehouseTest is BaseProofTest {
     uint256 value
   );
 
-  modifier initializeWithIncorrectProofs() {
-    dataWarehouse = new DataWarehouse();
-    _initVotingStrategy();
-    _getIncorrectRootsAndProofs();
-    _;
-  }
-
   modifier initializeProofs() {    
     dataWarehouse = new DataWarehouse();
 

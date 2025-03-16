@@ -20,7 +20,7 @@ contract VotingStrategyATokenTest is BaseProofTest {
     // get roots and proofs
     _getRootsAndProofs();
     // register roots and values
-    _initializeAAave();
+    _initializeAAave(false);
 
     power = dataWarehouse.getStorage(
       A_AAVE,

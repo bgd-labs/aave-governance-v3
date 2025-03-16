@@ -97,42 +97,42 @@ contract BaseProofTest is Test {
     address token;
   }
 
-  function _initializeAave() internal {
+  function _initializeAave(bool truncated) internal {
     _processRoots(
       AAVE,
       aaveProofs.blockHeaderRLP,
-      aaveProofs.accountStateProofRLP
+      truncated ? aaveProofs.accountStateProofRLPTruncated : aaveProofs.accountStateProofRLP
     );
   }
 
-  function _initializeStkAave() internal {
+  function _initializeStkAave(bool truncated) internal {
     _processRoots(
       STK_AAVE,
       stkAaveProofs.blockHeaderRLP,
-      stkAaveProofs.accountStateProofRLP
+      truncated ? stkAaveProofs.accountStateProofRLPTruncated : stkAaveProofs.accountStateProofRLP
     );
 
     // process slot
     _processSlot(
       STK_AAVE,
       stkAaveProofs.stkAaveExchangeRateSlot,
-      stkAaveProofs.stkAaveExchangeRateStorageProofRlp
+      truncated ? stkAaveProofs.stkAaveExchangeRateStorageProofRlpTruncated : stkAaveProofs.stkAaveExchangeRateStorageProofRlp
     );
   }
 
-  function _initializeAAave() internal {
+  function _initializeAAave(bool truncated) internal {
     _processRoots(
       A_AAVE,
       aAaveProofs.blockHeaderRLP,
-      aAaveProofs.accountStateProofRLP
+      truncated ? aAaveProofs.accountStateProofRLPTruncated : aAaveProofs.accountStateProofRLP
     );
   }
 
-  function _initializeRepresentatives() internal {
+  function _initializeRepresentatives(bool truncated) internal {
     _processRoots(
       GOVERNANCE,
       representatives.blockHeaderRLP,
-      representatives.accountStateProofRLP
+      truncated ? representatives.accountStateProofRLPTruncated : representatives.accountStateProofRLP
     );
   }
 
