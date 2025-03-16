@@ -22,16 +22,25 @@ contract DataWarehouseTest is BaseProofTest {
     uint256 value
   );
 
-  function setUp() public {
+  modifier initializeWithIncorrectProofs() {
+    dataWarehouse = new DataWarehouse();
+    _initVotingStrategy();
+    _getIncorrectRootsAndProofs();
+    _;
+  }
+
+  modifier initializeProofs() {    
     dataWarehouse = new DataWarehouse();
 
     // we init voting strategy so we can access supported token addresses
     _initVotingStrategy();
-
     _getRootsAndProofs();
+    _;
   }
 
-  function testProcessData() public {
+  function setUp() public {}
+
+  function testProcessData() public initializeProofs {
     vm.expectEmit(true, true, true, true);
     emit StorageRootProcessed(address(this), AAVE, proofBlockHash);
     dataWarehouse.processStorageRoot(
@@ -46,7 +55,7 @@ contract DataWarehouseTest is BaseProofTest {
     assertEq(result, true);
   }
 
-  function testRegisterExchangeRate() public {
+  function testRegisterExchangeRate() public initializeProofs {
     vm.expectEmit(true, true, true, true);
     emit StorageRootProcessed(address(this), STK_AAVE, proofBlockHash);
     dataWarehouse.processStorageRoot(
@@ -81,7 +90,7 @@ contract DataWarehouseTest is BaseProofTest {
     assertEq(exchangeRate, stkAaveProofs.exchangeRate);
   }
 
-  function testGetStorage() public {
+  function testGetStorage() public initializeProofs {
     dataWarehouse.processStorageRoot(
       AAVE,
       proofBlockHash,
@@ -101,7 +110,7 @@ contract DataWarehouseTest is BaseProofTest {
   }
 
   // SLOT
-  function testGetAccountBalanceSlotHash() public {
+  function testGetAccountBalanceSlotHash() public initializeProofs {
     address holder = address(81967235);
     uint256 balanceMappingPosition = 0;
 

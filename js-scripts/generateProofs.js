@@ -14,6 +14,8 @@ import "dotenv/config";
 import stringify from "json-stable-stringify";
 import ERC20WithDelegation from "./abis/ERC20WithDelegation.json" assert { type: "json" };
 
+const proofsPath = CONFIG.PROOF_PATH;
+
 const generateRoots = async (
   provider,
   token,
@@ -21,7 +23,7 @@ const generateRoots = async (
   extraSlotRaw,
   name
 ) => {
-  const proofsJson = getProofsJson();
+  const proofsJson = getProofsJson(proofsPath);
 
   if (!proofsJson[name]) {
     proofsJson[name] = {
@@ -73,9 +75,13 @@ const generateRoots = async (
   const accountStateProofRLP = formatToProofRLP(
     rawAccountProofData.accountProof
   );
+  const accountStateProofRLPTruncated = formatToProofRLP(
+    rawAccountProofData.accountProof.slice(0, -1)
+  );
   proofsJson[name].accountStateProofRLP = accountStateProofRLP;
+  proofsJson[name].accountStateProofRLPTruncated = accountStateProofRLPTruncated;
 
-  saveJson(stringify(proofsJson));
+  saveJson(stringify(proofsJson), proofsPath);
 };
 
 const generateProofs = async (
@@ -86,7 +92,7 @@ const generateProofs = async (
   proofName,
   name
 ) => {
-  const proofsJson = getProofsJson();
+  const proofsJson = getProofsJson(proofsPath);
 
   if (!proofsJson[name]) {
     proofsJson[name] = {
@@ -105,9 +111,14 @@ const generateProofs = async (
     rawAccountProofData.storageProof[0].proof
   );
 
-  proofsJson[name][proofName] = storageProofRlp;
+  const truncatedProofRlp = formatToProofRLP(
+    rawAccountProofData.storageProof[0].proof.slice(0, -1)
+  )
 
-  saveJson(stringify(proofsJson));
+  proofsJson[name][proofName] = storageProofRlp;
+  proofsJson[name][`${proofName}Truncated`] = truncatedProofRlp;
+
+  saveJson(stringify(proofsJson), proofsPath);
 };
 
 const generateProofsVoterSlot = async (
@@ -135,7 +146,7 @@ const generateProofsRepresentativeByChain = async (
   const hexSlot = utils.hexlify(rawSlot);
   const slot = getSolidityTwoLevelStorageSlotHash(hexSlot, voter, chainId);
   console.log("representative slot: ", slot);
-  const proofsJson = getProofsJson();
+  const proofsJson = getProofsJson(proofsPath);
 
   if (!proofsJson[name]) {
     proofsJson[name] = {
@@ -149,7 +160,7 @@ const generateProofsRepresentativeByChain = async (
   proofsJson[name].represented = voter;
   proofsJson[name].chainId = chainId;
 
-  saveJson(stringify(proofsJson));
+  saveJson(stringify(proofsJson), proofsPath);
 
   return generateProofs(provider, token, rawSlot, slot, proofName, name);
 };
@@ -175,7 +186,7 @@ const generateProofsHexSlot = async (
 };
 
 const getVoterBalances = async (provider, token, voter, name) => {
-  const proofsJson = getProofsJson();
+  const proofsJson = getProofsJson(proofsPath);
 
   if (!proofsJson[name]) {
     throw new Error("Roots and proofs needed for this step");
@@ -248,7 +259,7 @@ const getVoterBalances = async (provider, token, voter, name) => {
     );
   }
 
-  saveJson(stringify(proofsJson));
+  saveJson(stringify(proofsJson), proofsPath);
 };
 
 const generateJson = async () => {
@@ -333,7 +344,7 @@ const generateJson = async () => {
     "STK_AAVE"
   );
 
-  const proofsJson = getProofsJson();
+  const proofsJson = getProofsJson(proofsPath);
   proofsJson.voter = CONFIG.VOTER;
   proofsJson.proposalCreator = CONFIG.PROPOSAL_CREATOR;
   proofsJson.tokens = [
@@ -343,7 +354,7 @@ const generateJson = async () => {
   ];
   proofsJson.governance = Tokens.GOVERNANCE_REPRESENTATIVE;
 
-  saveJson(stringify(proofsJson));
+  saveJson(stringify(proofsJson), proofsPath);
 };
 
 generateJson().then().catch();

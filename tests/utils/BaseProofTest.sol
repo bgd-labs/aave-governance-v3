@@ -32,9 +32,11 @@ contract BaseProofTest is Test {
   // Structs need to be ordered as they are used to parse json
   struct AaveProofs {
     bytes accountStateProofRLP;
+    bytes accountStateProofRLPTruncated;
     uint256 balance;
     uint256 balanceSlotValue;
     bytes balanceStorageProofRlp;
+    bytes balanceStorageProofRlpTruncated;
     bytes32 baseBalanceSlot;
     uint256 baseBalanceSlotRaw;
     bytes blockHeaderRLP;
@@ -44,10 +46,13 @@ contract BaseProofTest is Test {
   }
   struct AAaveProofs {
     bytes aAaveDelegationStorageProofRlp;
+    bytes aAaveDelegationStorageProofRlpTruncated;
     bytes accountStateProofRLP;
+    bytes accountStateProofRLPTruncated;
     uint256 balance;
     uint256 balanceSlotValue;
     bytes balanceStorageProofRlp;
+    bytes balanceStorageProofRlpTruncated;
     bytes32 baseBalanceSlot;
     uint256 baseBalanceSlotRaw;
     bytes blockHeaderRLP;
@@ -60,9 +65,11 @@ contract BaseProofTest is Test {
   }
   struct StkAaveProofs {
     bytes accountStateProofRLP;
+    bytes accountStateProofRLPTruncated;
     uint256 balance;
     uint256 balanceSlotValue;
     bytes balanceStorageProofRlp;
+    bytes balanceStorageProofRlpTruncated;
     bytes32 baseBalanceSlot;
     uint256 baseBalanceSlotRaw;
     bytes blockHeaderRLP;
@@ -71,12 +78,14 @@ contract BaseProofTest is Test {
     uint256 exchangeRateSlotRaw;
     bytes32 stkAaveExchangeRateSlot;
     bytes stkAaveExchangeRateStorageProofRlp;
+    bytes stkAaveExchangeRateStorageProofRlpTruncated;
     address token;
     uint256 votingPower;
   }
 
   struct RepresentativesProofs {
     bytes accountStateProofRLP;
+    bytes accountStateProofRLPTruncated;
     bytes blockHeaderRLP;
     uint256 chainId;
     bytes proofOfRepresentative;

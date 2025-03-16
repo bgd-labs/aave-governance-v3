@@ -1,12 +1,12 @@
 import * as fs from "fs";
 
-export const saveJson = (stringifiedJson) => {
-  fs.writeFileSync("tests/utils/proofs.json", stringifiedJson);
+export const saveJson = (stringifiedJson, path) => {
+  fs.writeFileSync(path, stringifiedJson);
 };
 
-export const getProofsJson = () => {
+export const getProofsJson = (path) => {
   try {
-    const file = fs.readFileSync("tests/utils/proofs.json");
+    const file = fs.readFileSync(path);
     // @ts-ignore
     return JSON.parse(file);
   } catch (error) {
