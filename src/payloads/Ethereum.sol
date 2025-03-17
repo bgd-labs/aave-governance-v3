@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
-import {IGovernance} from '../interfaces/IGovernance.sol';
+import {IGovernanceCore} from '../interfaces/IGovernanceCore.sol';
 
 struct PayloadArgs {
   address eth_eth_voting_portal;
@@ -44,6 +44,6 @@ contract EthereumPayload {
     votingPortals[0] = ETH_ETH_VOTING_PORTAL;
     votingPortals[1] = ETH_AVAX_VOTING_PORTAL;
     votingPortals[2] = ETH_POL_VOTING_PORTAL;
-    IGovernance(GOVERNANCE).addVotingPortals(votingPortals);
+    IGovernanceCore(GOVERNANCE).addVotingPortals(votingPortals);
   }
 }
