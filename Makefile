@@ -239,4 +239,9 @@ update-pc-permissions:
 	$(call deploy_fn,helpers/UpdatePCPermissions,soneium)
 
 update-executor-owner:
-	$(call deploy_fn,helpers/UpdateExecutorOwner,soneium)
+	$(call deploy_fn,helpers/UpdateExecutorOwner,mantle)
+
+deploy-merkle-payload-updates:
+	$(call deploy_fn,GovernancePayloads/MerklePayloadUpdates,ethereum)
+	$(call deploy_fn,GovernancePayloads/MerklePayloadUpdates,polygon)
+	$(call deploy_fn,GovernancePayloads/MerklePayloadUpdates,avalanche)
