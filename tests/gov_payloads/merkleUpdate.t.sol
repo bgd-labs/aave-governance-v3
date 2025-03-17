@@ -5,7 +5,7 @@ import {Test} from 'forge-std/Test.sol';
 import {GovV3Helpers} from 'aave-helpers/GovV3Helpers.sol';
 import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import {Ethereum, Polygon, Avalanche} from '../../scripts/GovernancePayloads/MerklePayloadUpdates.s.sol';
-import {EthereumPayload} from '../../src/payloads/ethereum.sol';
+import {EthereumPayload} from '../../src/payloads/Ethereum.sol';
 import {IGovernanceCore} from '../../src/interfaces/IGovernanceCore.sol';
 import '../../scripts/GovBaseScript.sol';
 

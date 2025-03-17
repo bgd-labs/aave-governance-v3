@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import {EthereumPayload, PayloadArgs as EthereumPayloadArgs} from '../../src/payloads/ethereum.sol';
-import {PolygonPayload, PayloadArgs as PolygonPayloadArgs} from '../../src/payloads/polygon.sol';
-import {AvalanchePayload, PayloadArgs as AvalanchePayloadArgs} from '../../src/payloads/avalanche.sol';
+import {EthereumPayload, PayloadArgs as EthereumPayloadArgs} from '../../src/payloads/Ethereum.sol';
+import {PolygonPayload, PayloadArgs as PolygonPayloadArgs} from '../../src/payloads/Polygon.sol';
+import {AvalanchePayload, PayloadArgs as AvalanchePayloadArgs} from '../../src/payloads/Avalanche.sol';
 import {Create2Utils} from 'solidity-utils/contracts/utils/ScriptUtils.sol';
 import '../GovBaseScript.sol';
 
