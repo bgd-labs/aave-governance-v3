@@ -8,10 +8,10 @@ test :; forge test -vvvv
 BASE_LEDGER = --ledger --mnemonic-indexes $(MNEMONIC_INDEX) --sender $(LEDGER_SENDER)
 BASE_KEY = --private-key ${PRIVATE_KEY}
 
-custom_ethereum := --with-gas-price 1000000000 # 25 gwei
-# custom_polygon :=  --with-gas-price 35000000000 # 170 gwei
+custom_ethereum := --with-gas-price 25000000000 # 25 gwei
+custom_polygon :=  --with-gas-price 170000000000 # 170 gwei
 custom_polygon-testnet :=  --with-gas-price 20000000000 # 5 gwei
-# custom_avalanche := --with-gas-price 27000000000 # 27 gwei
+custom_avalanche := --with-gas-price 27000000000 # 27 gwei
 custom_metis-testnet := --legacy --verifier-url https://goerli.explorer.metisdevops.link/api/
 custom_metis := --verifier-url https://andromeda-explorer.metis.io/api/
 custom_zksync := --zksync
@@ -55,10 +55,10 @@ set-gov-as-cff-sender:
 
 ## Deploy voting machine contracts
 deploy-data-warehouse:
-	$(call deploy_fn,VotingMachine/Deploy_DataWarehouse,avalanche polygon)
+	$(call deploy_fn,VotingMachine/Deploy_DataWarehouse,ethereum avalanche polygon)
 
 deploy-voting-strategy:
-	$(call deploy_fn,VotingMachine/Deploy_VotingStrategy,polygon)
+	$(call deploy_fn,VotingMachine/Deploy_VotingStrategy,ethereum avalanche polygon)
 
 deploy-voting-machine:
 	$(call deploy_fn,VotingMachine/Deploy_VotingMachine,avalanche)
@@ -79,8 +79,8 @@ deploy-payloads-controller-chain:
 ## Deploy Governance Voting Portal
 deploy-voting-portals:
 	$(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Avalanche)
-	# $(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Ethereum)
-	# $(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Polygon)
+	$(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Ethereum)
+	$(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Polygon)
 
 set-vp-on-gov:
 	$(call deploy_fn,Governance/Set_VotingPortals_on_Gov,ethereum)
