@@ -57,8 +57,6 @@ contract DataWarehouse is IDataWarehouse {
         accountStateProofRLP.toRlpItem().toList()
       );
 
-    require(accountData.exists, Errors.FORBIDDEN_TO_SUBMIT_NON_EXISTENT_ROOTS);
-
     _storageRoots[account][blockHash] = accountData.storageRoot;
 
     emit StorageRootProcessed(msg.sender, account, blockHash);
@@ -101,7 +99,6 @@ contract DataWarehouse is IDataWarehouse {
       slot,
       storageProof
     );
-    require(storageSlot.exists, Errors.FORBIDDEN_TO_SUBMIT_NON_EXISTENT_SLOTS);
 
     _slotsRegistered[account][blockHash][slot] = storageSlot.value;
 
