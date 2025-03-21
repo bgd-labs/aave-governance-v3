@@ -39,6 +39,7 @@ interface IGovernanceDataHelper {
   struct Proposal {
     uint256 id;
     uint256 votingChainId;
+    address votingMachineAddress;
     IGovernanceCore.Proposal proposalData;
   }
 
