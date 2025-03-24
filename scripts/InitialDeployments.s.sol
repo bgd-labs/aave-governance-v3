@@ -169,6 +169,12 @@ contract Mantle is BaseInitialDeployment {
   }
 }
 
+contract Ink is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.INK;
+  }
+}
+
 contract Ethereum_testnet is BaseInitialDeployment {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
