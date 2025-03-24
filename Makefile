@@ -131,7 +131,7 @@ deploy-executor-lvl2-test:
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain-test:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,sonic)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,ink)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals-test:
@@ -148,7 +148,7 @@ set-vp-as_ccf-senders-test:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts-test:
-	$(call deploy_fn,Deploy_ContractHelpers,sonic)
+	$(call deploy_fn,Deploy_ContractHelpers,ink)
 
 deploy-full-key-test:
 		make deploy-initial-test
@@ -230,7 +230,7 @@ deploy-gov-v2_5:
 	$(call deploy_fn,Governance/Deploy_Governance_V2_5,ethereum)
 
 update-pc-permissions:
-	$(call deploy_fn,helpers/UpdatePCPermissions,mantle)
+	$(call deploy_fn,helpers/UpdatePCPermissions,ink)
 
 update-executor-owner:
 	$(call deploy_fn,helpers/UpdateExecutorOwner,mantle)
