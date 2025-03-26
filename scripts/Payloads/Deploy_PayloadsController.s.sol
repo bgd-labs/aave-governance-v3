@@ -121,7 +121,9 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
     //      }
     //    }
 
-    addresses.proxyAdminPayloadsController = TransparentProxyFactory(ccAddresses.proxyFactory).getProxyAdmin(addresses.payloadsController);
+    addresses.proxyAdminPayloadsController = TransparentProxyFactory(
+      ccAddresses.proxyFactory
+    ).getProxyAdmin(addresses.payloadsController);
   }
 }
 
@@ -291,6 +293,16 @@ contract Linea is BaseDeployPayloadsController {
 contract Celo is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.CELO;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Ink is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.INK;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {

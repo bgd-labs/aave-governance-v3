@@ -9,7 +9,11 @@ abstract contract UpdatePayloadsControllerPermissions {
 
   function targetGovernanceGuardian() public pure virtual returns (address);
 
-  function govContractsToUpdate() public pure virtual returns (address[] memory);
+  function govContractsToUpdate()
+    public
+    pure
+    virtual
+    returns (address[] memory);
 
   function _changeOwnerAndGuardian(
     address owner,
@@ -34,10 +38,13 @@ abstract contract UpdatePayloadsControllerPermissions {
   }
 
   function _changeOwnerAndGuardian() internal {
-    _changeOwnerAndGuardian(targetOwner(), targetGovernanceGuardian(), govContractsToUpdate());
+    _changeOwnerAndGuardian(
+      targetOwner(),
+      targetGovernanceGuardian(),
+      govContractsToUpdate()
+    );
   }
 }
-
 
 contract UpdatePCPermissionsMantle is UpdatePayloadsControllerPermissions {
   function targetOwner() public pure override returns (address) {
@@ -48,7 +55,12 @@ contract UpdatePCPermissionsMantle is UpdatePayloadsControllerPermissions {
     return 0x14816fC7f443A9C834d30eeA64daD20C4f56fBCD;
   }
 
-  function govContractsToUpdate() public pure override returns (address[] memory) {
+  function govContractsToUpdate()
+    public
+    pure
+    override
+    returns (address[] memory)
+  {
     address[] memory contracts = new address[](1);
     contracts[0] = address(0xF089f77173A3009A98c45f49D547BF714A7B1e01); // PC
     return contracts;
@@ -58,9 +70,40 @@ contract UpdatePCPermissionsMantle is UpdatePayloadsControllerPermissions {
 contract Mantle is Script, UpdatePCPermissionsMantle {
   function run() external {
     vm.startBroadcast();
-    
+
     _changeOwnerAndGuardian();
-    
+
+    vm.stopBroadcast();
+  }
+}
+
+contract UpdatePCPermissionsInk is UpdatePayloadsControllerPermissions {
+  function targetOwner() public pure override returns (address) {
+    return 0x47aAdaAE1F05C978E6aBb7568d11B7F6e0FC4d6A; // Executor Lvl 1
+  }
+
+  function targetGovernanceGuardian() public pure override returns (address) {
+    return 0x1bBcC6F0BB563067Ca45450023a13E34fa963Fa9;
+  }
+
+  function govContractsToUpdate()
+    public
+    pure
+    override
+    returns (address[] memory)
+  {
+    address[] memory contracts = new address[](1);
+    contracts[0] = address(0x44D73D7C4b2f98F426Bf8B5e87628d9eE38ef0Cf); // PC
+    return contracts;
+  }
+}
+
+contract Ink is Script, UpdatePCPermissionsInk {
+  function run() external {
+    vm.startBroadcast();
+
+    _changeOwnerAndGuardian();
+
     vm.stopBroadcast();
   }
 }

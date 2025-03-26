@@ -79,6 +79,8 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/sonic.json';
     } else if (chainId == ChainIds.MANTLE) {
       return './deployments/gov/mainnet/mantle.json';
+    } else if (chainId == ChainIds.INK) {
+      return './deployments/gov/mainnet/ink.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
@@ -237,7 +239,10 @@ library GovDeployerHelpers {
     );
     json.serialize('payloadsControllerImpl', addresses.payloadsControllerImpl);
     json.serialize('proxyAdminGovernance', addresses.proxyAdminGovernance);
-    json.serialize('proxyAdminPayloadsController', addresses.proxyAdminPayloadsController);
+    json.serialize(
+      'proxyAdminPayloadsController',
+      addresses.proxyAdminPayloadsController
+    );
     json.serialize('votingMachine', addresses.votingMachine);
     json.serialize(
       'votingMachineDataHelper',
