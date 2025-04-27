@@ -114,6 +114,23 @@ contract Celo is BaseContractHelpers {
   }
 }
 
+contract Mantle is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.MANTLE;
+  }
+}
+contract Sonic is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONIC;
+  }
+}
+
+contract Ink is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.INK;
+  }
+}
+
 contract Ethereum_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;

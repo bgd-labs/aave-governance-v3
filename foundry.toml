@@ -5,11 +5,14 @@ out = 'out'
 libs = ['lib']
 script = 'scripts'
 remappings = []
-solc='0.8.20'
+solc='0.8.22'
 
 fs_permissions = [{ access = "read-write", path = "./"}]
 
-evm_version = "paris"
+optimizer = true
+optimizer_runs = 200
+evm_version = 'shanghai'
+bytecode_hash = 'none'
 
 
 # Whether or not to enable `vm.ffi`
@@ -53,6 +56,11 @@ linea="${RPC_LINEA}"
 linea-testnet="${RPC_LINEA_SEPOLIA}"
 celo="${RPC_CELO}"
 celo-testnet="${RPC_CELO_ALFAJORES}"
+sonic="${RPC_SONIC}"
+sonic-testnet="${RPC_SONIC_TESTNET}"
+mantle="${RPC_MANTLE}"
+mantle-testnet="${RPC_MANTLE_TESTNET}"
+ink="${RPC_INK}"
 
 [etherscan]
 ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
@@ -83,6 +91,12 @@ linea={key="${ETHERSCAN_API_KEY_LINEA}", chain=59144 }
 linea-testnet={key="${ETHERSCAN_API_KEY_LINEA}",chain=59141}
 celo={key="${ETHERSCAN_API_KEY_CELO}", chain=42220, utl='https://api.celoscan.io/api'}
 celo-testnet={key="${ETHERSCAN_API_KEY_CELO}", chain=44787, url='https://api-alfajores.celoscan.io/api'}
+sonic={key="${ETHERSCAN_API_KEY_SONIC}", chain=146, url='https://api.sonicscan.org/api'}
+sonic-testnet={key="${ETHERSCAN_API_KEY_SONIC}", chain=57054, url='https://api-testnet.sonicscan.org/api'}
+mantle={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5000, url='https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan'}
+mantle-testnet={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5003, url='https://explorer.testnet.mantle.xyz/api'}
+ink={key="${ETHERSCAN_API_KEY_INK}", chain=57073, url='https://api.routescan.io/v2/network/mainnet/evm/57073/etherscan'}
+
 
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config

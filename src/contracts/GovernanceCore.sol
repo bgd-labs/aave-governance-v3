@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import {Initializable} from 'solidity-utils/contracts/transparent-proxy/Initializable.sol';
-import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
-import {SafeCast} from 'solidity-utils/contracts/oz-common/SafeCast.sol';
+import {Initializable} from 'aave-delivery-infrastructure/contracts/old-oz/Initializable.sol';
+import {OwnableWithGuardian} from 'aave-delivery-infrastructure/contracts/old-oz/OwnableWithGuardian.sol';
+import {SafeCast} from 'openzeppelin-contracts/contracts/utils/math/SafeCast.sol';
 import {IGovernanceCore, IGovernancePowerStrategy, PayloadsControllerUtils, EnumerableSet} from '../interfaces/IGovernanceCore.sol';
 import {IVotingPortal} from '../interfaces/IVotingPortal.sol';
 import {Errors} from './libraries/Errors.sol';

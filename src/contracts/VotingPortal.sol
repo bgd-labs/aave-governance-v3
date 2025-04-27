@@ -6,7 +6,7 @@ import {IGovernanceCore} from '../interfaces/IGovernanceCore.sol';
 import {IVotingPortal, IBaseReceiverPortal} from '../interfaces/IVotingPortal.sol';
 import {Errors} from './libraries/Errors.sol';
 import {IVotingMachineWithProofs} from './voting/interfaces/IVotingMachineWithProofs.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 
 /**
  * @title VotingPortal
@@ -37,7 +37,9 @@ contract VotingPortal is Ownable, IVotingPortal {
    * @param crossChainController address of current network message controller (cross chain controller or same chain controller)
    * @param governance address of the linked governance contract
    * @param votingMachine address where the proposal votes will happen. Can be same or different chain
+   * @param votingMachineChainId chainId of the voting machine
    * @param startVotingGasLimit gas limit for "Start voting" bridging tx
+   * @param owner owner of the voting portal
    */
   constructor(
     address crossChainController,
@@ -46,8 +48,7 @@ contract VotingPortal is Ownable, IVotingPortal {
     uint256 votingMachineChainId,
     uint128 startVotingGasLimit,
     address owner
-  ) {
-    require(owner != address(0), Errors.INVALID_VOTING_PORTAL_OWNER);
+  ) Ownable(owner) {
     require(
       crossChainController != address(0),
       Errors.INVALID_VOTING_PORTAL_CROSS_CHAIN_CONTROLLER
@@ -64,8 +65,6 @@ contract VotingPortal is Ownable, IVotingPortal {
     VOTING_MACHINE_CHAIN_ID = votingMachineChainId;
 
     _updateStartVotingGasLimit(startVotingGasLimit);
-
-    _transferOwnership(owner);
   }
 
   /// @inheritdoc IBaseReceiverPortal

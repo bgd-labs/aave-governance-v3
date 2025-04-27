@@ -33,6 +33,8 @@ library GovDeployerHelpers {
     address payloadsController;
     address payloadsControllerDataHelper;
     address payloadsControllerImpl;
+    address proxyAdminGovernance;
+    address proxyAdminPayloadsController;
     address votingMachine;
     address votingMachineDataHelper;
     address votingPortal_Eth_Avax;
@@ -73,6 +75,12 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/linea.json';
     } else if (chainId == ChainIds.CELO) {
       return './deployments/gov/mainnet/celo.json';
+    } else if (chainId == ChainIds.SONIC) {
+      return './deployments/gov/mainnet/sonic.json';
+    } else if (chainId == ChainIds.MANTLE) {
+      return './deployments/gov/mainnet/mantle.json';
+    } else if (chainId == ChainIds.INK) {
+      return './deployments/gov/mainnet/ink.json';
     }
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
@@ -96,6 +104,10 @@ library GovDeployerHelpers {
       return './deployments/gov/testnet/scroll_sepolia.json';
     } else if (chainId == TestNetChainIds.ZKSYNC_SEPOLIA) {
       return './deployments/gov/testnet/zksync_sep.json';
+    } else if (chainId == TestNetChainIds.SONIC_BLAZE) {
+      return './deployments/gov/testnet/sonic_blaze.json';
+    } else if (chainId == TestNetChainIds.MANTLE_SEPOLIA) {
+      return './deployments/gov/testnet/mantle_sepolia.json';
     } else {
       revert('chain id is not supported');
     }
@@ -155,6 +167,14 @@ library GovDeployerHelpers {
       ),
       payloadsControllerImpl: abi.decode(
         persistedJson.parseRaw('.payloadsControllerImpl'),
+        (address)
+      ),
+      proxyAdminGovernance: abi.decode(
+        persistedJson.parseRaw('.proxyAdminGovernance'),
+        (address)
+      ),
+      proxyAdminPayloadsController: abi.decode(
+        persistedJson.parseRaw('.proxyAdminPayloadsController'),
         (address)
       ),
       votingMachine: abi.decode(
@@ -218,6 +238,11 @@ library GovDeployerHelpers {
       addresses.payloadsControllerDataHelper
     );
     json.serialize('payloadsControllerImpl', addresses.payloadsControllerImpl);
+    json.serialize('proxyAdminGovernance', addresses.proxyAdminGovernance);
+    json.serialize(
+      'proxyAdminPayloadsController',
+      addresses.proxyAdminPayloadsController
+    );
     json.serialize('votingMachine', addresses.votingMachine);
     json.serialize(
       'votingMachineDataHelper',
