@@ -175,6 +175,12 @@ contract Ink is BaseInitialDeployment {
   }
 }
 
+contract Soneium is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONEIUM;
+  }
+}
+
 contract Ethereum_testnet is BaseInitialDeployment {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;

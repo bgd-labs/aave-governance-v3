@@ -124,14 +124,14 @@ set-vm-as-ccf-sender-test:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon binance)
 
 deploy-executor-lvl1-test:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,ink)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,soneium)
 
 deploy-executor-lvl2-test:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain-test:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,ink)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,soneium)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals-test:
@@ -148,7 +148,7 @@ set-vp-as_ccf-senders-test:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts-test:
-	$(call deploy_fn,Deploy_ContractHelpers,ink)
+	$(call deploy_fn,Deploy_ContractHelpers,soneium)
 
 deploy-full-key-test:
 		make deploy-initial-test
