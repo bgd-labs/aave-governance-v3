@@ -97,7 +97,7 @@ sonic-testnet={key="${ETHERSCAN_API_KEY_SONIC}", chain=57054, url='https://api-t
 mantle={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5000, url='https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan'}
 mantle-testnet={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5003, url='https://explorer.testnet.mantle.xyz/api'}
 ink={key="${ETHERSCAN_API_KEY_INK}", chain=57073, url='https://api.routescan.io/v2/network/mainnet/evm/57073/etherscan'}
-soneium={key="${ETHERSCAN_API_KEY_SONEIUM}" chain=1868 url="https://soneium.blockscout.com/api/"}
+soneium={key="${ETHERSCAN_API_KEY_SONEIUM}", chain=1868, url='https://soneium.blockscout.com/api/'}
 
 
 

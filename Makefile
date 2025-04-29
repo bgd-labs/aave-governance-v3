@@ -100,7 +100,7 @@ write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedA
 
 
 deploy-initial-test:
-	$(call deploy_fn,InitialDeployments,ink)
+	$(call deploy_fn,InitialDeployments,soneium)
 
 # Deploy Governance contracts
 deploy-governance-test:
