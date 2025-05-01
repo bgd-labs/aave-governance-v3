@@ -230,7 +230,7 @@ deploy-gov-v2_5:
 	$(call deploy_fn,Governance/Deploy_Governance_V2_5,ethereum)
 
 update-pc-permissions:
-	$(call deploy_fn,helpers/UpdatePCPermissions,ink)
+	$(call deploy_fn,helpers/UpdatePCPermissions,soneium)
 
 update-executor-owner:
-	$(call deploy_fn,helpers/UpdateExecutorOwner,mantle)
+	$(call deploy_fn,helpers/UpdateExecutorOwner,soneium)

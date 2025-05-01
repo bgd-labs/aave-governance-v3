@@ -40,3 +40,24 @@ contract Mantle is Script, UpdateExecutorPermissionsMantle {
     vm.stopBroadcast();
   }
 }
+
+contract UpdateExecutorPermissionsSoneium is UpdateExecutorOwner {
+  function targetOwner() public pure override returns (address) {
+    return 0x44D73D7C4b2f98F426Bf8B5e87628d9eE38ef0Cf; // PC
+  }
+
+  function executor() public pure override returns (address) {
+    return 0x47aAdaAE1F05C978E6aBb7568d11B7F6e0FC4d6A; // Executor Lvl 1
+  }
+
+}
+
+contract Soneium is Script, UpdateExecutorPermissionsSoneium {
+  function run() external {
+    vm.startBroadcast();
+
+    _changeOwner();
+    
+    vm.stopBroadcast();
+  }
+}
