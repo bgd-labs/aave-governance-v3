@@ -33,9 +33,9 @@ library GovDeployerHelpers {
     address payloadsController;
     address payloadsControllerDataHelper;
     address payloadsControllerImpl;
+    address permissionedExecutor;
     address permissionedPayloadsController;
     address permissionedPayloadsControllerImpl;
-    address permissionedExecutor;
     address proxyAdminGovernance;
     address proxyAdminPayloadsController;
     address votingMachine;
