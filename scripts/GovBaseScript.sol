@@ -81,7 +81,10 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/mantle.json';
     } else if (chainId == ChainIds.INK) {
       return './deployments/gov/mainnet/ink.json';
+    } else if (chainId == ChainIds.SONEIUM) {
+      return './deployments/gov/mainnet/soneium.json';
     }
+    
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
     } else if (chainId == TestNetChainIds.POLYGON_AMOY) {
