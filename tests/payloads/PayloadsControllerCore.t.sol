@@ -2,14 +2,14 @@
 pragma solidity ^0.8.10;
 
 import 'forge-std/Test.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
-import {Address} from 'solidity-utils/contracts/oz-common/Address.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
+import {Address} from 'openzeppelin-contracts/contracts/utils/Address.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
 import {ERC20} from '../mock/ERC20.sol';
 import {PayloadsControllerCore, IPayloadsControllerCore} from '../../src/contracts/payloads/PayloadsControllerCore.sol';
 import {Executor, IExecutor} from '../../src/contracts/payloads/Executor.sol';
-import {IWithGuardian} from 'solidity-utils/contracts/access-control/interfaces/IWithGuardian.sol';
-import {IERC20} from 'solidity-utils/contracts/oz-common/interfaces/IERC20.sol';
+import {IWithGuardian} from 'aave-delivery-infrastructure/contracts/old-oz/interfaces/IWithGuardian.sol';
+import {IERC20} from 'openzeppelin-contracts/contracts/token/ERC20/IERC20.sol';
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
 import {PayloadTest} from './utils/PayloadTest.sol';
 import {Errors} from '../../src/contracts/libraries/Errors.sol';
@@ -25,8 +25,8 @@ contract PayloadsControllerMock is PayloadsControllerCore {
 }
 
 contract PayloadsControllerCoreTest is Test {
-  address public constant ADMIN = address(65536+123);
-  address public constant GUARDIAN = address(65536+1234);
+  address public constant ADMIN = address(65536 + 123);
+  address public constant GUARDIAN = address(65536 + 1234);
   address public constant ORIGIN_FORWARDER = address(123456);
   address public constant PAYLOAD_PORTAL = address(987312);
   uint256 public constant YES_THRESHOLD = 1;
@@ -130,7 +130,7 @@ contract PayloadsControllerCoreTest is Test {
 
     address payloadsControllerProxy = proxyFactory.create(
       address(payloadsControllerImpl),
-      ADMIN,
+      address(this),
       abi.encodeWithSelector(
         payloadsControllerImpl.initialize.selector,
         address(this),
@@ -376,7 +376,7 @@ contract PayloadsControllerCoreTest is Test {
 
     hoax(address(shortExecutor));
 
-    vm.expectRevert(bytes('Ownable: caller is not the owner'));
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, shortExecutor)));
     payloadsController.updateExecutors(newExecutors);
   }
 
@@ -830,7 +830,7 @@ contract PayloadsControllerCoreTest is Test {
 
     address newPayloadsControllerProxy = proxyFactory.create(
       address(payloadsControllerImpl),
-      ADMIN,
+      address(this),
       abi.encodeWithSelector(
         payloadsControllerImpl.initialize.selector,
         address(this),

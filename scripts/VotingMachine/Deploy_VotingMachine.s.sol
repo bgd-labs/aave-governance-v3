@@ -28,9 +28,7 @@ abstract contract BaseDeployVotingMachine is GovBaseScript {
     GovDeployerHelpers.Addresses memory govAddresses = _getAddresses(
       GOVERNANCE_NETWORK()
     );
-    DeployerHelpers.Addresses memory ccAddresses = _getCCAddresses(
-      TRANSACTION_NETWORK()
-    );
+    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
 
     // deploy voting machine
     addresses.votingMachine = address(
@@ -132,7 +130,7 @@ contract Avalanche_testnet is BaseDeployVotingMachine {
 
 contract Polygon_testnet is BaseDeployVotingMachine {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {

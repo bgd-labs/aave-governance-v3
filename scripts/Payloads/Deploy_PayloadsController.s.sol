@@ -2,10 +2,9 @@
 pragma solidity ^0.8.0;
 
 import '../GovBaseScript.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 import {PayloadsController, IPayloadsController} from '../../src/contracts/payloads/PayloadsController.sol';
 import {IPayloadsControllerCore} from '../../src/contracts/payloads/PayloadsControllerCore.sol';
-import {TransparentUpgradeableProxy} from 'solidity-utils/contracts/transparent-proxy/TransparentUpgradeableProxy.sol';
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
 import {PayloadsControllerExtended} from '../extendedContracts/PayloadsController.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
@@ -77,9 +76,7 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
     GovDeployerHelpers.Addresses memory govAddresses = _getAddresses(
       GOVERNANCE_NETWORK()
     );
-    DeployerHelpers.Addresses memory ccAddresses = _getCCAddresses(
-      TRANSACTION_NETWORK()
-    );
+    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
 
     // deploy payloadsController
     if (isTest()) {
@@ -107,7 +104,7 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
       ccAddresses.proxyFactory
     ).createDeterministic(
         addresses.payloadsControllerImpl,
-        ccAddresses.proxyAdmin,
+        addresses.executorLvl1, // owner of proxy that will be deployed
         abi.encodeWithSelector(
           IPayloadsControllerCore.initialize.selector,
           OWNER(),
@@ -117,12 +114,16 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
         Constants.PAYLOADS_CONTROLLER_SALT
       );
 
-    if (addresses.chainId != ChainIds.ETHEREUM) {
-      for (uint256 i = 0; i < executors.length; i++) {
-        Ownable(address(executors[i].executorConfig.executor))
-          .transferOwnership(addresses.payloadsController);
-      }
-    }
+    //    if (addresses.chainId != ChainIds.ETHEREUM) {
+    //      for (uint256 i = 0; i < executors.length; i++) {
+    //        Ownable(address(executors[i].executorConfig.executor))
+    //          .transferOwnership(addresses.payloadsController);
+    //      }
+    //    }
+
+    addresses.proxyAdminPayloadsController = TransparentProxyFactory(
+      ccAddresses.proxyFactory
+    ).getProxyAdmin(addresses.payloadsController);
   }
 }
 
@@ -249,9 +250,69 @@ contract Scroll is BaseDeployPayloadsController {
   }
 }
 
+contract Mantle is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.MANTLE;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Sonic is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONIC;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
 contract Zksync is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.ZK_SYNC;
+    return ChainIds.ZKSYNC;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Linea is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.LINEA;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Celo is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.CELO;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Ink is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.INK;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
+
+contract Soneium is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONEIUM;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
@@ -318,7 +379,7 @@ contract Avalanche_testnet is BaseDeployPayloadsController {
 
 contract Polygon_testnet is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
@@ -340,7 +401,7 @@ contract Polygon_testnet is BaseDeployPayloadsController {
 
 contract Optimism_testnet is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_GOERLI;
+    return TestNetChainIds.OPTIMISM_SEPOLIA;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
@@ -362,7 +423,7 @@ contract Optimism_testnet is BaseDeployPayloadsController {
 
 contract Arbitrum_testnet is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_GOERLI;
+    return TestNetChainIds.ARBITRUM_SEPOLIA;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
@@ -428,11 +489,11 @@ contract Binance_testnet is BaseDeployPayloadsController {
 
 contract Base_testnet is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BASE_GOERLI;
+    return TestNetChainIds.BASE_SEPOLIA;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_GOERLI;
+    return TestNetChainIds.ETHEREUM_SEPOLIA;
   }
 
   function LVL1_DELAY() public pure override returns (uint40) {
@@ -450,7 +511,7 @@ contract Base_testnet is BaseDeployPayloadsController {
 
 contract Zksync_testnet is BaseDeployPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZK_SYNC_SEPOLIA;
+    return TestNetChainIds.ZKSYNC_SEPOLIA;
   }
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {

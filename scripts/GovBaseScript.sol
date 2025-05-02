@@ -4,9 +4,8 @@ pragma solidity ^0.8.0;
 import 'forge-std/Script.sol';
 import 'forge-std/Vm.sol';
 import 'forge-std/StdJson.sol';
-import {TestNetChainIds} from 'aave-delivery-infrastructure-scripts/contract_extensions/TestNetChainIds.sol';
-import {ChainIds} from 'aave-delivery-infrastructure/contracts/libs/ChainIds.sol';
-import {DeployerHelpers} from 'aave-delivery-infrastructure-scripts/BaseScript.sol';
+import {ChainIds, TestNetChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
+import {DeployerHelpers, Addresses as CCCAddresses} from 'adi-deploy/scripts/BaseDeployerScript.sol';
 import {Create3Factory, Create3, ICreate3Factory} from 'solidity-utils/contracts/create3/Create3Factory.sol';
 
 struct Network {
@@ -37,6 +36,8 @@ library GovDeployerHelpers {
     address permissionedPayloadsController;
     address permissionedPayloadsControllerImpl;
     address permissionedExecutor;
+    address proxyAdminGovernance;
+    address proxyAdminPayloadsController;
     address votingMachine;
     address votingMachineDataHelper;
     address votingPortal_Eth_Avax;
@@ -71,35 +72,48 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/zkevm.json';
     } else if (chainId == ChainIds.SCROLL) {
       return './deployments/gov/mainnet/zkevm.json';
-    } else if (chainId == ChainIds.ZK_SYNC) {
+    } else if (chainId == ChainIds.ZKSYNC) {
       return './deployments/gov/mainnet/zksync.json';
+    } else if (chainId == ChainIds.LINEA) {
+      return './deployments/gov/mainnet/linea.json';
+    } else if (chainId == ChainIds.CELO) {
+      return './deployments/gov/mainnet/celo.json';
+    } else if (chainId == ChainIds.SONIC) {
+      return './deployments/gov/mainnet/sonic.json';
+    } else if (chainId == ChainIds.MANTLE) {
+      return './deployments/gov/mainnet/mantle.json';
+    } else if (chainId == ChainIds.INK) {
+      return './deployments/gov/mainnet/ink.json';
+    } else if (chainId == ChainIds.SONEIUM) {
+      return './deployments/gov/mainnet/soneium.json';
     }
+    
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
-    } else if (chainId == TestNetChainIds.ETHEREUM_GOERLI) {
-      return './deployments/gov/testnet/goerli.json';
-    } else if (chainId == TestNetChainIds.POLYGON_MUMBAI) {
-      return './deployments/gov/testnet/mum.json';
+    } else if (chainId == TestNetChainIds.POLYGON_AMOY) {
+      return './deployments/gov/testnet/amoy.json';
     } else if (chainId == TestNetChainIds.AVALANCHE_FUJI) {
       return './deployments/gov/testnet/fuji.json';
-    } else if (chainId == TestNetChainIds.ARBITRUM_GOERLI) {
-      return './deployments/gov/testnet/arb_go.json';
-    } else if (chainId == TestNetChainIds.OPTIMISM_GOERLI) {
-      return './deployments/gov/testnet/op_go.json';
+    } else if (chainId == TestNetChainIds.ARBITRUM_SEPOLIA) {
+      return './deployments/gov/testnet/arb_sep.json';
+    } else if (chainId == TestNetChainIds.OPTIMISM_SEPOLIA) {
+      return './deployments/gov/testnet/op_sep.json';
     } else if (chainId == TestNetChainIds.METIS_TESTNET) {
       return './deployments/gov/testnet/met_test.json';
     } else if (chainId == TestNetChainIds.BNB_TESTNET) {
       return './deployments/gov/testnet/bnb_test.json';
-    } else if (chainId == TestNetChainIds.BASE_GOERLI) {
-      return './deployments/gov/testnet/base_go.json';
+    } else if (chainId == TestNetChainIds.BASE_SEPOLIA) {
+      return './deployments/gov/testnet/base_sep.json';
     } else if (chainId == TestNetChainIds.GNOSIS_CHIADO) {
       return './deployments/gov/testnet/gnosis_chiado.json';
-    } else if (chainId == TestNetChainIds.POLYGON_ZK_EVM_GOERLI) {
-      return './deployments/gov/testnet/zkevm_go.json';
     } else if (chainId == TestNetChainIds.SCROLL_SEPOLIA) {
       return './deployments/gov/testnet/scroll_sepolia.json';
-    } else if (chainId == TestNetChainIds.ZK_SYNC_SEPOLIA) {
+    } else if (chainId == TestNetChainIds.ZKSYNC_SEPOLIA) {
       return './deployments/gov/testnet/zksync_sep.json';
+    } else if (chainId == TestNetChainIds.SONIC_BLAZE) {
+      return './deployments/gov/testnet/sonic_blaze.json';
+    } else if (chainId == TestNetChainIds.MANTLE_SEPOLIA) {
+      return './deployments/gov/testnet/mantle_sepolia.json';
     } else {
       revert('chain id is not supported');
     }
@@ -173,6 +187,14 @@ library GovDeployerHelpers {
         persistedJson.parseRaw('.permissionedPayloadsControllerImpl'),
         (address)
       ),
+      proxyAdminGovernance: abi.decode(
+        persistedJson.parseRaw('.proxyAdminGovernance'),
+        (address)
+      ),
+      proxyAdminPayloadsController: abi.decode(
+        persistedJson.parseRaw('.proxyAdminPayloadsController'),
+        (address)
+      ),
       votingMachine: abi.decode(
         persistedJson.parseRaw('.votingMachine'),
         (address)
@@ -242,6 +264,11 @@ library GovDeployerHelpers {
     json.serialize(
       'permissionedPayloadsControllerImpl',
       addresses.permissionedPayloadsControllerImpl
+    );
+    json.serialize('proxyAdminGovernance', addresses.proxyAdminGovernance);
+    json.serialize(
+      'proxyAdminPayloadsController',
+      addresses.proxyAdminPayloadsController
     );
     json.serialize('votingMachine', addresses.votingMachine);
     json.serialize(
@@ -322,7 +349,7 @@ abstract contract GovBaseScript is Script {
 
   function _getCCAddresses(
     uint256 networkId
-  ) internal view returns (DeployerHelpers.Addresses memory) {
+  ) internal view returns (CCCAddresses memory) {
     return
       DeployerHelpers.decodeJson(
         DeployerHelpers.getPathByChainId(networkId),

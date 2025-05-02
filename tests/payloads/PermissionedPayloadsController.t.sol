@@ -50,7 +50,7 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal = IPermissionedPayloadsController(
       proxyFactory.create(
         address(permissionedPayloadPortal),
-        admin,
+        address(this),
         abi.encodeWithSelector(
           IPermissionedPayloadsController.initialize.selector,
           guardian,
@@ -201,7 +201,8 @@ contract PermissionedPayloadsControllerTest is Test {
     address admin,
     address guardian,
     address payloadsManager,
-    address origin
+    address origin,
+    address user
   ) external initializeTest(admin, guardian, payloadsManager, origin) {
     uint40 newDelay = 500;
 
@@ -209,11 +210,13 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal.setExecutionDelay(newDelay);
     vm.stopPrank();
 
+    hoax(user);
     uint40 executionDelay = permissionedPayloadPortal
       .getExecutorSettingsByAccessControl(
         PayloadsControllerUtils.AccessControl.Level_1
       )
       .delay;
+
     assertEq(executionDelay, newDelay, 'Execution delay was not set correctly');
   }
 

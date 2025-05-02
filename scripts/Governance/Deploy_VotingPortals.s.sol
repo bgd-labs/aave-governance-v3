@@ -22,9 +22,7 @@ abstract contract BaseDeployVotingPortals is GovBaseScript {
     GovDeployerHelpers.Addresses memory votingAddresses = _getAddresses(
       VOTING_MACHINE_NETWORK()
     );
-    DeployerHelpers.Addresses memory ccAddresses = _getCCAddresses(
-      TRANSACTION_NETWORK()
-    );
+    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
 
     bytes memory encodedParams = abi.encode(
       ccAddresses.crossChainController,
@@ -49,7 +47,7 @@ abstract contract BaseDeployVotingPortals is GovBaseScript {
       addresses.votingPortal_Eth_Avax = address(votingPortal);
     } else if (
       VOTING_MACHINE_NETWORK() == ChainIds.POLYGON ||
-      VOTING_MACHINE_NETWORK() == TestNetChainIds.POLYGON_MUMBAI
+      VOTING_MACHINE_NETWORK() == TestNetChainIds.POLYGON_AMOY
     ) {
       addresses.votingPortal_Eth_Pol = address(votingPortal);
     } else if (
@@ -156,7 +154,7 @@ contract Ethereum_Polygon_testnet is BaseDeployVotingPortals {
   }
 
   function VOTING_MACHINE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 
   function VOTING_PORTAL_SALT() public pure override returns (bytes32) {

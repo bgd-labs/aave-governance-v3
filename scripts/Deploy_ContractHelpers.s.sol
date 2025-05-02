@@ -98,7 +98,42 @@ contract Scroll is BaseContractHelpers {
 
 contract Zksync is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.ZK_SYNC;
+    return ChainIds.ZKSYNC;
+  }
+}
+
+contract Linea is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.LINEA;
+  }
+}
+
+contract Celo is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.CELO;
+  }
+}
+
+contract Mantle is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.MANTLE;
+  }
+}
+contract Sonic is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONIC;
+  }
+}
+
+contract Ink is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.INK;
+  }
+}
+
+contract Soneium is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONEIUM;
   }
 }
 
@@ -110,7 +145,7 @@ contract Ethereum_testnet is BaseContractHelpers {
 
 contract Polygon_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 }
 
@@ -122,13 +157,13 @@ contract Avalanche_testnet is BaseContractHelpers {
 
 contract Arbitrum_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_GOERLI;
+    return TestNetChainIds.ARBITRUM_SEPOLIA;
   }
 }
 
 contract Optimism_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_GOERLI;
+    return TestNetChainIds.OPTIMISM_SEPOLIA;
   }
 }
 
@@ -146,6 +181,6 @@ contract Binance_testnet is BaseContractHelpers {
 
 contract Zksync_testnet is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZK_SYNC_SEPOLIA;
+    return TestNetChainIds.ZKSYNC_SEPOLIA;
   }
 }

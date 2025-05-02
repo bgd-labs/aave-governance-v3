@@ -42,6 +42,7 @@ contract GovernanceDataHelper is IGovernanceDataHelper {
       proposals[i] = Proposal({
         id: from - i - 1,
         votingChainId: votingPortal.VOTING_MACHINE_CHAIN_ID(),
+        votingMachineAddress: votingPortal.VOTING_MACHINE(),
         proposalData: proposalData
       });
     }

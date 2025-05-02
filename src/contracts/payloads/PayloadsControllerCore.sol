@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.8;
 
-import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
-import {Rescuable, IRescuable} from 'solidity-utils/contracts/utils/Rescuable.sol';
-import {IERC20} from 'solidity-utils/contracts/oz-common/interfaces/IERC20.sol';
-import {Initializable} from 'solidity-utils/contracts/transparent-proxy/Initializable.sol';
-import {SafeERC20} from 'solidity-utils/contracts/oz-common/SafeERC20.sol';
-import {SafeCast} from 'solidity-utils/contracts/oz-common/SafeCast.sol';
+import {OwnableWithGuardian} from 'aave-delivery-infrastructure/contracts/old-oz/OwnableWithGuardian.sol';
+import {Rescuable, RescuableBase} from 'solidity-utils/contracts/utils/Rescuable.sol';
+import {IRescuable, IRescuableBase} from 'solidity-utils/contracts/utils/interfaces/IRescuable.sol';
+import {IERC20} from 'openzeppelin-contracts/contracts/token/ERC20/IERC20.sol';
+import {Initializable} from 'aave-delivery-infrastructure/contracts/old-oz/Initializable.sol';
+import {SafeERC20} from 'openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol';
+import {SafeCast} from 'openzeppelin-contracts/contracts/utils/math/SafeCast.sol';
 
 import {IPayloadsControllerCore, PayloadsControllerUtils} from './interfaces/IPayloadsControllerCore.sol';
 import {IExecutor} from './interfaces/IExecutor.sol';
@@ -203,14 +204,21 @@ abstract contract PayloadsControllerCore is
     return _accessLevelToExecutorConfig[accessControl];
   }
 
-  /// @inheritdoc IRescuable
+  /// @inheritdoc Rescuable
   function whoCanRescue()
     public
     view
-    override(IRescuable, Rescuable)
+    override(Rescuable)
     returns (address)
   {
     return owner();
+  }
+
+  /// @inheritdoc IRescuableBase
+  function maxRescue(
+    address erc20Token
+  ) public view override(IRescuableBase, RescuableBase) returns (uint256) {
+    return IERC20(erc20Token).balanceOf(address(this));
   }
 
   receive() external payable {}

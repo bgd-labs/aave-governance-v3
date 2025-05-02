@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
-import {OwnableWithGuardian} from 'solidity-utils/contracts/access-control/OwnableWithGuardian.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
+import {OwnableWithGuardian} from 'aave-delivery-infrastructure/contracts/old-oz/OwnableWithGuardian.sol';
 import {GovernanceCore} from '../src/contracts/GovernanceCore.sol';
 import {Governance, IGovernance, IGovernanceCore, PayloadsControllerUtils} from '../src/contracts/Governance.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
@@ -15,9 +15,9 @@ import {Errors} from '../src/contracts/libraries/Errors.sol';
 import {IBaseVotingStrategy} from '../src/interfaces/IBaseVotingStrategy.sol';
 
 contract GCore_VotingConfigsTest is Test {
-  address public constant OWNER = address(65536+123);
-  address public constant GUARDIAN = address(65536+1234);
-  address public constant ADMIN = address(65536+12345);
+  address public constant OWNER = address(65536 + 123);
+  address public constant GUARDIAN = address(65536 + 1234);
+  address public constant ADMIN = address(65536 + 12345);
   address public constant CROSS_CHAIN_CONTROLLER = address(123456);
   address public constant SAME_CHAIN_VOTING_MACHINE = address(1234567);
   address public constant EXECUTION_PORTAL = address(12345678);
@@ -109,7 +109,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore governance = IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ADMIN,
+        OWNER,
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
@@ -152,7 +152,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ADMIN,
+        OWNER,
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,
@@ -668,7 +668,7 @@ contract GCore_VotingConfigsTest is Test {
     IGovernanceCore governance = IGovernanceCore(
       proxyFactory.createDeterministic(
         address(governanceImpl),
-        ADMIN,
+        OWNER,
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           OWNER,

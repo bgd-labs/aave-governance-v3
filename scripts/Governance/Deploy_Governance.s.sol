@@ -6,7 +6,8 @@ import {Governance} from '../../src/contracts/Governance.sol';
 import {IGovernance, IGovernanceCore} from '../../src/interfaces/IGovernance.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
 import {PayloadsControllerUtils} from '../../src/contracts/payloads/PayloadsControllerUtils.sol';
-import {AaveV3Ethereum, AaveV3Sepolia} from 'aave-address-book/AaveAddressBook.sol';
+import {AaveV3Ethereum} from 'aave-address-book/AaveV3Ethereum.sol';
+import {AaveV3Sepolia} from 'aave-address-book/AaveV3Sepolia.sol';
 
 import {GovernanceExtended} from '../extendedContracts/Governance.sol';
 
@@ -41,9 +42,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
     IGovernanceCore.SetVotingConfigInput[]
       memory votingConfigs = getVotingConfigurations();
 
-    DeployerHelpers.Addresses memory ccAddresses = _getCCAddresses(
-      TRANSACTION_NETWORK()
-    );
+    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
 
     // deploy governance.
     IGovernance governanceImpl;
@@ -64,7 +63,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
     addresses.governance = TransparentProxyFactory(ccAddresses.proxyFactory)
       .createDeterministic(
         address(governanceImpl),
-        ccAddresses.proxyAdmin,
+        addresses.executorLvl1, // owner of proxy admin that will be deployed
         abi.encodeWithSelector(
           IGovernance.initialize.selector,
           addresses.owner,
@@ -78,6 +77,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
         Constants.GOVERNANCE_SALT
       );
 
+    addresses.proxyAdminGovernance = TransparentProxyFactory(ccAddresses.proxyFactory).getProxyAdmin(addresses.governance);
     addresses.governanceImpl = address(governanceImpl);
   }
 }

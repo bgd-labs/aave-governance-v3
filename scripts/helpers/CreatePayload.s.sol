@@ -67,7 +67,7 @@ contract Binance is BaseCreatePayload {
 
 contract Zksync is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.ZK_SYNC;
+    return ChainIds.ZKSYNC;
   }
 }
 
@@ -85,19 +85,19 @@ contract Avalanche_testnet is BaseCreatePayload {
 
 contract Polygon_testnet is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 }
 
 contract Arbitrum_testnet is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_GOERLI;
+    return TestNetChainIds.ARBITRUM_SEPOLIA;
   }
 }
 
 contract Optimism_testnet is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_GOERLI;
+    return TestNetChainIds.OPTIMISM_SEPOLIA;
   }
 }
 
@@ -115,6 +115,6 @@ contract Binance_testnet is BaseCreatePayload {
 
 contract Zksync_testnet is BaseCreatePayload {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZK_SYNC_SEPOLIA;
+    return TestNetChainIds.ZKSYNC_SEPOLIA;
   }
 }

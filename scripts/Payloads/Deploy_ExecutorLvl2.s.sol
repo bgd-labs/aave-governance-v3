@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 import '../GovBaseScript.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 import {Executor} from '../../src/contracts/payloads/Executor.sol';
-import {AaveGovernanceV2} from 'aave-address-book/AaveAddressBook.sol';
+import {AaveGovernanceV2} from 'aave-address-book/AaveGovernanceV2.sol';
 
 abstract contract BaseDeployExecutorLvl2 is GovBaseScript {
   function getExecutorOwner() public view virtual returns (address) {
@@ -82,19 +82,19 @@ contract Avalanche_testnet is BaseDeployExecutorLvl2 {
 
 contract Polygon_testnet is BaseDeployExecutorLvl2 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 }
 
 contract Optimism_testnet is BaseDeployExecutorLvl2 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_GOERLI;
+    return TestNetChainIds.OPTIMISM_SEPOLIA;
   }
 }
 
 contract Arbitrum_testnet is BaseDeployExecutorLvl2 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_GOERLI;
+    return TestNetChainIds.ARBITRUM_SEPOLIA;
   }
 }
 
