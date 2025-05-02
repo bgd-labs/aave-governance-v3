@@ -8,7 +8,7 @@ abstract contract BaseDeployPermissionedExecutor is GovBaseScript {
   function _execute(
     GovDeployerHelpers.Addresses memory addresses
   ) internal override {
-    addresses.permissionedExecutor = new Executor();
+    addresses.permissionedExecutor = address(new Executor());
   }
 }
 
