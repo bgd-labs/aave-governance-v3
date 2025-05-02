@@ -13,6 +13,16 @@ struct Network {
   string name;
 }
 
+library DeployerHelpersV2 {
+  function getPathByChainId(
+    uint256 chainId
+  ) internal pure returns (string memory) {
+    if (chainId == ChainIds.ETHEREUM) {
+      return './deployments/cc/mainnet/eth.json';
+    }
+  }
+}
+
 library GovDeployerHelpers {
   using stdJson for string;
 
@@ -87,7 +97,7 @@ library GovDeployerHelpers {
     } else if (chainId == ChainIds.SONEIUM) {
       return './deployments/gov/mainnet/soneium.json';
     }
-    
+
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
     } else if (chainId == TestNetChainIds.POLYGON_AMOY) {
@@ -352,7 +362,7 @@ abstract contract GovBaseScript is Script {
   ) internal view returns (CCCAddresses memory) {
     return
       DeployerHelpers.decodeJson(
-        DeployerHelpers.getPathByChainId(networkId),
+        DeployerHelpersV2.getPathByChainId(networkId),
         vm
       );
   }
