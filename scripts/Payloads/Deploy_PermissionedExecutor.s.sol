@@ -3,18 +3,12 @@ pragma solidity ^0.8.0;
 
 import '../GovBaseScript.sol';
 import {Executor} from '../../src/contracts/payloads/Executor.sol';
-import {Create2Utils} from 'solidity-utils/contracts/utils/ScriptUtils.sol';
 
 abstract contract BaseDeployPermissionedExecutor is GovBaseScript {
   function _execute(
     GovDeployerHelpers.Addresses memory addresses
   ) internal override {
-    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
-
-    addresses.permissionedExecutor = Create2Utils.create2Deploy(
-      Constants.PERMISSIONED_EXECUTOR_SALT,
-      type(Executor).creationCode
-    );
+    addresses.permissionedExecutor = new Executor();
   }
 }
 
