@@ -87,7 +87,7 @@ library GovDeployerHelpers {
     } else if (chainId == ChainIds.SONEIUM) {
       return './deployments/gov/mainnet/soneium.json';
     }
-    
+
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
     } else if (chainId == TestNetChainIds.POLYGON_AMOY) {
@@ -320,6 +320,8 @@ library Constants {
     keccak256(bytes('Aave Payloads Controller'));
   bytes32 public constant PERMISSIONED_PAYLOADS_CONTROLLER_SALT =
     keccak256(bytes('Aave Permissioned Payloads Controller'));
+  bytes32 public constant PERMISSIONED_EXECUTOR_SALT =
+    keccak256(bytes('Aave Permissioned Executor'));
   bytes32 public constant EXECUTOR_LVL1_SALT =
     keccak256(bytes('Aave Executor Lvl 1'));
   bytes32 public constant EXECUTOR_LVL2_SALT =
