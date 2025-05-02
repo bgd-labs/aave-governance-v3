@@ -96,10 +96,10 @@ deploy-helper-contracts:
 write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedAddresses -vvvv
 
 deploy-permissioned-executor:
-	$(call deploy_fn,Payloads/Deploy_PermissionedExecutor,ethereum polygon arbitrum metis avalanche optimism fantom binance base gnosis scroll zksync)
+	$(call deploy_fn,Payloads/Deploy_PermissionedExecutor,ethereum)
 
 deploy-permissioned-payloads-controller:
-	$(call deploy_fn,Payloads/Deploy_PermissionedPayloadsController,ethereum polygon arbitrum metis avalanche optimism fantom binance base gnosis scroll zksync)
+	$(call deploy_fn,Payloads/Deploy_PermissionedPayloadsController,ethereum)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------- TESTNET Gov DEPLOYMENT SCRIPTS ---------------------------------------------------------

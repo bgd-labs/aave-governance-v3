@@ -2,14 +2,16 @@
 pragma solidity ^0.8.0;
 
 import {PermissionedPayloadsController, PayloadsControllerUtils, IPayloadsControllerCore, IPermissionedPayloadsController} from '../../src/contracts/payloads/PermissionedPayloadsController.sol';
-import {Ownable} from 'solidity-utils/contracts/oz-common/Ownable.sol';
-import '../GovBaseScript.sol';
+import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 import {TransparentProxyFactory} from 'solidity-utils/contracts/transparent-proxy/TransparentProxyFactory.sol';
-import {TransparentUpgradeableProxy} from 'solidity-utils/contracts/transparent-proxy/TransparentUpgradeableProxy.sol';
-import {MiscEthereum, MiscAvalanche, MiscPolygon, MiscOptimism, MiscArbitrum, MiscMetis, MiscBNB, MiscBase, MiscGnosis, MiscScroll} from 'aave-address-book/AaveAddressBook.sol';
+import '../GovBaseScript.sol';
 
-abstract contract BaseDeployermissionedPayloadsController is GovBaseScript {
+abstract contract BaseDeployPermissionedPayloadsController is GovBaseScript {
   function GUARDIAN() public view virtual returns (address) {
+    return msg.sender;
+  }
+
+  function PAYLOADS_MANAGER() public view virtual returns (address) {
     return msg.sender;
   }
 
@@ -20,7 +22,7 @@ abstract contract BaseDeployermissionedPayloadsController is GovBaseScript {
   function _execute(
     GovDeployerHelpers.Addresses memory addresses
   ) internal override {
-    DeployerHelpers.Addresses memory ccAddresses = _getCCAddresses(
+    CCCAddresses memory ccAddresses = _getCCAddresses(
       TRANSACTION_NETWORK()
     );
 
@@ -42,11 +44,11 @@ abstract contract BaseDeployermissionedPayloadsController is GovBaseScript {
       ccAddresses.proxyFactory
     ).createDeterministic(
         addresses.permissionedPayloadsControllerImpl,
-        ccAddresses.proxyAdmin,
+        addresses.executorLvl1, // owner of proxy that will be deployed
         abi.encodeWithSelector(
           PermissionedPayloadsController.initialize.selector,
           GUARDIAN(),
-          msg.sender,
+          PAYLOADS_MANAGER(),
           executors
         ),
         Constants.PERMISSIONED_PAYLOADS_CONTROLLER_SALT
@@ -58,9 +60,13 @@ abstract contract BaseDeployermissionedPayloadsController is GovBaseScript {
   }
 }
 
-contract Ethereum is BaseDeployermissionedPayloadsController {
+contract Ethereum is BaseDeployPermissionedPayloadsController {
   function GUARDIAN() public pure override returns (address) {
-    return MiscEthereum.PROTOCOL_GUARDIAN;
+    return 0xb812d0944f8F581DfAA3a93Dda0d22EcEf51A9CF;
+  }
+
+  function PAYLOADS_MANAGER() public view virtual override returns (address) {
+    return 0x22740deBa78d5a0c24C58C740e3715ec29de1bFa;
   }
 
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
@@ -68,164 +74,122 @@ contract Ethereum is BaseDeployermissionedPayloadsController {
   }
 }
 
-contract Avalanche is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscAvalanche.PROTOCOL_GUARDIAN;
-  }
-
+contract Avalanche is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.AVALANCHE;
   }
 }
 
-contract Polygon is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscPolygon.PROTOCOL_GUARDIAN;
-  }
-
+contract Polygon is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.POLYGON;
   }
 }
 
-contract Optimism is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscOptimism.PROTOCOL_GUARDIAN;
-  }
-
+contract Optimism is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.OPTIMISM;
   }
 }
 
-contract Arbitrum is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscArbitrum.PROTOCOL_GUARDIAN;
-  }
-
+contract Arbitrum is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ARBITRUM;
   }
 }
 
-contract Metis is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscMetis.PROTOCOL_GUARDIAN;
-  }
-
+contract Metis is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.METIS;
   }
 }
 
-contract Binance is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscBNB.PROTOCOL_GUARDIAN;
-  }
-
+contract Binance is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.BNB;
   }
 }
 
-contract Base is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscBase.PROTOCOL_GUARDIAN;
-  }
-
+contract Base is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.BASE;
   }
 }
 
-contract Gnosis is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscGnosis.PROTOCOL_GUARDIAN;
-  }
-
+contract Gnosis is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.GNOSIS;
   }
 }
 
-contract Zkevm is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscPolygon.PROTOCOL_GUARDIAN; // Assuming the same guardian as Polygon
-  }
-
+contract Zkevm is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.POLYGON_ZK_EVM;
   }
 }
 
-contract Scroll is BaseDeployermissionedPayloadsController {
-  // guardian is not defined in the address book
-
+contract Scroll is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.SCROLL;
   }
 }
 
-contract Zksync is BaseDeployermissionedPayloadsController {
-  function GUARDIAN() public pure override returns (address) {
-    return MiscEthereum.PROTOCOL_GUARDIAN; // Assuming the same guardian as Ethereum
-  }
-
+contract Zksync is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.ZK_SYNC;
+    return ChainIds.ZKSYNC;
   }
 }
 
-contract Ethereum_testnet is BaseDeployermissionedPayloadsController {
+contract Ethereum_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
   }
 }
 
-contract Avalanche_testnet is BaseDeployermissionedPayloadsController {
+contract Avalanche_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.AVALANCHE_FUJI;
   }
 }
 
-contract Polygon_testnet is BaseDeployermissionedPayloadsController {
+contract Polygon_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_MUMBAI;
+    return TestNetChainIds.POLYGON_AMOY;
   }
 }
 
-contract Base_testnet is BaseDeployermissionedPayloadsController {
+contract Base_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.BASE_SEPOLIA;
   }
 }
 
-contract Optimism_testnet is BaseDeployermissionedPayloadsController {
+contract Optimism_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_GOERLI;
+    return TestNetChainIds.OPTIMISM_SEPOLIA;
   }
 }
 
-contract Arbitrum_testnet is BaseDeployermissionedPayloadsController {
+contract Arbitrum_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_GOERLI;
+    return TestNetChainIds.ARBITRUM_SEPOLIA;
   }
 }
 
-contract Metis_testnet is BaseDeployermissionedPayloadsController {
+contract Metis_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.METIS_TESTNET;
   }
 }
 
-contract Binance_testnet is BaseDeployermissionedPayloadsController {
+contract Binance_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.BNB_TESTNET;
   }
 }
 
-contract Zksync_testnet is BaseDeployermissionedPayloadsController {
+contract Zksync_testnet is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZK_SYNC_SEPOLIA;
+    return TestNetChainIds.ZKSYNC_SEPOLIA;
   }
 }
