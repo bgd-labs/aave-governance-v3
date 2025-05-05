@@ -34,15 +34,15 @@ jobs:
         with:
           cli-version: 7.28.0
           configurations: |-
-            security/certora/conf/verifyLegality.conf --rule createdVoteHasNonZeroHash  votedPowerIsImmutable  onlyValidProposalCanChangeTally  legalVote  method_reachability
-            security/certora/conf/verifyMisc.conf
-            security/certora/conf/verifyPower_summary.conf --rule onlyThreeTokens method_reachability
-            security/certora/conf/verifyProposal_config.conf --rule startedProposalHasConfig  createdProposalHasRoots  proposalHasNonzeroDuration newProposalUnusedId configIsImmutable  getProposalsConfigsDoesntRevert  method_reachability 
-            security/certora/conf/verifyProposal_states.conf --rule startsBeforeEnds  startsStrictlyBeforeEnds  proposalLegalStates  proposalMethodStateTransitionCompliance  proposalTimeStateTransitionCompliance  proposalIdIsImmutable  proposalImmutability  startedProposalHasConfig  proposalHasNonzeroDuration method_reachability 
-            security/certora/conf/verifyVoting_and_tally.conf --rule votingPowerGhostIsVotingPower  sumOfVotes  voteTallyChangedOnlyByVoting  voteUpdatesTally  onlyVoteCanChangeResult  votingTallyCanOnlyIncrease  strangerVoteUnchanged  otherProposalUnchanged  otherVoterUntouched  method_reachability
-            security/certora/conf/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative 
-            security/certora/conf/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote 
-            security/certora/conf/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
+            security/certora/confs/verifyLegality.conf --rule createdVoteHasNonZeroHash  votedPowerIsImmutable  onlyValidProposalCanChangeTally  legalVote  method_reachability
+            security/certora/confs/verifyMisc.conf
+            security/certora/confs/verifyPower_summary.conf --rule onlyThreeTokens method_reachability
+            security/certora/confs/verifyProposal_config.conf --rule startedProposalHasConfig  createdProposalHasRoots  proposalHasNonzeroDuration newProposalUnusedId configIsImmutable  getProposalsConfigsDoesntRevert  method_reachability 
+            security/certora/confs/verifyProposal_states.conf --rule startsBeforeEnds  startsStrictlyBeforeEnds  proposalLegalStates  proposalMethodStateTransitionCompliance  proposalTimeStateTransitionCompliance  proposalIdIsImmutable  proposalImmutability  startedProposalHasConfig  proposalHasNonzeroDuration method_reachability 
+            security/certora/confs/verifyVoting_and_tally.conf --rule votingPowerGhostIsVotingPower  sumOfVotes  voteTallyChangedOnlyByVoting  voteUpdatesTally  onlyVoteCanChangeResult  votingTallyCanOnlyIncrease  strangerVoteUnchanged  otherProposalUnchanged  otherVoterUntouched  method_reachability
+            security/certora/confs/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative 
+            security/certora/confs/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote 
+            security/certora/confs/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
           solc-versions: 0.8.20
           comment-fail-only: false
           solc-remove-version-prefix: "0."
