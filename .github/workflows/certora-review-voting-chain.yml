@@ -1,11 +1,16 @@
 # Github action for verifying the contracts under src/contracts/voting using certora-cli-beta 6
 name: certora-review-voting-chain
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 on:
-  push:
+  pull_request:
     branches:
       - main
-  pull_request:
+      - certora
+  push:
     branches:
       - main
 
@@ -14,48 +19,44 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-
+    if:
+      github.event.pull_request.head.repo.full_name == github.repository || (github.event_name == 'push' &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch))
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - name: Install python
-        uses: actions/setup-python@v2
-        with: { python-version: 3.9 }
-
-      - name: Install java
-        uses: actions/setup-java@v1
-        with: { java-version: "11", java-package: jre }
-
-      - name: Install certora cli
-        run: pip3 install certora-cli==7.21.1
-
-      - name: Install solc
-        run: |
-          wget https://github.com/ethereum/solidity/releases/download/v0.8.20/solc-static-linux
-          chmod +x solc-static-linux
-          sudo mv solc-static-linux /usr/local/bin/solc8.20
-
-      - name: Verify rule ${{ matrix.rule }}
-        run: |
-          certoraRun --disable_auto_cache_key_gen security/certora/confs/voting/${{ matrix.rule }}
+      - uses: Certora/certora-run-action@v1
+        with:
+          cli-version: 7.28.0
+          configurations: |-
+            security/certora/conf/verifyLegality.conf --rule createdVoteHasNonZeroHash  votedPowerIsImmutable  onlyValidProposalCanChangeTally  legalVote  method_reachability
+            security/certora/conf/verifyMisc.conf
+            security/certora/conf/verifyPower_summary.conf --rule onlyThreeTokens method_reachability
+            security/certora/conf/verifyProposal_config.conf --rule startedProposalHasConfig  createdProposalHasRoots  proposalHasNonzeroDuration newProposalUnusedId configIsImmutable  getProposalsConfigsDoesntRevert  method_reachability 
+            security/certora/conf/verifyProposal_states.conf --rule startsBeforeEnds  startsStrictlyBeforeEnds  proposalLegalStates  proposalMethodStateTransitionCompliance  proposalTimeStateTransitionCompliance  proposalIdIsImmutable  proposalImmutability  startedProposalHasConfig  proposalHasNonzeroDuration method_reachability 
+            security/certora/conf/verifyVoting_and_tally.conf --rule votingPowerGhostIsVotingPower  sumOfVotes  voteTallyChangedOnlyByVoting  voteUpdatesTally  onlyVoteCanChangeResult  votingTallyCanOnlyIncrease  strangerVoteUnchanged  otherProposalUnchanged  otherVoterUntouched  method_reachability
+            security/certora/conf/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative 
+            security/certora/conf/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote 
+            security/certora/conf/verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
+          solc-versions: 0.8.20
+          comment-fail-only: false
+          solc-remove-version-prefix: "0."
+          job-name: "Certora Prover Run"
+          certora-key: ${{ secrets.CERTORAKEY }}
+          install-java: true
         env:
-          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    strategy:
-      fail-fast: false
-      max-parallel: 16
-      matrix:
-        rule:
-          - verifyLegality.conf --rule createdVoteHasNonZeroHash  votedPowerIsImmutable  onlyValidProposalCanChangeTally  legalVote  method_reachability
-          - verifyMisc.conf
-          - verifyPower_summary.conf --rule onlyThreeTokens method_reachability
-          - verifyProposal_config.conf --rule startedProposalHasConfig  createdProposalHasRoots  proposalHasNonzeroDuration newProposalUnusedId configIsImmutable  getProposalsConfigsDoesntRevert  method_reachability 
-          - verifyProposal_states.conf --rule startsBeforeEnds  startsStrictlyBeforeEnds  proposalLegalStates  proposalMethodStateTransitionCompliance  proposalTimeStateTransitionCompliance  proposalIdIsImmutable  proposalImmutability  startedProposalHasConfig  proposalHasNonzeroDuration method_reachability 
-          - verifyVoting_and_tally.conf --rule votingPowerGhostIsVotingPower  sumOfVotes  voteTallyChangedOnlyByVoting  voteUpdatesTally  onlyVoteCanChangeResult  votingTallyCanOnlyIncrease  strangerVoteUnchanged  otherProposalUnchanged  otherVoterUntouched  method_reachability
-          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVote_and_submitVoteAsRepresentative 
-          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote 
-          - verifyVoting_and_tally.conf --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote
+          
+          
+          
+          
+          
+          
+          
         
