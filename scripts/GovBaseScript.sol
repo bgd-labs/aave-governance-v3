@@ -33,6 +33,9 @@ library GovDeployerHelpers {
     address payloadsController;
     address payloadsControllerDataHelper;
     address payloadsControllerImpl;
+    address permissionedExecutor;
+    address permissionedPayloadsController;
+    address permissionedPayloadsControllerImpl;
     address proxyAdminGovernance;
     address proxyAdminPayloadsController;
     address votingMachine;
@@ -84,7 +87,7 @@ library GovDeployerHelpers {
     } else if (chainId == ChainIds.SONEIUM) {
       return './deployments/gov/mainnet/soneium.json';
     }
-    
+
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
       return './deployments/gov/testnet/sep.json';
     } else if (chainId == TestNetChainIds.POLYGON_AMOY) {
@@ -172,6 +175,18 @@ library GovDeployerHelpers {
         persistedJson.parseRaw('.payloadsControllerImpl'),
         (address)
       ),
+      permissionedExecutor: abi.decode(
+        persistedJson.parseRaw('.permissionedExecutor'),
+        (address)
+      ),
+      permissionedPayloadsController: abi.decode(
+        persistedJson.parseRaw('.permissionedPayloadsController'),
+        (address)
+      ),
+      permissionedPayloadsControllerImpl: abi.decode(
+        persistedJson.parseRaw('.permissionedPayloadsControllerImpl'),
+        (address)
+      ),
       proxyAdminGovernance: abi.decode(
         persistedJson.parseRaw('.proxyAdminGovernance'),
         (address)
@@ -241,6 +256,15 @@ library GovDeployerHelpers {
       addresses.payloadsControllerDataHelper
     );
     json.serialize('payloadsControllerImpl', addresses.payloadsControllerImpl);
+    json.serialize('permissionedExecutor', addresses.permissionedExecutor);
+    json.serialize(
+      'permissionedPayloadsController',
+      addresses.permissionedPayloadsController
+    );
+    json.serialize(
+      'permissionedPayloadsControllerImpl',
+      addresses.permissionedPayloadsControllerImpl
+    );
     json.serialize('proxyAdminGovernance', addresses.proxyAdminGovernance);
     json.serialize(
       'proxyAdminPayloadsController',
@@ -294,6 +318,10 @@ library Constants {
     keccak256(bytes('Aave Voting portal eth-bnb'));
   bytes32 public constant PAYLOADS_CONTROLLER_SALT =
     keccak256(bytes('Aave Payloads Controller'));
+  bytes32 public constant PERMISSIONED_PAYLOADS_CONTROLLER_SALT =
+    keccak256(bytes('Aave Permissioned Payloads Controller'));
+  bytes32 public constant PERMISSIONED_EXECUTOR_SALT =
+    keccak256(bytes('Aave Permissioned Executor'));
   bytes32 public constant EXECUTOR_LVL1_SALT =
     keccak256(bytes('Aave Executor Lvl 1'));
   bytes32 public constant EXECUTOR_LVL2_SALT =
