@@ -1,4 +1,3 @@
 [submodule "lib/adi-deploy"]
 	path = lib/adi-deploy
 	url = https://github.com/bgd-labs/adi-deploy
-	branch = feat/ink

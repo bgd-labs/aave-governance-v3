@@ -124,6 +124,12 @@ contract Ink is BaseDeployExecutorLvl1 {
   }
 }
 
+contract Soneium is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.SONEIUM;
+  }
+}
+
 contract Ethereum_testnet is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
