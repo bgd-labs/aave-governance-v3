@@ -1,6 +1,6 @@
 ## Permissioned payloads controller overview
 
-[PermissionedPayloadsController](https://www.notion.so/src/contracts/payloads/PermissionedPayloadsController.sol): This is an extension of the PayloadsController contract, that modifies it so that only accepted actors (PayloadManager) can register a payload. The objective of having such extension is so that allowed third parties  to affect change into low risk parts of the protocol, using similar processeces as governance. For that a new Executor contract will be registered to this Permissioned Payloads Controller, that will hold limited permissions.
+[PermissionedPayloadsController](/src/contracts/payloads/PermissionedPayloadsController.sol): This is an extension of the PayloadsController contract, that modifies it so that only accepted actors (PayloadManager) can register a payload. The objective of having such extension is so that allowed third parties  to affect change into low risk parts of the protocol, using similar processeces as governance. For that a new Executor contract will be registered to this Permissioned Payloads Controller, that will hold limited permissions.
 At launch it will have permissions to change the LM programs.
     
   **Key points and differences from PayloadsController**:
