@@ -130,7 +130,7 @@ set-vm-as-ccf-sender-test:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon binance)
 
 deploy-executor-lvl1-test:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,soneium)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,bob)
 
 deploy-executor-lvl2-test:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
