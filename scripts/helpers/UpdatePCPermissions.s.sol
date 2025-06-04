@@ -138,3 +138,34 @@ contract Soneium is Script, UpdatePCPermissionsSoneium {
     vm.stopBroadcast();
   }
 }
+
+contract UpdatePCPermissionsBob is UpdatePayloadsControllerPermissions {
+  function targetOwner() public pure override returns (address) {
+    return 0x47aAdaAE1F05C978E6aBb7568d11B7F6e0FC4d6A; // Executor Lvl 1
+  }
+
+  function targetGovernanceGuardian() public pure override returns (address) {
+    return 0x19CE4363FEA478Aa04B9EA2937cc5A2cbcD44be6; // governance guardian
+  }
+
+  function govContractsToUpdate()
+    public
+    pure
+    override
+    returns (address[] memory)
+  {
+    address[] memory contracts = new address[](1);
+    contracts[0] = address(0x2ae0C9454ADD3c16b05adc41A752Cd40E802Ece3); // PC
+    return contracts;
+  }
+}
+
+contract Bob is Script, UpdatePCPermissionsBob {
+  function run() external {
+    vm.startBroadcast();
+
+    _changeOwnerAndGuardian();
+
+    vm.stopBroadcast();
+  }
+}
