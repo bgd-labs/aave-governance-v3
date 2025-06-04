@@ -141,7 +141,7 @@ contract Soneium is Script, UpdatePCPermissionsSoneium {
 
 contract UpdatePCPermissionsBob is UpdatePayloadsControllerPermissions {
   function targetOwner() public pure override returns (address) {
-    return 0x47aAdaAE1F05C978E6aBb7568d11B7F6e0FC4d6A; // Executor Lvl 1
+    return 0x90800d1F54384523723eD3962c7Cd59d7866c83d; // Executor Lvl 1
   }
 
   function targetGovernanceGuardian() public pure override returns (address) {
@@ -155,7 +155,7 @@ contract UpdatePCPermissionsBob is UpdatePayloadsControllerPermissions {
     returns (address[] memory)
   {
     address[] memory contracts = new address[](1);
-    contracts[0] = address(0x2ae0C9454ADD3c16b05adc41A752Cd40E802Ece3); // PC
+    contracts[0] = address(0x17fa87007bfF1dC7e6b3a36ED936E6355e37237C); // PC
     return contracts;
   }
 }
