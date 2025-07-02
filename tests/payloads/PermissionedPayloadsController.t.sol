@@ -38,11 +38,10 @@ contract PermissionedPayloadsControllerTest is Test {
         accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
         executorConfig: IPayloadsControllerCore.ExecutorConfig({
           delay: 1 days,
-          executor: address(0)
+          executor: address(executor)
         })
       });
 
-    executorInput.executorConfig.executor = address(executor);
     IPayloadsControllerCore.UpdateExecutorInput[]
       memory executors = new IPayloadsControllerCore.UpdateExecutorInput[](1);
     executors[0] = executorInput;
@@ -51,11 +50,13 @@ contract PermissionedPayloadsControllerTest is Test {
       proxyFactory.create(
         address(permissionedPayloadPortal),
         address(this),
-        abi.encodeWithSelector(
-          IPermissionedPayloadsController.initialize.selector,
-          guardian,
-          payloadsManager,
-          executors
+        abi.encodeCall(
+          IPermissionedPayloadsController.initialize,
+          ( address(executor), // owner is the executor
+            guardian,
+            payloadsManager,
+            executors
+          )
         )
       )
     );
@@ -197,7 +198,7 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal.updateExecutors(newExecutors);
   }
 
-  function testSetExecutionDelayWithGuardian(
+  function testSetExecutionDelayWithOwner(
     address admin,
     address guardian,
     address payloadsManager,
@@ -206,7 +207,7 @@ contract PermissionedPayloadsControllerTest is Test {
   ) external initializeTest(admin, guardian, payloadsManager, origin) {
     uint40 newDelay = 500;
 
-    vm.startPrank(guardian);
+    vm.startPrank(Ownable(address(permissionedPayloadPortal)).owner());
     permissionedPayloadPortal.setExecutionDelay(newDelay);
     vm.stopPrank();
 
@@ -228,8 +229,8 @@ contract PermissionedPayloadsControllerTest is Test {
   ) external initializeTest(admin, guardian, payloadsManager, origin) {
     uint40 newDelay = 500;
 
-    vm.assume(origin != guardian);
-    vm.expectRevert('ONLY_BY_GUARDIAN');
+    vm.assume(origin != Ownable(address(permissionedPayloadPortal)).owner());
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, origin)));
     permissionedPayloadPortal.setExecutionDelay(newDelay);
   }
 
