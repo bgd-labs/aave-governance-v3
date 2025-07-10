@@ -234,6 +234,35 @@ contract PermissionedPayloadsControllerTest is Test {
     permissionedPayloadPortal.setExecutionDelay(newDelay);
   }
 
+  function testUpdatePayloadsManagerWithOwner(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    address newPayloadsManager = address(555);
+
+    vm.startPrank(Ownable(address(permissionedPayloadPortal)).owner());
+    permissionedPayloadPortal.updatePayloadsManager(newPayloadsManager);
+    vm.stopPrank();
+
+    address currentPayloadsManager = permissionedPayloadPortal.payloadsManager();
+    assertEq(currentPayloadsManager, newPayloadsManager, 'Payloads Manager was not set correctly');
+  }
+
+  function testUpdatePayloadsManagerWithInvalidCaller(
+    address admin,
+    address guardian,
+    address payloadsManager,
+    address origin
+  ) external initializeTest(admin, guardian, payloadsManager, origin) {
+    address newPayloadsManager = address(555);
+
+    vm.assume(origin != Ownable(address(permissionedPayloadPortal)).owner());
+    vm.expectRevert(bytes(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, origin)));
+    permissionedPayloadPortal.updatePayloadsManager(newPayloadsManager);
+  }
+
   function _createPayload(address caller) internal returns (uint40) {
     return _createPayload(caller, address(123));
   }

@@ -8,7 +8,7 @@ At launch it will have permissions to change the LM programs for Aave.
   - Contract includes a payloads manager role with permission to create and cancel payloads.
   - Payload creation is permissioned: only the payloads manager can create payloads.
   - Contract has a guardian role to review created payloads and cancel them if incorrect or unrecognized.
-  - Only the owner can adjust the timelock within certain limits and rescue funds mistakenly sent.
+  - Only the owner can update payloadsManager, adjust the timelock within certain limits and rescue funds mistakenly sent.
   - Payloads manager and guardian have equal permissions to cancel payloads. Payloads can be cancelled if not expired or executed.
   - Payload execution is permissionless. If the timelock has passed and the payload isn't cancelled or expired, anyone can execute it. The Aave-robot is responsible for executing payloads.
 
