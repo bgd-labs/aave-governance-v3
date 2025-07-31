@@ -26,16 +26,18 @@ jobs:
       contents: read
       statuses: write
       pull-requests: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: Certora/certora-run-action@v1
+      - uses: Certora/certora-run-action@v2
         with:
           cli-version: 7.28.0
           configurations: |-
             security/certora/confs/voting/verifyLegality.conf --rule createdVoteHasNonZeroHash  votedPowerIsImmutable  onlyValidProposalCanChangeTally  legalVote  method_reachability
-            security/certora/confs/voting/verifyMisc.conf
+            security/certora/confs/voting/verifyMisc.conf --exclude_rule submitTripleProofVerification
+            security/certora/confs/voting/verifyMisc.conf --rule submitTripleProofVerification
             security/certora/confs/voting/verifyPower_summary.conf --rule onlyThreeTokens method_reachability
             security/certora/confs/voting/verifyProposal_config.conf --rule startedProposalHasConfig  createdProposalHasRoots  proposalHasNonzeroDuration newProposalUnusedId configIsImmutable  getProposalsConfigsDoesntRevert  method_reachability 
             security/certora/confs/voting/verifyProposal_states.conf --rule startsBeforeEnds  startsStrictlyBeforeEnds  proposalLegalStates  proposalMethodStateTransitionCompliance  proposalTimeStateTransitionCompliance  proposalIdIsImmutable  proposalImmutability  startedProposalHasConfig  proposalHasNonzeroDuration method_reachability 
