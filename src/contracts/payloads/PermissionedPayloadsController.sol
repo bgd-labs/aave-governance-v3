@@ -13,10 +13,10 @@ import {Errors} from '../libraries/Errors.sol';
  * @author BGD Labs
  * @notice this contract contains the logic to execute payloads
  * without governance cycle but leaving the gap to review and cancel payloads.
- * @dev this contract is permissioned, only the payloads manager can create
- * and queue payloads. Also, not only guardian but also the payloads manager can cancel payloads.
+ * @dev this contract is permissioned, only the payloads manager can create and queue payloads.
+ * @dev owner has the permission to update the execution delay and rescue.
+ * @dev guardian has the permission to cancel payload, along with the payloads manager.
  * @dev constants were adjusted as the governance cycle is no longer needed.
- * @dev owner and guardian are the same entity here.
  */
 contract PermissionedPayloadsController is
   PayloadsControllerCore,
@@ -25,15 +25,15 @@ contract PermissionedPayloadsController is
 {
   /// @inheritdoc IPermissionedPayloadsController
   function initialize(
+    address owner,
     address guardian,
     address initialPayloadsManager,
     UpdateExecutorInput[] calldata executors
   )
     public
-    override(PayloadsControllerCore, IPermissionedPayloadsController)
     initializer
   {
-    PayloadsControllerCore.initialize(guardian, guardian, executors);
+    PayloadsControllerCore.initialize(owner, guardian, executors);
     _updatePayloadsManager(initialPayloadsManager);
   }
 
@@ -101,7 +101,7 @@ contract PermissionedPayloadsController is
    * @notice Sets the execution delay
    * @param delay The new execution delay to be set
    */
-  function setExecutionDelay(uint40 delay) external onlyGuardian {
+  function setExecutionDelay(uint40 delay) external onlyOwner {
     require(
       delay >= MIN_EXECUTION_DELAY() && delay <= MAX_EXECUTION_DELAY(),
       Errors.INVALID_EXECUTOR_DELAY

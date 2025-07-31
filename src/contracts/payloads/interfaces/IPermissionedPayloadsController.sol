@@ -10,14 +10,16 @@ import {PayloadsControllerUtils} from "../PayloadsControllerUtils.sol";
  * @author BGD Labs
  * @notice interface containing the objects, events and methods definitions of the IPermissionedPayloadsController contract
  */
-interface IPermissionedPayloadsController is IPayloadsControllerCore, IWithPayloadsManager {  
+interface IPermissionedPayloadsController is IPayloadsControllerCore, IWithPayloadsManager {
   /**
    * @notice method to initialize the contract with starter params. Only callable by proxy
-   * @param guardian address of the guardian. With permissions to call certain methods
-   * @param initialPayloadsManager address of the initial payload manager
+   * @param owner address of the owner. With permission to change the delay and rescue
+   * @param guardian address of the guardian. With permission to cancel payloads
+   * @param initialPayloadsManager address of the initial payload manager. With permission to create payloads
    * @param executors array of executor configurations
    */
   function initialize(
+    address owner,
     address guardian,
     address initialPayloadsManager,
     UpdateExecutorInput[] calldata executors
