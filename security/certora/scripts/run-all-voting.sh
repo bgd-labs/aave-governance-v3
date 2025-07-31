@@ -9,9 +9,12 @@ certoraRun $CMN security/certora/confs/voting/verifyLegality.conf \
            
 
 echo "******** Running:  voting:2  ***************"
-certoraRun $CMN security/certora/confs/voting/verifyMisc.conf \
-            \
-           --msg "voting 2: "
+certoraRun $CMN security/certora/confs/voting/verifyMisc.conf --exclude_rule submitTripleProofVerification \
+           --msg "voting 2: EXCLUDING: submitTripleProofVerification"
+
+echo "******** Running:  voting:2a  ***************"
+certoraRun $CMN security/certora/confs/voting/verifyMisc.conf --rule submitTripleProofVerification \
+           --msg "voting 2a: submitTripleProofVerification"
 
 
 echo "******** Running:  voting:3  ***************"
