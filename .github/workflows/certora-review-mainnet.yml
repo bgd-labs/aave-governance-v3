@@ -26,11 +26,12 @@ jobs:
       contents: read
       statuses: write
       pull-requests: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: Certora/certora-run-action@v1
+      - uses: Certora/certora-run-action@v2
         with:
           cli-version: 7.28.0
           configurations: |-
