@@ -49,4 +49,10 @@ certoraRun $CMN security/certora/confs/voting/verifyVoting_and_tally.conf \
 
 echo "******** Running:  voting:8  ***************"
 certoraRun $CMN security/certora/confs/voting/verifyVoting_and_tally.conf \
-            --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote \
+           --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote \
+           --msg "voting 8: "
+
+echo "******** Running:  voting:9  ***************"
+certoraRun $CMN security/certora/confs/voting/verifyVoting_and_tally.conf \
+           --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote \
+           --msg "voting 9: "
