@@ -9,9 +9,12 @@ certoraRun $CMN security/certora/confs/voting/verifyLegality.conf \
            
 
 echo "******** Running:  voting:2  ***************"
-certoraRun $CMN security/certora/confs/voting/verifyMisc.conf \
-            \
-           --msg "voting 2: "
+certoraRun $CMN security/certora/confs/voting/verifyMisc.conf --exclude_rule submitTripleProofVerification \
+           --msg "voting 2: EXCLUDING: submitTripleProofVerification"
+
+echo "******** Running:  voting:2a  ***************"
+certoraRun $CMN security/certora/confs/voting/verifyMisc.conf --rule submitTripleProofVerification \
+           --msg "voting 2a: submitTripleProofVerification"
 
 
 echo "******** Running:  voting:3  ***************"
@@ -49,4 +52,10 @@ certoraRun $CMN security/certora/confs/voting/verifyVoting_and_tally.conf \
 
 echo "******** Running:  voting:8  ***************"
 certoraRun $CMN security/certora/confs/voting/verifyVoting_and_tally.conf \
-            --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote \
+           --rule cannot_vote_twice_with_submitVoteAsRepresentative_and_submitVote \
+           --msg "voting 8: "
+
+echo "******** Running:  voting:9  ***************"
+certoraRun $CMN security/certora/confs/voting/verifyVoting_and_tally.conf \
+           --rule cannot_vote_twice_with_submitVoteSingleProofAsRepresentative_and_submitVote \
+           --msg "voting 9: "
