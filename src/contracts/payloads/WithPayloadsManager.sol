@@ -42,7 +42,7 @@ contract WithPayloadsManager is OwnableWithGuardian, IWithPayloadsManager {
   /// @inheritdoc IWithPayloadsManager
   function updatePayloadsManager(
     address newPayloadsManager
-  ) external onlyOwnerOrGuardian {
+  ) external onlyOwner {
     _updatePayloadsManager(newPayloadsManager);
   }
 
