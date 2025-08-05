@@ -957,6 +957,7 @@ rule payload_state_transition_pre_state(method f) filtered {f ->
 rule method_reachability(method f) filtered {f ->
     f.contract == currentContract 
     && f.selector != sig:initialize(address,address,IPayloadsControllerCore.UpdateExecutorInput[]).selector
+    && f.selector != sig:initialize(address,address,address,IPayloadsControllerCore.UpdateExecutorInput[]).selector
     && f.selector != sig:updateExecutors(IPayloadsControllerCore.UpdateExecutorInput[]).selector
     }
 {
@@ -1016,7 +1017,7 @@ rule executorConfig_cant_change_except_delay1(method f) filtered {f->
 }
 
 
-rule only_guardian_can_change_delay1(method f) filtered {f->
+rule only_owner_can_change_delay1(method f) filtered {f->
     !f.isView && !is_reverting_func(f)
     } {
   uint40 delay1_before = getExecutorSettingsByAccessControl(PayloadsControllerUtils.AccessControl.Level_1).delay;
@@ -1027,7 +1028,7 @@ rule only_guardian_can_change_delay1(method f) filtered {f->
 
   uint40 delay1_after = getExecutorSettingsByAccessControl(PayloadsControllerUtils.AccessControl.Level_1).delay;
 
-  assert delay1_after != delay1_before => e.msg.sender== guardian() ;
+  assert delay1_after != delay1_before => e.msg.sender== owner() ;
 }
 
 
