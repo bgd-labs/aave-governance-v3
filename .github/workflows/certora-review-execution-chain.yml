@@ -8,8 +8,7 @@ concurrency:
 on:
   pull_request:
     branches:
-      - main
-      - certora
+      - '*'
   push:
     branches:
       - main
