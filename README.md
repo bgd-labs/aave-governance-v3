@@ -82,10 +82,15 @@ The following security procedures have been applied:
 
 **IMPORTANT**. The BUSL1.1 license of this repository allows for any usage of the software, if respecting the *Additional Use Grant* limitations, forbidding any use case damaging anyhow the Aave DAO's interests.
 
+## Deployments
+
+On the [scripts](./scripts/) folder you can find everything necessary to deploy the governance contracts (commands can be found in the [Makefile](./Makefile)). 
+In the case you want to add a new network, you will first need to add the path in [GovBaseScript.sol](./scripts/GovBaseScript.sol). 
+(Take into account that the network needs to have been added previously in solidity-utils repo, then update the dependency on aave-delivery-infrastructure, and then adi-deploy (on which this repo depends on)).
 
 ## License
 
-Copyright © 2023, Aave DAO, represented by its governance smart contracts.
+Copyright © 2025, Aave DAO, represented by its governance smart contracts.
 
 Created by [BGD Labs](https://bgdlabs.com/).
 
