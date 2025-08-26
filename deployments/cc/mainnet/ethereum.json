@@ -1,6 +1,7 @@
 {
   "arbAdapter": "0x88d6D01e08d3e64513b15fD46528dBbA7d755883",
   "baseAdapter": "0xa5948b0ac79f72966dFFC5C13E44f6dfDD3D58A0",
+  "bobAdapter": "0x1e2bFEF32EdAbf6b3EF8B674044DC00f082Addff",
   "ccipAdapter": "0xe3a0d9754aD3452D687cf580Ba3674c2D7D2f7AE",
   "chainId": 1,
   "clEmergencyOracle": "0x0000000000000000000000000000000000000000",
