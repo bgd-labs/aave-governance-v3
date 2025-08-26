@@ -32,9 +32,11 @@ contract BaseProofTest is Test {
   // Structs need to be ordered as they are used to parse json
   struct AaveProofs {
     bytes accountStateProofRLP;
+    bytes accountStateProofRLPTruncated;
     uint256 balance;
     uint256 balanceSlotValue;
     bytes balanceStorageProofRlp;
+    bytes balanceStorageProofRlpTruncated;
     bytes32 baseBalanceSlot;
     uint256 baseBalanceSlotRaw;
     bytes blockHeaderRLP;
@@ -44,10 +46,13 @@ contract BaseProofTest is Test {
   }
   struct AAaveProofs {
     bytes aAaveDelegationStorageProofRlp;
+    bytes aAaveDelegationStorageProofRlpTruncated;
     bytes accountStateProofRLP;
+    bytes accountStateProofRLPTruncated;
     uint256 balance;
     uint256 balanceSlotValue;
     bytes balanceStorageProofRlp;
+    bytes balanceStorageProofRlpTruncated;
     bytes32 baseBalanceSlot;
     uint256 baseBalanceSlotRaw;
     bytes blockHeaderRLP;
@@ -60,9 +65,11 @@ contract BaseProofTest is Test {
   }
   struct StkAaveProofs {
     bytes accountStateProofRLP;
+    bytes accountStateProofRLPTruncated;
     uint256 balance;
     uint256 balanceSlotValue;
     bytes balanceStorageProofRlp;
+    bytes balanceStorageProofRlpTruncated;
     bytes32 baseBalanceSlot;
     uint256 baseBalanceSlotRaw;
     bytes blockHeaderRLP;
@@ -71,15 +78,18 @@ contract BaseProofTest is Test {
     uint256 exchangeRateSlotRaw;
     bytes32 stkAaveExchangeRateSlot;
     bytes stkAaveExchangeRateStorageProofRlp;
+    bytes stkAaveExchangeRateStorageProofRlpTruncated;
     address token;
     uint256 votingPower;
   }
 
   struct RepresentativesProofs {
     bytes accountStateProofRLP;
+    bytes accountStateProofRLPTruncated;
     bytes blockHeaderRLP;
     uint256 chainId;
     bytes proofOfRepresentative;
+    bytes proofOfRepresentativeTruncated;
     uint256 representative;
     uint256 representativesSlot;
     uint256 representativesSlotHash;
@@ -88,42 +98,42 @@ contract BaseProofTest is Test {
     address token;
   }
 
-  function _initializeAave() internal {
+  function _initializeAave(bool truncated) internal {
     _processRoots(
       AAVE,
       aaveProofs.blockHeaderRLP,
-      aaveProofs.accountStateProofRLP
+      truncated ? aaveProofs.accountStateProofRLPTruncated : aaveProofs.accountStateProofRLP
     );
   }
 
-  function _initializeStkAave() internal {
+  function _initializeStkAave(bool truncated) internal {
     _processRoots(
       STK_AAVE,
       stkAaveProofs.blockHeaderRLP,
-      stkAaveProofs.accountStateProofRLP
+      truncated ? stkAaveProofs.accountStateProofRLPTruncated : stkAaveProofs.accountStateProofRLP
     );
 
     // process slot
     _processSlot(
       STK_AAVE,
       stkAaveProofs.stkAaveExchangeRateSlot,
-      stkAaveProofs.stkAaveExchangeRateStorageProofRlp
+      truncated ? stkAaveProofs.stkAaveExchangeRateStorageProofRlpTruncated : stkAaveProofs.stkAaveExchangeRateStorageProofRlp
     );
   }
 
-  function _initializeAAave() internal {
+  function _initializeAAave(bool truncated) internal {
     _processRoots(
       A_AAVE,
       aAaveProofs.blockHeaderRLP,
-      aAaveProofs.accountStateProofRLP
+      truncated ? aAaveProofs.accountStateProofRLPTruncated : aAaveProofs.accountStateProofRLP
     );
   }
 
-  function _initializeRepresentatives() internal {
+  function _initializeRepresentatives(bool truncated) internal {
     _processRoots(
       GOVERNANCE,
       representatives.blockHeaderRLP,
-      representatives.accountStateProofRLP
+      truncated ? representatives.accountStateProofRLPTruncated : representatives.accountStateProofRLP
     );
   }
 

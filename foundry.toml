@@ -68,7 +68,7 @@ ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
 ethereum-testnet={key="${ETHERSCAN_API_KEY_MAINNET}",chain=11155111}
 optimism={key="${ETHERSCAN_API_KEY_OPTIMISM}",chain=10}
 optimism-testnet={key="${ETHERSCAN_API_KEY_OPTIMISM}",chain=420}
-avalanche={key="${ETHERSCAN_API_KEY_AVALANCHE}",chain=43114}
+avalanche={key="${ETHERSCAN_API_KEY_AVALANCHE}",chain=43114, url='https://api.snowscan.xyz/api'}
 avalanche-testnet={key="${ETHERSCAN_API_KEY_AVALANCHE}",chain=43113}
 polygon={key="${ETHERSCAN_API_KEY_POLYGON}",chain=137}
 polygon-testnet={key="${ETHERSCAN_API_KEY_POLYGON}",chain=80001}

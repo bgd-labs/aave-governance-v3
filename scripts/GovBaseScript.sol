@@ -309,11 +309,11 @@ library Constants {
   bytes32 public constant DATA_WAREHOUSE_SALT =
     keccak256(bytes('Aave Data Warehosue'));
   bytes32 public constant VOTING_PORTAL_ETH_ETH_SALT =
-    keccak256(bytes('Aave Voting portal eth-eth'));
+    keccak256(bytes('Aave Voting portal eth-eth merkle update'));
   bytes32 public constant VOTING_PORTAL_ETH_AVAX_SALT =
-    keccak256(bytes('Aave Voting portal eth-avax'));
+    keccak256(bytes('Aave Voting portal eth-avax merkle update'));
   bytes32 public constant VOTING_PORTAL_ETH_POL_SALT =
-    keccak256(bytes('Aave Voting portal eth-pol'));
+    keccak256(bytes('Aave Voting portal eth-pol merkle update'));
   bytes32 public constant VOTING_PORTAL_ETH_BNB_SALT =
     keccak256(bytes('Aave Voting portal eth-bnb'));
   bytes32 public constant PAYLOADS_CONTROLLER_SALT =

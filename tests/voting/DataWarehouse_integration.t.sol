@@ -6,8 +6,9 @@ import {IDataWarehouse} from '../../src/contracts/voting/interfaces/IDataWarehou
 import {StateProofVerifier} from '../../src/contracts/voting/libs/StateProofVerifier.sol';
 import {SlotUtils} from '../../src/contracts/libraries/SlotUtils.sol';
 import {BaseProofTest} from '../utils/BaseProofTest.sol';
+import {Errors} from '../../src/contracts/libraries/Errors.sol';
 
-contract DataWarehouseTest is BaseProofTest {
+contract DataWarehouseTestIntegration is BaseProofTest {
   event StorageRootProcessed(
     address indexed caller,
     address indexed account,
@@ -23,32 +24,47 @@ contract DataWarehouseTest is BaseProofTest {
   );
 
   modifier initializeProofs() {    
-    dataWarehouse = new DataWarehouse();
-
     // we init voting strategy so we can access supported token addresses
     _initVotingStrategy();
     _getRootsAndProofs();
     _;
   }
 
-  function setUp() public {}
+  modifier initializeDataWarehouseFromFork() {
+    dataWarehouse = DataWarehouse(0x1699FE9CaDC8a0b6c93E06B62Ab4592a0fFEcF61);
+    _;
+  }
 
-  function testProcessData() public initializeProofs {
+  function setUp() public {
+    vm.createSelectFork('ethereum', 22060440);
+  }
+
+  // Test that when processing truncated proofs we get storage roots as 0, and when we try to get
+  // registered slot value we get 0. (With current implementation)
+  // but when deploying new implementation we can not process truncated proofs.
+  function testProcessData() public initializeDataWarehouseFromFork initializeProofs {
     vm.expectEmit(true, true, true, true);
     emit StorageRootProcessed(address(this), AAVE, proofBlockHash);
     dataWarehouse.processStorageRoot(
       AAVE,
       proofBlockHash,
       aaveProofs.blockHeaderRLP,
-      aaveProofs.accountStateProofRLP
+      aaveProofs.accountStateProofRLPTruncated
     );
 
     bytes32 storageRoots = dataWarehouse.getStorageRoots(AAVE, proofBlockHash);
-    bool result = storageRoots != bytes32(0);
+    bool result = storageRoots == bytes32(0);
     assertEq(result, true);
-  }
 
-  function testProcessDataTruncated() public initializeProofs {
+    uint256 registeredSlot = dataWarehouse.getRegisteredSlot(
+      proofBlockHash,
+      AAVE,
+      SlotUtils.getAccountSlotHash(proofVoter, aaveProofs.baseBalanceSlotRaw)
+    );
+
+    assertEq(registeredSlot, 0);
+
+    dataWarehouse = new DataWarehouse();
     vm.expectRevert();
     dataWarehouse.processStorageRoot(
       AAVE,
@@ -58,7 +74,9 @@ contract DataWarehouseTest is BaseProofTest {
     );
   }
 
-  function testRegisterExchangeRate() public initializeProofs {
+  // Test that when processing truncated proofs for the storage slot, we get 0 as registered slot value.
+  // But when deploying new implementation we can not process truncated proofs.
+  function testProcessStorageSlot() public initializeDataWarehouseFromFork initializeProofs {
     vm.expectEmit(true, true, true, true);
     emit StorageRootProcessed(address(this), STK_AAVE, proofBlockHash);
     dataWarehouse.processStorageRoot(
@@ -80,7 +98,7 @@ contract DataWarehouseTest is BaseProofTest {
       STK_AAVE,
       proofBlockHash,
       stkAaveProofs.stkAaveExchangeRateSlot,
-      stkAaveProofs.stkAaveExchangeRateStorageProofRlp
+      stkAaveProofs.stkAaveExchangeRateStorageProofRlpTruncated
     );
 
     uint256 exchangeRateValue = dataWarehouse.getRegisteredSlot(
@@ -89,65 +107,22 @@ contract DataWarehouseTest is BaseProofTest {
       stkAaveProofs.stkAaveExchangeRateSlot
     );
     uint256 exchangeRate = uint256(uint216(exchangeRateValue));
-    emit log_uint(exchangeRate);
-    assertEq(exchangeRate, stkAaveProofs.exchangeRate);
-  }
+    assertEq(exchangeRate, 0);
 
-  function testRegisterExchangeRateTruncated() public initializeProofs {
-    vm.expectEmit(true, true, true, true);
-    emit StorageRootProcessed(address(this), STK_AAVE, proofBlockHash);
+    dataWarehouse = new DataWarehouse();
+    vm.expectRevert();
     dataWarehouse.processStorageRoot(
       STK_AAVE,
       proofBlockHash,
       stkAaveProofs.blockHeaderRLP,
-      stkAaveProofs.accountStateProofRLP
+      stkAaveProofs.accountStateProofRLPTruncated
     );
-
-    vm.expectRevert();
+    vm.expectRevert(bytes(Errors.UNPROCESSED_STORAGE_ROOT));
     dataWarehouse.processStorageSlot(
       STK_AAVE,
       proofBlockHash,
       stkAaveProofs.stkAaveExchangeRateSlot,
-      stkAaveProofs.stkAaveExchangeRateStorageProofRlpTruncated
+      stkAaveProofs.stkAaveExchangeRateStorageProofRlp
     );
-  }
-
-  function testGetStorage() public initializeProofs {
-    dataWarehouse.processStorageRoot(
-      AAVE,
-      proofBlockHash,
-      aaveProofs.blockHeaderRLP,
-      aaveProofs.accountStateProofRLP
-    );
-
-    StateProofVerifier.SlotValue memory storageInfo = dataWarehouse.getStorage(
-      AAVE,
-      proofBlockHash,
-      SlotUtils.getAccountSlotHash(proofVoter, aaveProofs.baseBalanceSlotRaw),
-      aaveProofs.balanceStorageProofRlp
-    );
-
-    assertEq(storageInfo.exists, true);
-    assertEq(storageInfo.value, aaveProofs.balanceSlotValue);
-  }
-
-  // SLOT
-  function testGetAccountBalanceSlotHash() public initializeProofs {
-    address holder = address(81967235);
-    uint256 balanceMappingPosition = 0;
-
-    bytes32 slot = keccak256(
-      abi.encodePacked(
-        bytes32(uint256(uint160(holder))),
-        balanceMappingPosition
-      )
-    );
-
-    bytes32 calculatedSlot = SlotUtils.getAccountSlotHash(
-      holder,
-      balanceMappingPosition
-    );
-
-    assertEq(slot, calculatedSlot);
   }
 }
