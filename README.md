@@ -34,9 +34,9 @@ All the information about setup of the project and deployments can be found [HER
 
 | Networks  | VotingMachine                                                                                                            |
 |-----------|--------------------------------------------------------------------------------------------------------------------------|
-| <div style="display: flex; align-items: center;"><img src="./docs/networks/ethereum.svg" alt="Ethereum" style="max-width: 25px; margin-right: 5px;"><p style="text-align: center;">Ethereum</p></div>  | [0x617332a777780F546261247F621051d0b98975Eb](https://etherscan.io/address/0x617332a777780F546261247F621051d0b98975Eb)    |
-| <div style="display: flex; align-items: center;"><img src="./docs/networks/polygon.svg" alt="Polygon" style="max-width: 25px%; margin-right: 5px;"><p style="text-align: center;">Polygon</p></div>   | [0xc8a2ADC4261c6b669CdFf69E717E77C9cFeB420d](https://polygonscan.com/address/0xc8a2ADC4261c6b669CdFf69E717E77C9cFeB420d) |
-| <div style="display: flex; align-items: center;"><img src="./docs/networks/avalanche.svg" alt="Avalanche" style="max-width: 25px; margin-right: 5px;"><p style="text-align: center;">Avalanche</p></div> | [0x9b6f5ef589A3DD08670Dd146C11C4Fb33E04494F](https://snowtrace.io/address/0x9b6f5ef589A3DD08670Dd146C11C4Fb33E04494F)    |
+| <div style="display: flex; align-items: center;"><img src="./docs/networks/ethereum.svg" alt="Ethereum" style="max-width: 25px; margin-right: 5px;"><p style="text-align: center;">Ethereum</p></div>  | [0x06a1795a88b82700896583e123F46BE43877bFb6](https://etherscan.io/address/0x06a1795a88b82700896583e123F46BE43877bFb6)    |
+| <div style="display: flex; align-items: center;"><img src="./docs/networks/polygon.svg" alt="Polygon" style="max-width: 25px%; margin-right: 5px;"><p style="text-align: center;">Polygon</p></div>   | [0x44c8b753229006A8047A05b90379A7e92185E97C](https://polygonscan.com/address/0x44c8b753229006A8047A05b90379A7e92185E97C) |
+| <div style="display: flex; align-items: center;"><img src="./docs/networks/avalanche.svg" alt="Avalanche" style="max-width: 25px; margin-right: 5px;"><p style="text-align: center;">Avalanche</p></div> | [0x4D1863d22D0ED8579f8999388BCC833CB057C2d6](https://snowtrace.io/address/0x4D1863d22D0ED8579f8999388BCC833CB057C2d6)    |
 
 <br>
 
