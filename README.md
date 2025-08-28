@@ -87,7 +87,7 @@ Due to a problem found on the [MerklePatriciaTrieVerifier](https://hackmd.io/@ag
 
   - [Code diff](https://github.com/bgd-labs/aave-governance-v3/commit/1688caacfa7f9efef7947e561c27b1f6f5271bbb#diff-420b9402f23b3e74d290b0ded7395303ce4e353d6ee46c1dcf5b4566da7c8f76)
   - [Test suite](./tests/voting/DataWarehouse_integration.t.sol)
-  - [Security review](./security/certora/reports/) by [Certora](https://www.certora.com/)
+  - [Security review](./security/certora/reports/MerklePatriciaTrieVerifier_Fix_Review_Report.pdf) by [Certora](https://www.certora.com/)
   - [Proposal](https://vote.onaave.com/proposal/?proposalId=273&ipfsHash=0xc5e038044cd09bdb8aa05b27a480f3fcb0971932bb709b6ffcca8cfe4728c0d3) activating new VotingMachines
 
 
