@@ -138,3 +138,35 @@ contract Soneium is Script, UpdatePCPermissionsSoneium {
     vm.stopBroadcast();
   }
 }
+
+// TODO: Update with correct addresses
+contract UpdatePCPermissionsPlasma is UpdatePayloadsControllerPermissions {
+  function targetOwner() public pure override returns (address) {
+    return 0x0000000000000000000000000000000000000000; // Executor Lvl 1
+  }
+
+  function targetGovernanceGuardian() public pure override returns (address) {
+    return 0x0000000000000000000000000000000000000000;
+  }
+
+  function govContractsToUpdate()
+    public
+    pure
+    override
+    returns (address[] memory)
+  {
+    address[] memory contracts = new address[](1);
+    contracts[0] = address(0x0000000000000000000000000000000000000000); // PC
+    return contracts;
+  }
+}
+
+contract Plasma is Script, UpdatePCPermissionsPlasma {
+  function run() external {
+    vm.startBroadcast();
+
+    _changeOwnerAndGuardian();
+
+    vm.stopBroadcast();
+  }
+}

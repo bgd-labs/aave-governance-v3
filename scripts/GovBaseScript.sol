@@ -6,7 +6,7 @@ import 'forge-std/Vm.sol';
 import 'forge-std/StdJson.sol';
 import {ChainIds, TestNetChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {DeployerHelpers, Addresses as CCCAddresses} from 'adi-deploy/scripts/BaseDeployerScript.sol';
-import {Create3Factory, Create3, ICreate3Factory} from 'solidity-utils/contracts/create3/Create3Factory.sol';
+// import {Create3Factory, Create3, ICreate3Factory} from 'solidity-utils/contracts/create3/Create3Factory.sol';
 
 struct Network {
   string path;
@@ -86,6 +86,8 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/ink.json';
     } else if (chainId == ChainIds.SONEIUM) {
       return './deployments/gov/mainnet/soneium.json';
+    } else if (chainId == ChainIds.PLASMA) {
+      return './deployments/gov/mainnet/plasma.json';
     }
 
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
