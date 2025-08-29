@@ -106,7 +106,7 @@ deploy-permissioned-payloads-controller:
 
 
 deploy-initial-test:
-	$(call deploy_fn,InitialDeployments,soneium)
+	$(call deploy_fn,InitialDeployments,plasma)
 
 # Deploy Governance contracts
 deploy-governance-test:

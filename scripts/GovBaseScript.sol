@@ -86,6 +86,8 @@ library GovDeployerHelpers {
       return './deployments/gov/mainnet/ink.json';
     } else if (chainId == ChainIds.SONEIUM) {
       return './deployments/gov/mainnet/soneium.json';
+    } else if (chainId == ChainIds.PLASMA) {
+      return './deployments/gov/mainnet/plasma.json';
     }
 
     if (chainId == TestNetChainIds.ETHEREUM_SEPOLIA) {
