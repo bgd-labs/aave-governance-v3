@@ -3,6 +3,15 @@ pragma solidity ^0.8.0;
 
 import './GovBaseScript.sol';
 
+/**
+ * @notice this script contains the logic to generate the json file with the governance needed addresses specified in
+ * GovBaseScript Addresses struct.
+ * @dev the address file will be generated with address(0) and the msg.sender as owner and guardian if not otherwise
+ * overriden.
+ * @dev you should make sure that the crossChainController addresses json files have the proxyFactory, and if needed the create3Factory
+ * If for some reason you need the create3Factory and its not in the cc addresses you can override the CREATE3_METHOD to deploy or return
+ * the address (Create3 contracts can be found in solidity utils repository: https://github.com/bgd-labs/solidity-utils/tree/main/src/contracts/create3).
+ */
 abstract contract BaseInitialDeployment is GovBaseScript {
   function OWNER() public virtual returns (address) {
     return address(msg.sender); // as first owner we set deployer, this way its easier to configure
@@ -20,9 +29,7 @@ abstract contract BaseInitialDeployment is GovBaseScript {
   function _execute(
     GovDeployerHelpers.Addresses memory addresses
   ) internal override {
-    //    addresses.create3Factory = CREATE3_FACTORY() == address(0)
-    //      ? address(new Create3Factory{salt: Constants.CREATE3_FACTORY_SALT}())
-    //      : CREATE3_FACTORY();
+    addresses.create3Factory = CREATE3_FACTORY();
     addresses.chainId = TRANSACTION_NETWORK();
     addresses.owner = OWNER();
     addresses.guardian = GUARDIAN();

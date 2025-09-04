@@ -64,40 +64,12 @@ ink="${RPC_INK}"
 soneium="${RPC_SONEIUM}"
 
 [etherscan]
-ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }
-ethereum-testnet={key="${ETHERSCAN_API_KEY_MAINNET}",chain=11155111}
-optimism={key="${ETHERSCAN_API_KEY_OPTIMISM}",chain=10}
-optimism-testnet={key="${ETHERSCAN_API_KEY_OPTIMISM}",chain=420}
-avalanche={key="${ETHERSCAN_API_KEY_AVALANCHE}",chain=43114, url='https://api.snowscan.xyz/api'}
-avalanche-testnet={key="${ETHERSCAN_API_KEY_AVALANCHE}",chain=43113}
-polygon={key="${ETHERSCAN_API_KEY_POLYGON}",chain=137}
-polygon-testnet={key="${ETHERSCAN_API_KEY_POLYGON}",chain=80001}
-arbitrum={key="${ETHERSCAN_API_KEY_ARBITRUM}",chain=42161}
-arbitrum-testnet={key="${ETHERSCAN_API_KEY_ARBITRUM}",chain=421613}
 metis={ key="any", chain=1088, url='https://andromeda-explorer.metis.io/' }
 metis-testnet={ key="any", chain=599, url='https://goerli.explorer.metisdevops.link/' }
-binance={key="${ETHERSCAN_API_KEY_BINANCE}",chain=56}
-binance-testnet={key="${ETHERSCAN_API_KEY_BINANCE}",chain=97}
-base={key="${ETHERSCAN_API_KEY_BASE}",chain=8453}
-base-testnet={key="${ETHERSCAN_API_KEY_BASE}",chain=84531}
-gnosis={key="${ETHERSCAN_API_KEY_GNOSIS}",chain=100}
-gnosis-testnet={key="${ETHERSCAN_API_KEY_GNOSIS}",chain=10200, url='https://gnosis-chiado.blockscout.com/'}
-zkevm={key="${ETHERSCAN_API_KEY_ZKEVM}",chain=1101}
-zkevm-testnet={key="${ETHERSCAN_API_KEY_ZKEVM}",chain=1442}
-scroll={key="${ETHERSCAN_API_KEY_SCROLL}", chain=534352, utl='https://api.scrollscan.com/api/'}
-scroll-testnet={key="${ETHERSCAN_API_KEY_SCROLL}", chain=534351, url='https://api-sepolia.scrollscan.com/api/'}
-zksync={key="${ETHERSCAN_API_KEY_ZK_SYNC}", chain=324}
-zksync-testnet={key="${ETHERSCAN_API_KEY_ZK_SYNC}", chain=300, url='https://api-sepolia-era.zksync.network/api'}
-linea={key="${ETHERSCAN_API_KEY_LINEA}", chain=59144 }
-linea-testnet={key="${ETHERSCAN_API_KEY_LINEA}",chain=59141}
-celo={key="${ETHERSCAN_API_KEY_CELO}", chain=42220, utl='https://api.celoscan.io/api'}
-celo-testnet={key="${ETHERSCAN_API_KEY_CELO}", chain=44787, url='https://api-alfajores.celoscan.io/api'}
-sonic={key="${ETHERSCAN_API_KEY_SONIC}", chain=146, url='https://api.sonicscan.org/api'}
-sonic-testnet={key="${ETHERSCAN_API_KEY_SONIC}", chain=57054, url='https://api-testnet.sonicscan.org/api'}
-mantle={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5000, url='https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan'}
-mantle-testnet={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5003, url='https://explorer.testnet.mantle.xyz/api'}
-ink={key="${ETHERSCAN_API_KEY_INK}", chain=57073, url='https://api.routescan.io/v2/network/mainnet/evm/57073/etherscan'}
-soneium={key="${ETHERSCAN_API_KEY_SONEIUM}", chain=1868, url='https://soneium.blockscout.com/api/'}
+mantle={key="any", chain=5000, url='https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan'}
+mantle-testnet={key="any", chain=5003, url='https://explorer.testnet.mantle.xyz/api'}
+ink={key="any", chain=57073, url='https://api.routescan.io/v2/network/mainnet/evm/57073/etherscan'}
+soneium={key="any", chain=1868, url='https://soneium.blockscout.com/api/'}
 
 
 
