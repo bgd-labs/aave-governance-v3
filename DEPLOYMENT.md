@@ -30,7 +30,11 @@ In this case you would need to only have the network that you want to deploy on.
 
 Execution command would look like this: `make deploy-initial PROD=true LEDGER=true`
 
-### Notes
+## Initial Scripts
+
+As previously said, you should add the new network script to `InitialDeployments` and execute the initial script only for new network (as doing for existing ones would rewrite the addresses json of the specified network with address(0)). This will create a new addresses json for the new network.
+
+- execution command: `make deploy-initial PROD=true LEDGER=true` 
 
 ## Governance Network
 
