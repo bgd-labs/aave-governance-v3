@@ -30,6 +30,10 @@ In this case you would need to only have the network that you want to deploy on.
 
 Execution command would look like this: `make deploy-initial PROD=true LEDGER=true`
 
+### Notes
+
+- It is very important to follow the order specified for the deployments. As there are some contracts that need addresses of previously deployed contracts (even on other networks) for correct communication.
+
 ## Initial Scripts
 
 As previously said, you should add the new network script to `InitialDeployments` and execute the initial script only for new network (as doing for existing ones would rewrite the addresses json of the specified network with address(0)). This will create a new addresses json for the new network.
@@ -43,7 +47,15 @@ The governance network is the central hub where Aave Governance is managed (more
 - [GovernancePowerStrategy](./src/contracts/GovernancePowerStrategy.sol)
 - [VotingPortal](./src/contracts/VotingPortal.sol)
 
+The address of the Governance contract will be used on deployments of other networks, for voting and execution, so that messages received are correctly validated.
+
 ### Scripts
+
+To deploy on a new network you will need to add the network scripts to:
+
+- [DeployGovernance.s.sol](./scripts/Governance/Deploy_Governance.s.sol)
+- [Deploy_Gov_PowerStrategy.s.sol](./scripts/Governance/Deploy_Gov_PowerStrategy.s.sol)
+- []
 
 ### Makefile
 
