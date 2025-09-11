@@ -99,7 +99,6 @@ mantle={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5000, url='https://api.routesca
 mantle-testnet={key="${ETHERSCAN_API_KEY_MANTLE}", chain=5003, url='https://explorer.testnet.mantle.xyz/api'}
 ink={key="${ETHERSCAN_API_KEY_INK}", chain=57073, url='https://api.routescan.io/v2/network/mainnet/evm/57073/etherscan'}
 soneium={key="${ETHERSCAN_API_KEY_SONEIUM}", chain=1868, url='https://soneium.blockscout.com/api/'}
-plasma={key="${ETHERSCAN_API_KEY}", chain=9745, url='https://api.routescan.io/v2/network/mainnet/evm/9745/etherscan'}
 
 
 

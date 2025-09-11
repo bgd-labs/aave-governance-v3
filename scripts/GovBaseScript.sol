@@ -6,7 +6,7 @@ import 'forge-std/Vm.sol';
 import 'forge-std/StdJson.sol';
 import {ChainIds, TestNetChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {DeployerHelpers, Addresses as CCCAddresses} from 'adi-deploy/scripts/BaseDeployerScript.sol';
-import {Create3Factory, Create3, ICreate3Factory} from 'solidity-utils/contracts/create3/Create3Factory.sol';
+// import {Create3Factory, Create3, ICreate3Factory} from 'solidity-utils/contracts/create3/Create3Factory.sol';
 
 struct Network {
   string path;
@@ -364,14 +364,19 @@ abstract contract GovBaseScript is Script {
   function _getAddresses(
     uint256 networkId
   ) internal view returns (GovDeployerHelpers.Addresses memory) {
-    try this.getAddresses(networkId) returns (
-      GovDeployerHelpers.Addresses memory addresses
-    ) {
-      return addresses;
-    } catch (bytes memory) {
-      GovDeployerHelpers.Addresses memory empty;
-      return empty;
-    }
+    return
+      GovDeployerHelpers.decodeJson(
+        GovDeployerHelpers.getPathByChainId(networkId),
+        vm
+      );
+    // try this.getAddresses(networkId) returns (
+    //   GovDeployerHelpers.Addresses memory addresses
+    // ) {
+    //   return addresses;
+    // } catch (bytes memory) {
+    //   GovDeployerHelpers.Addresses memory empty;
+    //   return empty;
+    // }
   }
 
   function _setAddresses(

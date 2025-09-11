@@ -8,7 +8,7 @@ test :; forge test -vvvv
 BASE_LEDGER = --ledger --mnemonic-indexes $(MNEMONIC_INDEX) --sender $(LEDGER_SENDER)
 BASE_KEY = --private-key ${PRIVATE_KEY}
 
-custom_ethereum := --with-gas-price 25000000000 # 25 gwei
+custom_ethereum := --with-gas-price 5000000000 # 0.5 gwei
 custom_polygon :=  --with-gas-price 170000000000 # 170 gwei
 custom_polygon-testnet :=  --with-gas-price 20000000000 # 5 gwei
 custom_avalanche := --with-gas-price 27000000000 # 27 gwei
@@ -27,7 +27,7 @@ custom_zksync-testnet := --legacy --zksync
 define deploy_single_fn
 forge script \
  scripts/$(1).s.sol:$(if $(3),$(if $(PROD),$(3),$(3)_testnet),$(shell UP=$(if $(PROD),$(2),$(2)_testnet); echo $${UP} | perl -nE 'say ucfirst')) \
- --rpc-url $(if $(PROD),$(2),$(2)-testnet) --broadcast --verify -vvvv \
+ --rpc-url $(if $(PROD),$(2),$(2)-testnet) --broadcast --verify --legacy -vvvv \
  $(if $(LEDGER),$(BASE_LEDGER),$(BASE_KEY)) \
  $(custom_$(if $(PROD),$(2),$(2)-testnet))
 
@@ -40,7 +40,7 @@ endef
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------- DEPLOYMENT SCRIPTS ---------------------------------------------------------
 deploy-initial:
-	$(call deploy_fn,InitialDeployments,ethereum polygon avalanche arbitrum optimism metis base binance gnosis)
+	$(call deploy_fn,InitialDeployments,plasma)
 
 deploy-gov-power-strategy:
 	$(call deploy_fn,Governance/Deploy_Gov_PowerStrategy,ethereum)
@@ -67,14 +67,14 @@ set-vm-as-ccf-sender:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon)
 
 deploy-executor-lvl1:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,plasma)
 
 deploy-executor-lvl2:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,plasma)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals:
@@ -90,11 +90,9 @@ set-vp-as_ccf-senders:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts:
-	$(call deploy_fn,Deploy_ContractHelpers,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Deploy_ContractHelpers,plasma)
 
-##Generate Addresses Json
-write-json-addresses :; forge script scripts/WriteAddresses.s.sol:WriteDeployedAddresses -vvvv
-
+## Deployed permissioned payloads controller
 deploy-permissioned-executor:
 	$(call deploy_fn,Payloads/Deploy_PermissionedExecutor,ethereum)
 
@@ -236,10 +234,10 @@ deploy-gov-v2_5:
 	$(call deploy_fn,Governance/Deploy_Governance_V2_5,ethereum)
 
 update-pc-permissions:
-	$(call deploy_fn,helpers/UpdatePCPermissions,soneium)
+	$(call deploy_fn,helpers/UpdatePCPermissions,plasma)
 
 update-executor-owner:
-	$(call deploy_fn,helpers/UpdateExecutorOwner,mantle)
+	$(call deploy_fn,helpers/UpdateExecutorOwner,plasma)
 
 deploy-merkle-payload-updates:
 	$(call deploy_fn,GovernancePayloads/MerklePayloadUpdates,ethereum)
