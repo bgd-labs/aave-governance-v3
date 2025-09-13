@@ -62,6 +62,7 @@ mantle="${RPC_MANTLE}"
 mantle-testnet="${RPC_MANTLE_TESTNET}"
 ink="${RPC_INK}"
 soneium="${RPC_SONEIUM}"
+plasma="${RPC_PLASMA}"
 
 [etherscan]
 ethereum={key="${ETHERSCAN_API_KEY_MAINNET}", chain=1 }

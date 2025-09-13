@@ -61,3 +61,25 @@ contract Soneium is Script, UpdateExecutorPermissionsSoneium {
     vm.stopBroadcast();
   }
 }
+
+
+contract UpdateExecutorPermissionsPlasma is UpdateExecutorOwner {
+  function targetOwner() public pure override returns (address) {
+    return 0xe76EB348E65eF163d85ce282125FF5a7F5712A1d; // PC
+  }
+
+  function executor() public pure override returns (address) {
+    return 0x47aAdaAE1F05C978E6aBb7568d11B7F6e0FC4d6A; // Executor Lvl 1
+  }
+
+}
+
+contract Plasma is Script, UpdateExecutorPermissionsPlasma {
+  function run() external {
+    vm.startBroadcast();
+
+    _changeOwner();
+    
+    vm.stopBroadcast();
+  }
+}
