@@ -8,7 +8,7 @@ test :; forge test -vvvv
 BASE_LEDGER = --ledger --mnemonic-indexes $(MNEMONIC_INDEX) --sender $(LEDGER_SENDER)
 BASE_KEY = --private-key ${PRIVATE_KEY}
 
-custom_ethereum := --with-gas-price 25000000000 # 25 gwei
+custom_ethereum := --with-gas-price 5000000000 # 0.5 gwei
 custom_polygon :=  --with-gas-price 170000000000 # 170 gwei
 custom_polygon-testnet :=  --with-gas-price 20000000000 # 5 gwei
 custom_avalanche := --with-gas-price 27000000000 # 27 gwei
@@ -27,7 +27,7 @@ custom_zksync-testnet := --legacy --zksync
 define deploy_single_fn
 forge script \
  scripts/$(1).s.sol:$(if $(3),$(if $(PROD),$(3),$(3)_testnet),$(shell UP=$(if $(PROD),$(2),$(2)_testnet); echo $${UP} | perl -nE 'say ucfirst')) \
- --rpc-url $(if $(PROD),$(2),$(2)-testnet) --broadcast --verify -vvvv \
+ --rpc-url $(if $(PROD),$(2),$(2)-testnet) --broadcast --verify --legacy -vvvv \
  $(if $(LEDGER),$(BASE_LEDGER),$(BASE_KEY)) \
  $(custom_$(if $(PROD),$(2),$(2)-testnet))
 
@@ -40,7 +40,7 @@ endef
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------- DEPLOYMENT SCRIPTS ---------------------------------------------------------
 deploy-initial:
-	$(call deploy_fn,InitialDeployments,ethereum polygon avalanche arbitrum optimism metis base binance gnosis)
+	$(call deploy_fn,InitialDeployments,plasma)
 
 deploy-gov-power-strategy:
 	$(call deploy_fn,Governance/Deploy_Gov_PowerStrategy,ethereum)
@@ -67,14 +67,14 @@ set-vm-as-ccf-sender:
 	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon)
 
 deploy-executor-lvl1:
-	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,plasma)
 
 deploy-executor-lvl2:
 	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
 
 ## Deploy execution chain contracts
 deploy-payloads-controller-chain:
-	$(call deploy_fn,Payloads/Deploy_PayloadsController,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,plasma)
 
 ## Deploy Governance Voting Portal
 deploy-voting-portals:
@@ -90,15 +90,105 @@ set-vp-as_ccf-senders:
 
 ## Deploy Contract Helpers
 deploy-helper-contracts:
-	$(call deploy_fn,Deploy_ContractHelpers,ethereum avalanche polygon arbitrum optimism metis gnosis)
+	$(call deploy_fn,Deploy_ContractHelpers,plasma)
 
-# -----------------------------------------------------
-# ----------------- PERMISSIONED EXECUTION ------------
+## Deployed permissioned payloads controller
 deploy-permissioned-executor:
 	$(call deploy_fn,Payloads/Deploy_PermissionedExecutor,ethereum)
 
 deploy-permissioned-payloads-controller:
 	$(call deploy_fn,Payloads/Deploy_PermissionedPayloadsController,ethereum)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------- TESTNET Gov DEPLOYMENT SCRIPTS ---------------------------------------------------------
+
+
+deploy-initial-test:
+	$(call deploy_fn,InitialDeployments,plasma)
+
+# Deploy Governance contracts
+deploy-governance-test:
+	$(call deploy_fn,Governance/Deploy_Governance,ethereum)
+
+# Sets Governance as sender on CCF
+set-gov-as-cff-sender-test:
+	$(call deploy_fn,Governance/Set_Gov_as_CCF_Sender,ethereum)
+
+## Deploy voting machine contracts
+deploy-data-warehouse-test:
+	$(call deploy_fn,VotingMachine/Deploy_DataWarehouse,ethereum avalanche polygon binance)
+
+deploy-voting-strategy-test:
+	$(call deploy_fn,VotingMachine/Deploy_VotingStrategy,ethereum avalanche polygon binance)
+
+deploy-voting-machine-test:
+	$(call deploy_fn,VotingMachine/Deploy_VotingMachine,ethereum avalanche polygon binance)
+
+set-vm-as-ccf-sender-test:
+	$(call deploy_fn,VotingMachine/Set_VM_as_CCF_Sender,ethereum avalanche polygon binance)
+
+deploy-executor-lvl1-test:
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl1,soneium)
+
+deploy-executor-lvl2-test:
+	$(call deploy_fn,Payloads/Deploy_ExecutorLvl2,ethereum)
+
+## Deploy execution chain contracts
+deploy-payloads-controller-chain-test:
+	$(call deploy_fn,Payloads/Deploy_PayloadsController,soneium)
+
+## Deploy Governance Voting Portal
+deploy-voting-portals-test:
+	$(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Ethereum)
+	$(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Avalanche)
+	$(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Polygon)
+	$(call deploy_fn,Governance/Deploy_VotingPortals,ethereum,Ethereum_Binance)
+
+set-vp-on-gov-test:
+	$(call deploy_fn,Governance/Set_VotingPortals_on_Gov,ethereum)
+
+set-vp-as_ccf-senders-test:
+	$(call deploy_fn,Governance/Set_VP_as_CCF_Senders,ethereum)
+
+## Deploy Contract Helpers
+deploy-helper-contracts-test:
+	$(call deploy_fn,Deploy_ContractHelpers,soneium)
+
+deploy-full-key-test:
+		make deploy-initial-test
+		make deploy-governance-test
+		make set-gov-as-cff-sender-test
+		make deploy-data-warehouse-test
+		make deploy-voting-strategy-test
+		make deploy-voting-machine-test
+		make set-vm-as-ccf-sender-test
+		make deploy-executor-lvl1-test
+		make deploy-executor-lvl2-test
+		make deploy-payloads-controller-chain-test
+		make deploy-voting-portals-test
+		make set-vp-on-gov-test
+		make set-vp-as_ccf-senders-test
+		make deploy-helper-contracts-test
+		make write-json-addresses
+
+
+deploy-full-key:
+		make deploy-initial
+		make deploy-gov-power-strategy
+		make deploy-governance
+		make set-gov-as-cff-sender
+		make deploy-data-warehouse
+		make deploy-voting-strategy
+		make deploy-voting-machine
+		make set-vm-as-ccf-sender
+		make deploy-executor-lvl1
+		make deploy-executor-lvl2
+		make deploy-payloads-controller-chain
+		make deploy-voting-portals
+		make set-vp-on-gov
+		make set-vp-as_ccf-senders
+		make deploy-helper-contracts
+		make write-json-addresses
 
 
 # -----------------------------------------------------
@@ -128,10 +218,10 @@ create-proposal:
 	$(call deploy_fn,helpers/CreateProposal,ethereum)
 
 update-pc-permissions:
-	$(call deploy_fn,helpers/UpdatePCPermissions,soneium)
+	$(call deploy_fn,helpers/UpdatePCPermissions,plasma)
 
 update-executor-owner:
-	$(call deploy_fn,helpers/UpdateExecutorOwner,mantle)
+	$(call deploy_fn,helpers/UpdateExecutorOwner,plasma)
 
 deploy-merkle-payload-updates:
 	$(call deploy_fn,GovernancePayloads/MerklePayloadUpdates,ethereum)

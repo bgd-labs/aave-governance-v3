@@ -188,6 +188,12 @@ contract Soneium is BaseInitialDeployment {
   }
 }
 
+contract Plasma is BaseInitialDeployment {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.PLASMA;
+  }
+}
+
 contract Ethereum_testnet is BaseInitialDeployment {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;

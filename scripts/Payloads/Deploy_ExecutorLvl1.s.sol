@@ -130,6 +130,12 @@ contract Soneium is BaseDeployExecutorLvl1 {
   }
 }
 
+contract Plasma is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.PLASMA;
+  }
+}
+
 contract Ethereum_testnet is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return TestNetChainIds.ETHEREUM_SEPOLIA;
