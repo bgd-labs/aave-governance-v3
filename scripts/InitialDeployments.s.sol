@@ -22,17 +22,31 @@ abstract contract BaseInitialDeployment is GovBaseScript {
   }
 
   function CREATE3_FACTORY() public view virtual returns (address) {
-    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
-    return ccAddresses.create3Factory;
+    return address(0);
+  }
+
+  function PROXY_FACTORY() public view virtual returns (address) {
+    return address(0);
+  }
+
+  function CROSS_CHAIN_CONTROLLER() public view virtual returns (address) {
+    return address(0);
   }
 
   function _execute(
     GovDeployerHelpers.Addresses memory addresses
   ) internal override {
+    require(PROXY_FACTORY() != address(0), 'PROXY_FACTORY is not set');
+    require(
+      CROSS_CHAIN_CONTROLLER() != address(0),
+      'CROSS_CHAIN_CONTROLLER is not set'
+    );
     addresses.create3Factory = CREATE3_FACTORY();
     addresses.chainId = TRANSACTION_NETWORK();
     addresses.owner = OWNER();
     addresses.guardian = GUARDIAN();
+    addresses.proxyFactory = PROXY_FACTORY();
+    addresses.crossChainController = CROSS_CHAIN_CONTROLLER();
   }
 }
 
@@ -191,59 +205,5 @@ contract Soneium is BaseInitialDeployment {
 contract Plasma is BaseInitialDeployment {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.PLASMA;
-  }
-}
-
-contract Ethereum_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}
-
-contract Polygon_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-}
-
-contract Avalanche_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-}
-
-contract Arbitrum_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_SEPOLIA;
-  }
-}
-
-contract Optimism_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_SEPOLIA;
-  }
-}
-
-contract Metis_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.METIS_TESTNET;
-  }
-}
-
-contract Binance_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
-  }
-}
-
-contract Base_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BASE_SEPOLIA;
-  }
-}
-
-contract Zksync_testnet is BaseInitialDeployment {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZKSYNC_SEPOLIA;
   }
 }

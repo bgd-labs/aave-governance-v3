@@ -76,13 +76,12 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
     GovDeployerHelpers.Addresses memory govAddresses = _getAddresses(
       GOVERNANCE_NETWORK()
     );
-    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
 
     // deploy payloadsController
     if (isTest()) {
       addresses.payloadsControllerImpl = address(
         new PayloadsControllerExtended(
-          ccAddresses.crossChainController,
+          addresses.crossChainController,
           govAddresses.governance,
           govAddresses.chainId
         )
@@ -90,7 +89,7 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
     } else {
       addresses.payloadsControllerImpl = address(
         new PayloadsController(
-          ccAddresses.crossChainController,
+          addresses.crossChainController,
           govAddresses.governance,
           govAddresses.chainId
         )
@@ -101,7 +100,7 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
       memory executors = getExecutors();
 
     addresses.payloadsController = TransparentProxyFactory(
-      ccAddresses.proxyFactory
+      addresses.proxyFactory
     ).createDeterministic(
         addresses.payloadsControllerImpl,
         addresses.executorLvl1, // owner of proxy that will be deployed
@@ -122,7 +121,7 @@ abstract contract BaseDeployPayloadsController is GovBaseScript {
     //    }
 
     addresses.proxyAdminPayloadsController = TransparentProxyFactory(
-      ccAddresses.proxyFactory
+      addresses.proxyFactory
     ).getProxyAdmin(addresses.payloadsController);
   }
 }
@@ -327,216 +326,5 @@ contract Plasma is BaseDeployPayloadsController {
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
-  }
-}
-
-contract Ethereum_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-
-  function getExecutors()
-    public
-    view
-    override
-    returns (IPayloadsControllerCore.UpdateExecutorInput[] memory)
-  {
-    IPayloadsControllerCore.UpdateExecutorInput[]
-      memory executors = new IPayloadsControllerCore.UpdateExecutorInput[](2);
-    executors[0] = getExecutorLvl1();
-    executors[1] = getExecutorLvl2();
-    return executors;
-  }
-}
-
-contract Avalanche_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-}
-
-contract Polygon_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-}
-
-contract Optimism_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_SEPOLIA;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-}
-
-contract Arbitrum_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_SEPOLIA;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-}
-
-contract Metis_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.METIS_TESTNET;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-}
-
-contract Binance_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-}
-
-contract Base_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BASE_SEPOLIA;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-}
-
-contract Zksync_testnet is BaseDeployPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZKSYNC_SEPOLIA;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function LVL1_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function LVL2_DELAY() public pure override returns (uint40) {
-    return uint40(1 days);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
   }
 }

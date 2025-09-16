@@ -27,9 +27,3 @@ contract Ethereum is BaseRemoveVPAsCCFSender {
     return ChainIds.ETHEREUM;
   }
 }
-
-contract Ethereum_testnet is BaseRemoveVPAsCCFSender {
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}

@@ -22,9 +22,6 @@ abstract contract BaseDeployPermissionedPayloadsController is GovBaseScript {
   function _execute(
     GovDeployerHelpers.Addresses memory addresses
   ) internal override {
-    CCCAddresses memory ccAddresses = _getCCAddresses(
-      TRANSACTION_NETWORK()
-    );
 
     addresses.permissionedPayloadsControllerImpl = address(
       new PermissionedPayloadsController()
@@ -41,7 +38,7 @@ abstract contract BaseDeployPermissionedPayloadsController is GovBaseScript {
     });
 
     addresses.permissionedPayloadsController = TransparentProxyFactory(
-      ccAddresses.proxyFactory
+      addresses.proxyFactory
     ).createDeterministic(
         addresses.permissionedPayloadsControllerImpl,
         addresses.executorLvl1, // owner of proxy that will be deployed
@@ -137,59 +134,5 @@ contract Scroll is BaseDeployPermissionedPayloadsController {
 contract Zksync is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ZKSYNC;
-  }
-}
-
-contract Ethereum_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}
-
-contract Avalanche_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-}
-
-contract Polygon_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-}
-
-contract Base_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BASE_SEPOLIA;
-  }
-}
-
-contract Optimism_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_SEPOLIA;
-  }
-}
-
-contract Arbitrum_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_SEPOLIA;
-  }
-}
-
-contract Metis_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.METIS_TESTNET;
-  }
-}
-
-contract Binance_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
-  }
-}
-
-contract Zksync_testnet is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZKSYNC_SEPOLIA;
   }
 }

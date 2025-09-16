@@ -25,9 +25,3 @@ contract Ethereum is BaseSetGovAsCCFSender {
     return ChainIds.ETHEREUM;
   }
 }
-
-contract Ethereum_testnet is BaseSetGovAsCCFSender {
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}
