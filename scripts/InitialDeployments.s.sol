@@ -18,6 +18,7 @@ import {GovernanceV3Mantle} from 'aave-address-book/GovernanceV3Mantle.sol';
 import {GovernanceV3Ink} from 'aave-address-book/GovernanceV3Ink.sol';
 import {GovernanceV3Soneium} from 'aave-address-book/GovernanceV3Soneium.sol';
 import {GovernanceV3Plasma} from 'aave-address-book/GovernanceV3Plasma.sol';
+import {GovernanceV3Celo} from 'aave-address-book/GovernanceV3Celo.sol';
 import {MiscEthereum} from 'aave-address-book/MiscEthereum.sol';
 import {MiscPolygon} from 'aave-address-book/MiscPolygon.sol';
 import {MiscAvalanche} from 'aave-address-book/MiscAvalanche.sol';
@@ -35,6 +36,7 @@ import {MiscMantle} from 'aave-address-book/MiscMantle.sol';
 import {MiscInk} from 'aave-address-book/MiscInk.sol';
 import {MiscSoneium} from 'aave-address-book/MiscSoneium.sol';
 import {MiscPlasma} from 'aave-address-book/MiscPlasma.sol';
+import {MiscCelo} from 'aave-address-book/MiscCelo.sol';
 
 import './GovBaseScript.sol';
 
