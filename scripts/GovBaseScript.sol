@@ -4,9 +4,8 @@ pragma solidity ^0.8.0;
 import 'forge-std/Script.sol';
 import 'forge-std/Vm.sol';
 import 'forge-std/StdJson.sol';
-import {ChainIds, TestNetChainIds} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
+import {ChainIds, TestNetChainIds, ChainHelpers} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 import {Create3Factory, Create3, ICreate3Factory} from 'solidity-utils/contracts/create3/Create3Factory.sol';
-import {ChainHelpers} from 'solidity-utils/contracts/utils/ChainHelpers.sol';
 
 struct Network {
   string path;
@@ -63,7 +62,7 @@ library GovDeployerHelpers {
     uint256 chainId
   ) internal pure returns (string memory) {
     string memory path = string.concat(
-      './deployments/', // @dev important to maintain this folder structure as governance uses this path to get the adi addresses
+      './deployments/',
       ChainHelpers.getNetworkNameFromId(chainId)
     );
     return string.concat(path, '.json');
