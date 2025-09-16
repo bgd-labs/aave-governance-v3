@@ -21,7 +21,7 @@ abstract contract BaseSetGovAsCCFSender is BaseSetCCFApprovedSenders {
 }
 
 contract Ethereum is BaseSetGovAsCCFSender {
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
   }
 }

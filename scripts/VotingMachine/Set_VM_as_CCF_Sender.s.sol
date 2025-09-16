@@ -20,7 +20,7 @@ contract Ethereum is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
   }
 }
@@ -40,7 +40,7 @@ contract Avalanche is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.AVALANCHE;
   }
 }
@@ -60,7 +60,7 @@ contract Polygon is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.POLYGON;
   }
 }
@@ -80,7 +80,7 @@ contract Binance is BaseSetCCFApprovedSenders {
     return sendersToApprove;
   }
 
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.BNB;
   }
 }

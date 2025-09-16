@@ -23,7 +23,7 @@ abstract contract BaseRemoveVPAsCCFSender is BaseRemoveCCFApprovedSenders {
 }
 
 contract Ethereum is BaseRemoveVPAsCCFSender {
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
   }
 }
