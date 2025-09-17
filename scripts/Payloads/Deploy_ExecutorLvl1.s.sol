@@ -129,3 +129,9 @@ contract Plasma is BaseDeployExecutorLvl1 {
     return ChainIds.PLASMA;
   }
 }
+
+contract Bob is BaseDeployExecutorLvl1 {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.BOB;
+  }
+}

@@ -311,11 +311,10 @@ library Constants {
     keccak256(bytes('Aave Meta Delegate data helper'));
 }
 
-abstract contract GovBaseScript is Script {
-  function TRANSACTION_NETWORK() public view virtual returns (uint256);
-
-  function getAddresses(
-    uint256 networkId
+contract _AddrReader {
+  function get(
+    uint256 networkId,
+    Vm vm
   ) external view returns (GovDeployerHelpers.Addresses memory) {
     return
       GovDeployerHelpers.decodeJson(
@@ -323,18 +322,15 @@ abstract contract GovBaseScript is Script {
         vm
       );
   }
+}
+
+abstract contract GovBaseScript is Script {
+  function TRANSACTION_NETWORK() public view virtual returns (uint256);
 
   function _getAddresses(
     uint256 networkId
   ) internal view returns (GovDeployerHelpers.Addresses memory) {
-    try this.getAddresses(networkId) returns (
-      GovDeployerHelpers.Addresses memory addresses
-    ) {
-      return addresses;
-    } catch (bytes memory) {
-      GovDeployerHelpers.Addresses memory empty;
-      return empty;
-    }
+    return GovDeployerHelpers.getAddresses(networkId, vm);
   }
 
   function _setAddresses(
@@ -353,12 +349,20 @@ abstract contract GovBaseScript is Script {
   ) internal virtual;
 
   function run() public {
+    // helper exists only in the dry-run VM context (pre-broadcast)
+    _AddrReader reader = new _AddrReader();
+
+    GovDeployerHelpers.Addresses memory addresses;
+    try reader.get(TRANSACTION_NETWORK(), vm) returns (
+      GovDeployerHelpers.Addresses memory a
+    ) {
+      addresses = a;
+    } catch {
+      // default zeroed struct
+    }
+
     vm.startBroadcast();
-    // ----------------- Persist addresses -----------------------------------------------------------------------------
-    GovDeployerHelpers.Addresses memory addresses = _getAddresses(
-      TRANSACTION_NETWORK()
-    );
-    // -----------------------------------------------------------------------------------------------------------------
+
     _execute(addresses);
     // ----------------- Persist addresses -----------------------------------------------------------------------------
     _setAddresses(TRANSACTION_NETWORK(), addresses);
