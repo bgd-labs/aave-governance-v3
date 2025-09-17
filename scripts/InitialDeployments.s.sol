@@ -350,3 +350,21 @@ contract Plasma is BaseInitialDeployment {
     return MiscPlasma.TRANSPARENT_PROXY_FACTORY;
   }
 }
+
+contract Bob is BaseInitialDeployment {
+  function GUARDIAN() public pure override returns (address) {
+    return 0x19CE4363FEA478Aa04B9EA2937cc5A2cbcD44be6;
+  }
+
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.BOB;
+  }
+
+  function PROXY_FACTORY() public pure override returns (address) {
+    return 0xEB0682d148e874553008730f0686ea89db7DA412;
+  }
+
+  function CROSS_CHAIN_CONTROLLER() public pure override returns (address) {
+    return 0xf630C8A7bC033FD20fcc45d8B43bFe92dE73154F;
+  }
+}

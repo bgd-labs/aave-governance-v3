@@ -142,3 +142,9 @@ contract Plasma is BaseContractHelpers {
     return ChainIds.PLASMA;
   }
 }
+
+contract Bob is BaseContractHelpers {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.BOB;
+  }
+}

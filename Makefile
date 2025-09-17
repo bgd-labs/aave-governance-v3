@@ -40,7 +40,7 @@ endef
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------- DEPLOYMENT SCRIPTS ---------------------------------------------------------
 deploy-initial:
-	$(call deploy_fn,InitialDeployments,plasma)
+	$(call deploy_fn,InitialDeployments,bob)
 
 deploy-gov-power-strategy:
 	$(call deploy_fn,Governance/Deploy_Gov_PowerStrategy,ethereum)

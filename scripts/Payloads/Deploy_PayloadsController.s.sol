@@ -328,3 +328,13 @@ contract Plasma is BaseDeployPayloadsController {
     return ChainIds.ETHEREUM;
   }
 }
+
+contract Bob is BaseDeployPayloadsController {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
+    return ChainIds.BOB;
+  }
+
+  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
+    return ChainIds.ETHEREUM;
+  }
+}
