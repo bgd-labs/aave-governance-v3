@@ -119,12 +119,6 @@ contract Gnosis is BaseDeployPermissionedPayloadsController {
   }
 }
 
-contract Zkevm is BaseDeployPermissionedPayloadsController {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.POLYGON_ZK_EVM;
-  }
-}
-
 contract Scroll is BaseDeployPermissionedPayloadsController {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.SCROLL;

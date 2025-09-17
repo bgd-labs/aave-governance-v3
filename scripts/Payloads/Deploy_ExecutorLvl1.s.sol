@@ -88,12 +88,6 @@ contract Gnosis is BaseDeployExecutorLvl1 {
   }
 }
 
-contract Zkevm is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.POLYGON_ZK_EVM;
-  }
-}
-
 contract Zksync is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ZKSYNC;

@@ -66,12 +66,6 @@ contract Gnosis is BaseDeployPermissionedExecutor {
   }
 }
 
-contract Zkevm is BaseDeployPermissionedExecutor {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.POLYGON_ZK_EVM;
-  }
-}
-
 contract Zksync is BaseDeployPermissionedExecutor {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ZKSYNC;
