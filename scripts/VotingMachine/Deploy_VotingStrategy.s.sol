@@ -53,27 +53,3 @@ contract Binance is BaseDeployVotingStrategy {
     return ChainIds.BNB;
   }
 }
-
-contract Ethereum_testnet is BaseDeployVotingStrategy {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}
-
-contract Avalanche_testnet is BaseDeployVotingStrategy {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-}
-
-contract Polygon_testnet is BaseDeployVotingStrategy {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-}
-
-contract Binance_testnet is BaseDeployVotingStrategy {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
-  }
-}

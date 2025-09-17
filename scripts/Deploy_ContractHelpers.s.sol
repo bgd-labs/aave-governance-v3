@@ -84,12 +84,6 @@ contract Gnosis is BaseContractHelpers {
   }
 }
 
-contract Zkevm is BaseContractHelpers {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.POLYGON_ZK_EVM;
-  }
-}
-
 contract Scroll is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.SCROLL;
@@ -143,50 +137,8 @@ contract Plasma is BaseContractHelpers {
   }
 }
 
-contract Ethereum_testnet is BaseContractHelpers {
+contract Bob is BaseContractHelpers {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}
-
-contract Polygon_testnet is BaseContractHelpers {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-}
-
-contract Avalanche_testnet is BaseContractHelpers {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-}
-
-contract Arbitrum_testnet is BaseContractHelpers {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_SEPOLIA;
-  }
-}
-
-contract Optimism_testnet is BaseContractHelpers {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_SEPOLIA;
-  }
-}
-
-contract Metis_testnet is BaseContractHelpers {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.METIS_TESTNET;
-  }
-}
-
-contract Binance_testnet is BaseContractHelpers {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
-  }
-}
-
-contract Zksync_testnet is BaseContractHelpers {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZKSYNC_SEPOLIA;
+    return ChainIds.BOB;
   }
 }
