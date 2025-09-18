@@ -42,25 +42,23 @@ abstract contract BaseDeployGovernance is GovBaseScript {
     IGovernanceCore.SetVotingConfigInput[]
       memory votingConfigs = getVotingConfigurations();
 
-    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
-
     // deploy governance.
     IGovernance governanceImpl;
     if (isTest()) {
       governanceImpl = new GovernanceExtended(
-        ccAddresses.crossChainController,
+        addresses.crossChainController,
         getCoolDownPeriod(),
         getCancellationFeeCollector()
       );
     } else {
       governanceImpl = new Governance(
-        ccAddresses.crossChainController,
+        addresses.crossChainController,
         getCoolDownPeriod(),
         getCancellationFeeCollector()
       );
     }
 
-    addresses.governance = TransparentProxyFactory(ccAddresses.proxyFactory)
+    addresses.governance = TransparentProxyFactory(addresses.proxyFactory)
       .createDeterministic(
         address(governanceImpl),
         addresses.executorLvl1, // owner of proxy admin that will be deployed
@@ -77,7 +75,7 @@ abstract contract BaseDeployGovernance is GovBaseScript {
         Constants.GOVERNANCE_SALT
       );
 
-    addresses.proxyAdminGovernance = TransparentProxyFactory(ccAddresses.proxyFactory).getProxyAdmin(addresses.governance);
+    addresses.proxyAdminGovernance = TransparentProxyFactory(addresses.proxyFactory).getProxyAdmin(addresses.governance);
     addresses.governanceImpl = address(governanceImpl);
   }
 }
@@ -124,59 +122,6 @@ contract Ethereum is BaseDeployGovernance {
         yesThreshold: 1_400_000 ether,
         yesNoDifferential: 1_400_000 ether,
         minPropositionPower: 80_000 ether
-      });
-    votingConfigs[1] = level2Config;
-
-    return votingConfigs;
-  }
-}
-
-contract Ethereum_testnet is BaseDeployGovernance {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function getCancellationFeeCollector()
-    public
-    pure
-    override
-    returns (address)
-  {
-    return address(AaveV3Sepolia.COLLECTOR);
-  }
-
-  function isTest() public pure override returns (bool) {
-    return true;
-  }
-
-  function getVotingConfigurations()
-    public
-    pure
-    override
-    returns (IGovernanceCore.SetVotingConfigInput[] memory)
-  {
-    IGovernanceCore.SetVotingConfigInput[]
-      memory votingConfigs = new IGovernanceCore.SetVotingConfigInput[](2);
-
-    IGovernanceCore.SetVotingConfigInput memory level1Config = IGovernanceCore
-      .SetVotingConfigInput({
-        accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
-        coolDownBeforeVotingStart: 600,
-        votingDuration: 600,
-        yesThreshold: 200,
-        yesNoDifferential: 50,
-        minPropositionPower: 5 ether
-      });
-    votingConfigs[0] = level1Config;
-
-    IGovernanceCore.SetVotingConfigInput memory level2Config = IGovernanceCore
-      .SetVotingConfigInput({
-        accessLevel: PayloadsControllerUtils.AccessControl.Level_2,
-        coolDownBeforeVotingStart: 800,
-        votingDuration: 800,
-        yesThreshold: 2000 ether,
-        yesNoDifferential: 1000 ether,
-        minPropositionPower: 2000 ether
       });
     votingConfigs[1] = level2Config;
 

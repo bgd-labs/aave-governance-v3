@@ -26,9 +26,3 @@ contract Ethereum is BaseDeployGovPowerStrategy {
     return ChainIds.ETHEREUM;
   }
 }
-
-contract Ethereum_testnet is BaseDeployGovPowerStrategy {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}

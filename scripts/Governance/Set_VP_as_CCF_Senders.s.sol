@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import {BaseSetCCFApprovedSenders} from 'adi-deploy/scripts/ccc/Set_CCF_Approved_Senders.s.sol';
+import {BaseSetCCFApprovedSenders} from '../baseCCC/Set_CCF_Approved_Senders.s.sol';
 import '../GovBaseScript.sol';
 
 abstract contract BaseSetVPAsCCFSender is BaseSetCCFApprovedSenders {
@@ -24,13 +24,7 @@ abstract contract BaseSetVPAsCCFSender is BaseSetCCFApprovedSenders {
 }
 
 contract Ethereum is BaseSetVPAsCCFSender {
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
+  function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
-  }
-}
-
-contract Ethereum_testnet is BaseSetVPAsCCFSender {
-  function TRANSACTION_NETWORK() internal pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
   }
 }

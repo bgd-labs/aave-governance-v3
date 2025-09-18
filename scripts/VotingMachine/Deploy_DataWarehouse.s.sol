@@ -35,27 +35,3 @@ contract Binance is BaseDeployDataWarehouse {
     return ChainIds.BNB;
   }
 }
-
-contract Ethereum_testnet is BaseDeployDataWarehouse {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}
-
-contract Avalanche_testnet is BaseDeployDataWarehouse {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-}
-
-contract Polygon_testnet is BaseDeployDataWarehouse {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-}
-
-contract Binance_testnet is BaseDeployDataWarehouse {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
-  }
-}

@@ -28,12 +28,11 @@ abstract contract BaseDeployVotingMachine is GovBaseScript {
     GovDeployerHelpers.Addresses memory govAddresses = _getAddresses(
       GOVERNANCE_NETWORK()
     );
-    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
 
     // deploy voting machine
     addresses.votingMachine = address(
       new VotingMachine(
-        ccAddresses.crossChainController,
+        addresses.crossChainController,
         getSendVoteResultsGasLimit(),
         govAddresses.chainId,
         IVotingStrategy(addresses.votingStrategy),
@@ -93,62 +92,6 @@ contract Binance is BaseDeployVotingMachine {
 
   function GOVERNANCE_NETWORK() public pure override returns (uint256) {
     return ChainIds.ETHEREUM;
-  }
-
-  function VOTING_PORTAL_SALT() public pure override returns (bytes32) {
-    return Constants.VOTING_PORTAL_ETH_BNB_SALT;
-  }
-}
-
-contract Ethereum_testnet is BaseDeployVotingMachine {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function VOTING_PORTAL_SALT() public pure override returns (bytes32) {
-    return Constants.VOTING_PORTAL_ETH_ETH_SALT;
-  }
-}
-
-contract Avalanche_testnet is BaseDeployVotingMachine {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function VOTING_PORTAL_SALT() public pure override returns (bytes32) {
-    return Constants.VOTING_PORTAL_ETH_AVAX_SALT;
-  }
-}
-
-contract Polygon_testnet is BaseDeployVotingMachine {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function VOTING_PORTAL_SALT() public pure override returns (bytes32) {
-    return Constants.VOTING_PORTAL_ETH_POL_SALT;
-  }
-}
-
-contract Binance_testnet is BaseDeployVotingMachine {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
-  }
-
-  function GOVERNANCE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
   }
 
   function VOTING_PORTAL_SALT() public pure override returns (bytes32) {

@@ -23,28 +23,3 @@ abstract contract BaseCreateProposal is GovBaseScript {
     console.log('proposalId', proposalId);
   }
 }
-
-contract Ethereum_testnet is BaseCreateProposal {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function getPayloads()
-    public
-    view
-    override
-    returns (PayloadsControllerUtils.Payload[] memory)
-  {
-    PayloadsControllerUtils.Payload[]
-      memory payloads = new PayloadsControllerUtils.Payload[](1);
-    payloads[0] = PayloadsControllerUtils.Payload({
-      chain: TestNetChainIds.POLYGON_AMOY,
-      accessLevel: PayloadsControllerUtils.AccessControl.Level_1,
-      payloadsController: _getAddresses(TestNetChainIds.POLYGON_AMOY)
-        .payloadsController,
-      payloadId: 7
-    });
-
-    return payloads;
-  }
-}

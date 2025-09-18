@@ -83,3 +83,13 @@ contract Plasma is Script, UpdateExecutorPermissionsPlasma {
     vm.stopBroadcast();
   }
 }
+
+contract UpdateExecutorPermissionsBob is UpdateExecutorOwner {
+  function targetOwner() public pure override returns (address) {
+    return 0x17fa87007bfF1dC7e6b3a36ED936E6355e37237C; // PC
+  }
+
+  function executor() public pure override returns (address) {
+    return 0x90800d1F54384523723eD3962c7Cd59d7866c83d; // Executor Lvl 1
+  }
+}
