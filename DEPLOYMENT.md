@@ -1,6 +1,6 @@
 # Deployment of the Aave Governance V3 Contracts
 
-On this document we will specify the different steps needed to deploy the different parts of the Aave Governance system, consisting on:
+This document covers deployment steps for the Aave Governance system components:
 
 - [Governance](./DEPLOYMENT.md#governance-network)
 - [Voting](./DEPLOYMENT.md#voting-network)
@@ -8,39 +8,43 @@ On this document we will specify the different steps needed to deploy the differ
 
 ## Setup
 
-There are a few things to take into account that will need to be updated / modified for deployments on different networks.
+Configure these files before deployment:
 
-- *.env*: copy [.env.example](./.env.example) into `.env` file, and fill it. the private key is only need if you want to deploy with it. If not you only need to fill `MNEMONIC_INDEX` and `LEDGER_SENDER` (specified later on how to choose between the two ways of deployment)
-- *[foundry.toml](./foundry.toml)*: when adding a new network, you should also add the respective definitions (rpc_endpoints and etherscan). Under the etherscan section you should only add the network configuration if its not supported by etherscan. If there is a network that needs special configuration, add it there also, under the network profile.
-- *scripts*: These can be found in the folder [scripts](./scripts/). Here you will find the deployment scripts needed for the different parts of the system.
-If you are adding a new network, you will first need to double check that the nework is added in [Solidity Utils](https://github.com/bgd-labs/solidity-utils/blob/main/src/contracts/utils/ChainHelpers.sol) repository, and then add a new network script in [InitialDeployment.s.sol](./scripts/InitialDeployments.s.sol). When using the scripts for the deployments, they will get the necessary addresses from the generated json files under [deployments](./deployments/) folder, so it is necessary to follow the strict deployment order, that will be specified later. After deployment, the scripts save the new deployed addresses in the mentioned json files.
-- *deployments*: The [deployments](./deployments/) folder contains the deployed addresses for every network. Its important to take into account that the json files will be modified with the script execution or simulation, so if there is a simulation but execution fails, the addresses will be modified. Also take into account that there is a dependency on [aDI](https://github.com/aave-dao/adi-deploy/tree/main/deployments) addresses, taken from [address book](https://github.com/bgd-labs/aave-address-book) or added in [InitialDeployment](./scripts/InitialDeployments.s.sol) script.
-- *Makefile*: This can be found [here](./Makefile). It has the commands to be able to deploy each smart contract for the selected network. If you need to deploy any of the smart contracts to a new network, (after you have added the necessary network scripts), you just need to change the network name in the necessary command and execute it.
-You can deploy using a private key or a ledger by adding `LEDGER=true` to the execution command. If you want to deploy into a mainnet network, you would need to add: `PROD=true`. You can also set the specific gwei amount to pay for the transaction.
+- *.env*: copy [.env.example](./.env.example) into `.env` file, and populate it. Use `MNEMONIC_INDEX` and `LEDGER_SENDER` for manual wallet confirmation, or include the private key if you want an automated deployment (instructions for choosing between deployment methods are provided later).
+  
+- *[foundry.toml](./foundry.toml)*: when adding a new network, include the respective definitions (`rpc_endpoints` and `etherscan`). Add network configuration to the `etherscan` section only if the network isn't supported by Etherscan. For networks requiring special configuration, add them under the network profile section.
+  
+- *scripts*: the deployment scripts for the different parts of the system are located in the [scripts](./scripts/) file. 
+If you are adding a new network, first verify that the network exists in the [Solidity Utils](https://github.com/bgd-labs/solidity-utils/blob/main/src/contracts/utils/ChainHelpers.sol) repository, then add a new network script to [InitialDeployment.s.sol](./scripts/InitialDeployments.s.sol). The deployment scripts retrieve necessary addresses from generated JSON files in the [deployments](./deployments/) folder, so you must follow the strict deployment order, that will be specified later. After deployment, the scripts save the newly deployed addresses to the JSON files.
 
-You can see here an example of executing the first command that you need that will generate the specified network addresses json:
+- *deployments*: The [deployments](./deployments/) folder contains the deployed addresses for every network. Note that the JSON files are modified during execution or simulation. If simulation runs but execution fails, the addresses will still be modified.
+  Note that here is a dependency on [aDI](https://github.com/aave-dao/adi-deploy/tree/main/deployments) addresses, taken from [address book](https://github.com/bgd-labs/aave-address-book) or added to [InitialDeployment](./scripts/InitialDeployments.s.sol) script.
+  
+- *Makefile*: The [here](./Makefile) contains commands for deploying each smart contract to a selected network. To deploy smart contracts to a new network, first add the necessary network scripts, then change the network name in the relevant command and execute it. You can deploy using a private key or using a ledger (by adding  `LEDGER=true` to the execution command). If you deploy into a mainnet network, add: `PROD=true`. Set the gwei amount for transactions if needed.
+
+Here's an example of the initial command that generates network address JSON files:
 
 ```
 deploy-initial:
 	$(call deploy_fn,InitialDeployments,ethereum polygon avalanche arbitrum optimism metis base binance gnosis)
 ```
-In this case you would need to only have the network that you want to deploy on. If you leave multiple networks in the command, it will deploy on all of them sequentially.
+Include only your target network(s) in this command. Multiple networks will deploy sequentially.
 
-Execution command would look like this: `make deploy-initial PROD=true LEDGER=true`
+Execution command example: `make deploy-initial PROD=true LEDGER=true`
 
 ### Notes
 
-- It is very important to follow the order specified for the deployments. As there are some contracts that need addresses of previously deployed contracts (even on other networks) for correct communication.
+- Some contracts require addresses from previously deployed contracts (including those on other networks) for proper communication. Therefore, follow the specified deployment order strictly.
 
 ## Initial Scripts
 
-As previously said, you should add the new network script to `InitialDeployments` and execute the initial script only for new network (as doing for existing ones would rewrite the addresses json of the specified network with address(0)). This will create a new addresses json for the new network.
+As previously said, add the new network script to `InitialDeployments` and execute the initial script only for a new network (since doing it for existing ones would overwrite the addresses JSON of the specified network with address(0)). The initial script creates a new addresses JSON for the new network.
 
 - execution command: `make deploy-initial PROD=true LEDGER=true` 
 
 ## Governance Network
 
-The governance network is the central hub where Aave Governance is managed (more [here](./docs/overview.md#core-network)). The contracts needed for it to work are:
+The governance network is the central hub where Aave Governance is managed (more [here](./docs/overview.md#core-network)). Required contracts:
 - [Governance](./src/contracts/Governance.sol)
 - [GovernancePowerStrategy](./src/contracts/GovernancePowerStrategy.sol)
 - [VotingPortal](./src/contracts/VotingPortal.sol)
