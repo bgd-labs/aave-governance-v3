@@ -6,7 +6,25 @@ This document covers deployment steps for the Aave Governance system components:
 - [Voting](./DEPLOYMENT.md#voting-network)
 - [Execution](./DEPLOYMENT.md#execution-network)
 
-## Setup
+# Deployment order
+
+## Prerequisites
+
+1. [Setup Environment](./DEPLOYMENT.md#setup) - Configure `.env`, `foundry.toml`, and scripts
+2. [Initial Scripts](./DEPLOYMENT.md#initial-scripts) - Generate network address JSON files
+
+## Core Deployment
+
+3. [Governance Network](./DEPLOYMENT.md#governance-network) - Deploy on Ethereum (central hub)
+4. [Voting Network](./DEPLOYMENT.md#voting-network) - Deploy on voting chains (requires Governance + aDI)
+5. [Execution Network](./DEPLOYMENT.md#execution-network) - Deploy on execution chains (requires Governance + aDI)
+
+## Optional
+
+6. [Permissioned Execution](./DEPLOYMENT.md#permissioned-execution) - Alternative execution with specified address control
+7. [Helpers](./DEPLOYMENT.md#helpers) - UI query helper contracts
+
+# Setup
 
 Configure these files before deployment:
 
@@ -14,13 +32,13 @@ Configure these files before deployment:
   
 - *[foundry.toml](./foundry.toml)*: when adding a new network, include the respective definitions (`rpc_endpoints` and `etherscan`). Add network configuration to the `etherscan` section only if the network isn't supported by Etherscan. For networks requiring special configuration, add them under the network profile section.
   
-- *scripts*: the deployment scripts for the different parts of the system are located in the [scripts](./scripts/) file. 
+- *scripts*: the deployment scripts for the different parts of the system are located in the [scripts](./scripts/) folder. 
 If you are adding a new network, first verify that the network exists in the [Solidity Utils](https://github.com/bgd-labs/solidity-utils/blob/main/src/contracts/utils/ChainHelpers.sol) repository, then add a new network script to [InitialDeployment.s.sol](./scripts/InitialDeployments.s.sol). The deployment scripts retrieve necessary addresses from generated JSON files in the [deployments](./deployments/) folder, so you must follow the strict deployment order, that will be specified later. After deployment, the scripts save the newly deployed addresses to the JSON files.
 
 - *deployments*: The [deployments](./deployments/) folder contains the deployed addresses for every network. Note that the JSON files are modified during execution or simulation. If simulation runs but execution fails, the addresses will still be modified.
   Note that here is a dependency on [aDI](https://github.com/aave-dao/adi-deploy/tree/main/deployments) addresses, taken from [address book](https://github.com/bgd-labs/aave-address-book) or added to [InitialDeployment](./scripts/InitialDeployments.s.sol) script.
   
-- *Makefile*: The [here](./Makefile) contains commands for deploying each smart contract to a selected network. To deploy smart contracts to a new network, first add the necessary network scripts, then change the network name in the relevant command and execute it. You can deploy using a private key or using a ledger (by adding  `LEDGER=true` to the execution command). If you deploy into a mainnet network, add: `PROD=true`. Set the gwei amount for transactions if needed.
+- *Makefile*: The [Makefile](./Makefile) contains commands for deploying each smart contract to a selected network. To deploy smart contracts to a new network, first add the necessary network scripts, then change the network name in the relevant command and execute it. You can deploy using a private key or using a ledger (by adding  `LEDGER=true` to the execution command). If you deploy into a mainnet network, add: `PROD=true`. Set the gwei amount for transactions if needed.
 
 Here's an example of the initial command that generates network address JSON files:
 
@@ -32,17 +50,17 @@ Include only your target network(s) in this command. Multiple networks will depl
 
 Execution command example: `make deploy-initial PROD=true LEDGER=true`
 
-### Notes
+## Notes
 
 - Some contracts require addresses from previously deployed contracts (including those on other networks) for proper communication. Therefore, follow the specified deployment order strictly.
 
-## Initial Scripts
+# Initial Scripts
 
 As previously said, add the new network script to `InitialDeployments` and execute the initial script only for a new network (since doing it for existing ones would overwrite the addresses JSON of the specified network with address(0)). The initial script creates a new addresses JSON for the new network.
 
 - execution command: `make deploy-initial PROD=true LEDGER=true` 
 
-## Governance Network
+# Governance Network
 
 The governance network is the central hub where Aave Governance is managed (see details [here](./docs/overview.md#core-network)). 
 Required contracts:
@@ -52,7 +70,7 @@ Required contracts:
 
 Other networks use the Governance contract address for voting and execution to validate that received messages come from the correct Governance source.
 
-### Scripts
+## Scripts
 
 **Prerequisites**: Governance deployment requires prior aDI deployment.
 
@@ -75,9 +93,9 @@ To set the governance to cross-chain system:
 - [Set_Gov_as_CCF_Sender.s.sol](./scripts/governance/Set_Gov_as_CCF_Sender.s.sol): Sets Governance as a valid sender to aDI (only if msg.sender is owner of aDI). Required because Governance directly sends messages for payload execution.
 - [Set_VP_as_CCF_Senders.s.sol](./scripts/Governance/Set_VP_as_CCF_Senders.s.sol): Sets VotingPortals as valid senders to aDI (only if msg.sender is owner of aDI). Required because VotingPortals send messages for voting start.
 
-### Makefile
+## Makefile
 
-Remember to specify the networks needed on the Makefile.
+Specify the required networks in the Makefile:
 
 - `make deploy-gov-power-strategy PROD=true LEDGER=true`: deploys the governance power strategy 
 - `make deploy-governance PROD=true LEDGER=true`: deploys governance
@@ -87,100 +105,102 @@ Remember to specify the networks needed on the Makefile.
 - `make set-vp-as_ccf-senders PROD=true LEDGER=true`: sets the voting portals as senders in aDI
 
 
-## Voting Network
+# Voting Network
 
-The voting network consist of the contracts to enable voting on proposals (more details [here](./docs/overview.md#aave-voting-networks)). The required contracts are:
+The voting network consists of the contracts to enable voting on proposals (more details [here](./docs/overview.md#aave-voting-networks)). The required contracts are:
 
 - [DataWarehouse](./src/contracts/voting/DataWarehouse.sol)
 - [VotingStrategy](./src/contracts/voting/VotingStrategy.sol)
 - [VotingMachine](./src/contracts/voting/VotingMachine.sol)
 
-### Scripts
+## Scripts
 
 **Prerequisites**: Voting network deployment requires prior Governance and aDI deployment.
 
 To deploy a new voting network (or a new voting machine on the same network, since they are not upgradeable), add the specified networks to these scripts:
 
 - [Deploy_DataWarehouse.s.sol](./scripts/VotingMachine/Deploy_DataWarehouse.s.sol): Deploys the DataWarehouse contract, that holds the proofs to validate the votes.
-- [Deploy_VotingStrategy.s.sol](./scripts/VotingMachine/Deploy_VotingStrategy.s.sol): Deploys the VotingStrategy contract, that holds the logic to account for the voting power of the users. Depends on having previously deployed the DataWarehouse.
-- [Deploy_VotingMachine.s.sol](./scripts/VotingMachine/Deploy_VotingMachine.s.sol): Deploys the VotingMachine contract, depends on previously having deployed the DataWarehouse and VotingStrategy. It uses Create3 library to determine the future address of the connected VotingPortal.
+- [Deploy_VotingStrategy.s.sol](./scripts/VotingMachine/Deploy_VotingStrategy.s.sol): Deploys the VotingStrategy contract, that holds the logic to account for the voting power of the users. Requires prior DataWarehouse deployment.
+- [Deploy_VotingMachine.s.sol](./scripts/VotingMachine/Deploy_VotingMachine.s.sol): Deploys the VotingMachine contract. Requires prior DataWarehouse and VotingStrategy deployment. Uses Create3 library to determine the future address of the connected VotingPortal.
 
-To connect the VotingMachine with the cross chain system:
+To connect the VotingMachine with the cross-chain system:
 
-- [Set_VM_as_CCF_Sender.s.sol](./scripts/VotingMachine/Set_VM_as_CCF_Sender.s.sol): Sets the VotingMachine as sender to aDI (only if msg.sender is owner of aDI), so that it can send the voting results.
+- [Set_VM_as_CCF_Sender.s.sol](./scripts/VotingMachine/Set_VM_as_CCF_Sender.s.sol): Sets the VotingMachine as sender to aDI (only if msg.sender is owner of aDI) so it can send voting results.
 
-### Makefile
+## Makefile
 
-Remember to specify the networks needed on the Makefile.
+Specify the required networks in the Makefile:
 
 - `make deploy-data-warehouse PROD=true LEDGER=true`: deploys the data warehouse contract
 - `make deploy-voting-strategy PROD=true LEDGER=true`: deploys the voting strategy contract
 - `make deploy-voting-machine PROD=true LEDGER=true`: deploys the voting machine contract
 - `make set-vm-as-ccf-sender PROD=true LEDGER=true`: sets the voting machine as sender in aDI
 
-## Execution Network
+# Execution Network
 
-The execution network consist on the contracts that will be able to execute specified payloads (more [here](./docs/overview.md#aave-execution-networks)). The contracts needed for it to work are:
+The execution network consists of contracts that execute specified payloads (more details [here](./docs/overview.md#aave-execution-networks)). The required contracts are:
 
 - [Executor.sol](./src/contracts/payloads/Executor.sol)
 - [PayloadsController.sol](./src/contracts/payloads/PayloadsController.sol)
 
-### Scripts
+## Scripts
 
-To deploy a new execution network (or a new implementation) you will need to add the specified networks to these scripts:
-(To correctly deploy an execution network it requires to have governance and aDI previously deployed).
-(Its important to note that the executor contracts are the ones that will hold permissions over whatever changes the payloads will need to do)
+**Prerequisites**: Execution network deployment requires prior Governance and aDI deployment.
 
-- [Deploy_ExecutorLvl1.s.sol](./scripts/Payloads/Deploy_ExecutorLvl1.s.sol): Deploys the executor contract as executor 1. (Needed on all networks). Sets defined owner on json as owner, but at the end of deployment, owner of executor should be set to the PayloadsController.
-- [Deploy_ExecutorLvl2.s.sol](./scripts/Payloads/Deploy_ExecutorLvl2.s.sol): Deploys the executor contract as executor 2. (only deployed on Ethereum)
-- [Deploy_PayloadsController.s.sol](./scripts/Payloads/Deploy_PayloadsController.s.sol): Deploys PayloadsController contract. Sets executor 1 as owner, and as proxy owner.
+**Important**: Executor contracts hold permissions for all changes that payloads will execute.
 
-### Makefile
+To deploy a new execution network (or a new implementation), add the specified networks to these scripts:
 
-Remember to specify the networks needed on the Makefile.
+- [Deploy_ExecutorLvl1.s.sol](./scripts/Payloads/Deploy_ExecutorLvl1.s.sol): Deploys executor level 1 contract (required on all networks). Sets defined owner from JSON as initial owner, but transfer executor ownership to PayloadsController after deployment.
+- [Deploy_ExecutorLvl2.s.sol](./scripts/Payloads/Deploy_ExecutorLvl2.s.sol): Deploys executor level 2 contract (deployed only on Ethereum).
+- [Deploy_PayloadsController.s.sol](./scripts/Payloads/Deploy_PayloadsController.s.sol): Deploys PayloadsController contract. Sets executor level 1 as owner and proxy owner.
 
-- `make deploy-executor-lvl1 PROD=true LEDGER=true`: deploys executor contract, and saves it as executorLvl1
-- `make deploy-executor-lvl2 PROD=true LEDGER=true`: deploys executor contract, and saves it as executorLvel2
+## Makefile
+
+Specify the required networks in the Makefile:
+
+- `make deploy-executor-lvl1 PROD=true LEDGER=true`: deploys executor contract and saves it as executor level 1
+- `make deploy-executor-lvl2 PROD=true LEDGER=true`: deploys executor contract and saves it as executor level 2
 - `make deploy-payloads-controller-chain PROD=true LEDGER=true`: deploys PayloadsController contract.
 
-## Permissioned Execution
+# Permissioned Execution
 
-A permissioned execution can also be deployed on a network. This will simulate the same process as a normal governance controlled execution network, but with the control given to a determined address (more [here](./docs/permissioned-payloads-controller-overview.md)).
+A permissioned execution can also be deployed on a network. This simulates the same process as a governance-controlled execution network, but with control given to a specified address (more details [here](./docs/permissioned-payloads-controller-overview.md)).
 
 - [PermissionedPayloadsController.sol](./src/contracts/payloads/PermissionedPayloadsController.sol)
 
-### Scripts
+## Scripts
 
 To deploy a permissioned execution network you need the following scripts:
 
-- [Deploy_PermissionedExecutor.s.sol](./scripts/Payloads/Deploy_PermissionedExecutor.s.sol): Deploys the executor contract as executor1. Sets defined owner on json as owner, but at the end of deployment, owner of executor should be set to the PermissionedPayloadsController.
-- [Deploy_PermissionedPayloadsController.s.sol](./scripts/Payloads/Deploy_PermissionedPayloadsController.s.sol): Deploys PermissionedPayloadsController. Sets executor as owner of proxy. Sets msg.sender as Payloads Manager.
+- [Deploy_PermissionedExecutor.s.sol](./scripts/Payloads/Deploy_PermissionedExecutor.s.sol): Deploys the executor contract as executor level 1. Sets defined owner from JSON as initial owner, but transfer executor ownership to PermissionedPayloadsController after deployment.
+- [Deploy_PermissionedPayloadsController.s.sol](./scripts/Payloads/Deploy_PermissionedPayloadsController.s.sol): Deploys PermissionedPayloadsController. Sets executor as proxy owner and msg.sender as Payloads Manager.
 
-### Makefile
+## Makefile
 
-- `make deploy-permissioned-executor PROD=true LEDGER=true`: deploys executor contract, and saves it as executorLvl1.
-- `make deploy-permissioned-payloads-controller PROD=true LEDGER=true`: deploys PermissionedPayloadsController contract.
+- `make deploy-permissioned-executor PROD=true LEDGER=true`: deploys executor contract, and saves it as executor level 1
+- `make deploy-permissioned-payloads-controller PROD=true LEDGER=true`: deploys PermissionedPayloadsController contract
 
-## Helpers
+# Helpers
 
-The helpers contracts are used to help ui make easier queries on the state of the governance system. The helpers contracts that exist are:
+The helper contracts enable the UI to query the governance system state more easily. The available helper contracts are:
 
 - [GovernanceDataHelper.sol](./src/contracts/dataHelpers/GovernanceDataHelper.sol)
 - [PayloadsControllerDataHelper.sol](./src/contracts/dataHelpers/PayloadsControllerDataHelper.sol)
 - [VotingMachineDataHelper.sol](./src/contracts/dataHelpers/VotingMachineDataHelper.sol)
 
-### Scripts
+## Scripts
 
-- [Deploy_ContractHelpers.s.sol](./scripts/Deploy_ContractHelpers.s.sol): script that will deploy all the necessary helper contracts depending on if the network has Governance, VotingMachine and / or PayloadsController.
+- [Deploy_ContractHelpers.s.sol](./scripts/Deploy_ContractHelpers.s.sol): Deploys all necessary helper contracts depending on whether the network has Governance, VotingMachine, and/or PayloadsController.
 
-### Makefile
+## Makefile
 
-Remember to specify the networks needed on the Makefile.
+Specify the required networks in the Makefile:
 
-- `make deploy-helper-contracts PROD=true LEDGER=true`:
+- `make deploy-helper-contracts PROD=true LEDGER=true`: deploys helpers contracts
 
-## Others
+# Other scripts
 
-There are other scripts that help on:
+Other scripts:
 
-- changing ownership of the executor to PayloadsController: `make update-executor-owner PROD=true LEDGER=true`
+- `make update-executor-owner PROD=true LEDGER=true`: changes executor ownership to PayloadsController.
