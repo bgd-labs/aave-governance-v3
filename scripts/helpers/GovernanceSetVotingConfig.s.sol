@@ -39,13 +39,3 @@ contract Ethereum is BaseGovernanceSetVotingConfig {
     return 3600;
   }
 }
-
-contract Ethereum_testnet is BaseGovernanceSetVotingConfig {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function getVotingDuration() public pure override returns (uint24) {
-    return 3600;
-  }
-}

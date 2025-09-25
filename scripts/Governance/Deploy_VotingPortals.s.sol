@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {VotingPortal, IVotingPortal} from '../../src/contracts/VotingPortal.sol';
-import {ICrossChainForwarder} from 'aave-delivery-infrastructure/contracts/interfaces/ICrossChainForwarder.sol';
 import '../GovBaseScript.sol';
 
 // voting portal for eth - op
@@ -22,10 +21,9 @@ abstract contract BaseDeployVotingPortals is GovBaseScript {
     GovDeployerHelpers.Addresses memory votingAddresses = _getAddresses(
       VOTING_MACHINE_NETWORK()
     );
-    CCCAddresses memory ccAddresses = _getCCAddresses(TRANSACTION_NETWORK());
 
     bytes memory encodedParams = abi.encode(
-      ccAddresses.crossChainController,
+      addresses.crossChainController,
       addresses.governance,
       votingAddresses.votingMachine,
       votingAddresses.chainId,
@@ -113,62 +111,6 @@ contract Ethereum_Binance is BaseDeployVotingPortals {
 
   function VOTING_MACHINE_NETWORK() public pure override returns (uint256) {
     return ChainIds.BNB;
-  }
-
-  function VOTING_PORTAL_SALT() public pure override returns (bytes32) {
-    return Constants.VOTING_PORTAL_ETH_BNB_SALT;
-  }
-}
-
-contract Ethereum_Ethereum_testnet is BaseDeployVotingPortals {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function VOTING_MACHINE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function VOTING_PORTAL_SALT() public pure override returns (bytes32) {
-    return Constants.VOTING_PORTAL_ETH_ETH_SALT;
-  }
-}
-
-contract Ethereum_Avalanche_testnet is BaseDeployVotingPortals {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function VOTING_MACHINE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-
-  function VOTING_PORTAL_SALT() public pure override returns (bytes32) {
-    return Constants.VOTING_PORTAL_ETH_AVAX_SALT;
-  }
-}
-
-contract Ethereum_Polygon_testnet is BaseDeployVotingPortals {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function VOTING_MACHINE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-
-  function VOTING_PORTAL_SALT() public pure override returns (bytes32) {
-    return Constants.VOTING_PORTAL_ETH_POL_SALT;
-  }
-}
-
-contract Ethereum_Binance_testnet is BaseDeployVotingPortals {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-
-  function VOTING_MACHINE_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
   }
 
   function VOTING_PORTAL_SALT() public pure override returns (bytes32) {

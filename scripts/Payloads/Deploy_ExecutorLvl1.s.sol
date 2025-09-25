@@ -88,12 +88,6 @@ contract Gnosis is BaseDeployExecutorLvl1 {
   }
 }
 
-contract Zkevm is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return ChainIds.POLYGON_ZK_EVM;
-  }
-}
-
 contract Zksync is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
     return ChainIds.ZKSYNC;
@@ -136,50 +130,8 @@ contract Plasma is BaseDeployExecutorLvl1 {
   }
 }
 
-contract Ethereum_testnet is BaseDeployExecutorLvl1 {
+contract Bob is BaseDeployExecutorLvl1 {
   function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}
-
-contract Avalanche_testnet is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.AVALANCHE_FUJI;
-  }
-}
-
-contract Polygon_testnet is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.POLYGON_AMOY;
-  }
-}
-
-contract Optimism_testnet is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.OPTIMISM_SEPOLIA;
-  }
-}
-
-contract Arbitrum_testnet is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ARBITRUM_SEPOLIA;
-  }
-}
-
-contract Metis_testnet is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.METIS_TESTNET;
-  }
-}
-
-contract Binance_testnet is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.BNB_TESTNET;
-  }
-}
-
-contract Zksync_testnet is BaseDeployExecutorLvl1 {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ZKSYNC_SEPOLIA;
+    return ChainIds.BOB;
   }
 }

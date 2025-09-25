@@ -31,9 +31,3 @@ contract Ethereum is GovBaseScript {
     addresses.votingPortal_Eth_Avax = address(0);
   }
 }
-
-contract Ethereum_testnet is Ethereum {
-  function TRANSACTION_NETWORK() public pure override returns (uint256) {
-    return TestNetChainIds.ETHEREUM_SEPOLIA;
-  }
-}
